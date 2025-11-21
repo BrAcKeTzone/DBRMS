@@ -1,0 +1,30 @@
+[
+  {
+    "id": "communication",
+    "name": "Communication Skills",
+    "description": "Clarity of explanation, voice projection, eye contact, and ability to engage students effectively",
+    "weight": 1.2,
+    "maxScore": 100
+  },
+  {
+    "id": "knowledge",
+    "name": "Subject Matter Knowledge",
+    "description": "Depth of understanding, accuracy of content, and ability to answer questions confidently",
+    "weight": 1.5,
+    "maxScore": 100
+  },
+  {
+    "id": "teaching_skills",
+    "name": "Teaching Skills",
+    "description": "Lesson organization, teaching methods, use of examples, and student interaction techniques",
+    "weight": 1.3,
+    "maxScore": 100
+  },
+  {
+    "id": "professionalism",
+    "name": "Professionalism",
+    "description": "Professional appearance, punctuality, preparation, and overall classroom management",
+    "weight": 1.0,
+    "maxScore": 100
+  }
+]

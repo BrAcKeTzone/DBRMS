@@ -1,0 +1,101 @@
+{
+  "effectiveDate": "October 16, 2025",
+  "title": "Privacy Policy",
+  "sections": [
+    {
+      "number": 1,
+      "title": "Introduction",
+      "content": "Welcome to the Blancia College Foundation Inc. (BCFI) HR Application System. We are committed to protecting your personal information and your right to privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our HR application system."
+    },
+    {
+      "number": 2,
+      "title": "Information We Collect",
+      "content": "We collect the following types of information:",
+      "items": [
+        "Personal identification information (name, email address, phone number)",
+        "Application documents (resume, cover letter, certificates)",
+        "Educational and professional background information",
+        "Account credentials (encrypted passwords)",
+        "Application status and evaluation records"
+      ]
+    },
+    {
+      "number": 3,
+      "title": "How We Use Your Information",
+      "content": "Your information is used for the following purposes:",
+      "items": [
+        "Processing and evaluating your teacher application",
+        "Communicating with you about your application status",
+        "Scheduling teaching demonstrations and interviews",
+        "Maintaining records for compliance and auditing purposes",
+        "Improving our application process and system functionality"
+      ]
+    },
+    {
+      "number": 4,
+      "title": "Information Sharing and Disclosure",
+      "content": "We do not sell, trade, or rent your personal information to third parties. Your information may be shared only with:",
+      "items": [
+        "BCFI HR staff and authorized personnel for application review",
+        "Educational administrators involved in the hiring process",
+        "Legal authorities when required by law"
+      ]
+    },
+    {
+      "number": 5,
+      "title": "Data Security",
+      "content": "We implement industry-standard security measures to protect your information:",
+      "items": [
+        "Encrypted data transmission using HTTPS/SSL",
+        "Secure password hashing and storage",
+        "Two-factor authentication for login",
+        "Regular security audits and updates",
+        "Access controls and role-based permissions"
+      ]
+    },
+    {
+      "number": 6,
+      "title": "Data Retention",
+      "content": "We retain your application information for the duration necessary to fulfill the purposes outlined in this policy, including legal, accounting, or reporting requirements. Application records are typically maintained for a minimum of one year after the application process concludes."
+    },
+    {
+      "number": 7,
+      "title": "Your Rights",
+      "content": "You have the right to:",
+      "items": [
+        "Access your personal information",
+        "Request correction of inaccurate data",
+        "Request deletion of your data (subject to legal requirements)",
+        "Withdraw your application at any time",
+        "Object to processing of your personal data"
+      ]
+    },
+    {
+      "number": 8,
+      "title": "Cookies and Tracking",
+      "content": "Our system uses essential cookies for authentication and session management. We do not use tracking cookies or third-party analytics that collect personal information without your consent."
+    },
+    {
+      "number": 9,
+      "title": "Changes to This Policy",
+      "content": "We may update this Privacy Policy from time to time. We will notify you of any significant changes by email or through a notice on our system. Your continued use of the system after such modifications constitutes your acknowledgment and acceptance of the updated policy."
+    },
+    {
+      "number": 10,
+      "title": "Contact Information",
+      "content": "If you have questions or concerns about this Privacy Policy or our data practices, please contact us at:",
+      "contactInfo": {
+        "organization": "Blancia College Foundation Inc.",
+        "department": "HR Department",
+        "email": "blanciacollege@yahoo.com",
+        "phone": "(062) 225 1406",
+        "address": "Mabini Street, Molave, Zamboanga del Sur, 7023"
+      }
+    },
+    {
+      "number": 11,
+      "title": "Consent",
+      "content": "By creating an account and using our HR Application System, you acknowledge that you have read, understood, and agree to be bound by this Privacy Policy."
+    }
+  ]
+}

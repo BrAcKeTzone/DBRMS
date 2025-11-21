@@ -1,0 +1,987 @@
+[
+  {
+    "id": "app-1",
+    "user_id": "user-1",
+    "applicant_name": "John Doe",
+    "applicant_email": "john.doe@example.com",
+    "phone": "+639171234567",
+    "address": "123 Main Street, Quezon City",
+    "program": "Secondary Education - Mathematics",
+    "subject_specialization": "Mathematics",
+    "education": "Bachelor of Science in Mathematics Education, XYZ University (2019). Magna Cum Laude graduate. Certified Professional Teacher (CPT) License.",
+    "experience": "3 years of experience teaching mathematics at ABC High School. Developed innovative teaching methods for algebra and geometry. Led student math competitions and achieved 95% pass rate in final exams.",
+    "motivation": "I am passionate about making mathematics accessible and engaging for all students. My goal is to inspire the next generation of problem solvers and critical thinkers.",
+    "status": "completed",
+    "result": "pass",
+    "total_score": 85,
+    "feedback": "Excellent demonstration with clear explanations and good student engagement. Strong subject matter knowledge and effective teaching strategies.",
+    "created_at": "2024-01-15T08:30:00Z",
+    "updated_at": "2024-03-01T14:00:00Z",
+    "approved_at": "2024-01-20T10:00:00Z",
+    "attempt_number": 2,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 1024000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 2048000 },
+      {
+        "name": "teaching_license.pdf",
+        "type": "application/pdf",
+        "size": 512000
+      },
+      { "name": "government_id.pdf", "type": "application/pdf", "size": 256000 }
+    ],
+    "demo_schedule": {
+      "date": "2024-03-15",
+      "time": "10:00",
+      "location": "Room 101",
+      "duration": "60",
+      "notes": "Please prepare a 30-minute lesson on quadratic equations"
+    },
+    "scores": [
+      { "criteria_id": "communication", "score": 88 },
+      { "criteria_id": "knowledge", "score": 92 },
+      { "criteria_id": "teaching_skills", "score": 85 },
+      { "criteria_id": "professionalism", "score": 80 }
+    ],
+    "rejection_reason": null
+  },
+  {
+    "id": "app-2",
+    "user_id": "user-2",
+    "applicant_name": "Jane Smith",
+    "applicant_email": "jane.smith@example.com",
+    "phone": "+639189876543",
+    "address": "456 Oak Avenue, Makati City",
+    "program": "Elementary Education",
+    "subject_specialization": "English Language Arts",
+    "education": "Bachelor of Elementary Education, ABC University (2024). Dean's Lister for 4 consecutive semesters. Completed 400 hours of practice teaching.",
+    "experience": "Fresh graduate with practice teaching experience at DEF Elementary School. Tutored students in reading comprehension and creative writing. Passionate about early childhood education.",
+    "motivation": "I believe every child deserves a strong foundation in literacy. I want to create a nurturing environment where students develop a love for reading and writing.",
+    "status": "pending",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-02-01T09:15:00Z",
+    "updated_at": "2024-02-01T09:15:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 890000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1560000 },
+      {
+        "name": "teaching_license.pdf",
+        "type": "application/pdf",
+        "size": 445000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 230000
+      },
+      {
+        "name": "medical_certificate.pdf",
+        "type": "application/pdf",
+        "size": 320000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-3",
+    "user_id": "user-1",
+    "applicant_name": "John Doe",
+    "applicant_email": "john.doe@example.com",
+    "phone": "+639171234567",
+    "address": "123 Main Street, Quezon City",
+    "program": "Secondary Education - Science",
+    "subject_specialization": "Science (Biology/Chemistry/Physics)",
+    "education": "Bachelor of Science in Biology, XYZ University (2020). Currently pursuing Master's in Science Education.",
+    "experience": "1 year experience as substitute teacher in various science subjects. Strong background in laboratory instruction and science fair coordination.",
+    "motivation": "Science education is crucial for developing analytical thinking. I want to make science experiments accessible and exciting for students.",
+    "status": "rejected",
+    "result": "fail",
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2023-11-01T10:00:00Z",
+    "updated_at": "2023-11-15T16:30:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 756000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1234000 },
+      { "name": "government_id.pdf", "type": "application/pdf", "size": 198000 }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": "Insufficient teaching experience in science education. Please gain more classroom experience and reapply."
+  },
+  {
+    "id": "app-4",
+    "user_id": "user-3",
+    "applicant_name": "Maria Santos",
+    "applicant_email": "maria.santos@example.com",
+    "phone": "+639194567890",
+    "address": "789 Pine Street, Pasig City",
+    "program": "Secondary Education - English",
+    "subject_specialization": "English Literature",
+    "education": "Bachelor of Arts in English Literature, University of the Philippines (2021). Master's in English Education (ongoing).",
+    "experience": "2 years teaching experience at a private tutorial center. Specialized in creative writing workshops and literature appreciation classes.",
+    "motivation": "Literature has the power to transform lives. I want to help students discover the beauty of language and develop critical thinking through literary analysis.",
+    "status": "approved",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-02-10T14:20:00Z",
+    "updated_at": "2024-02-15T11:30:00Z",
+    "approved_at": "2024-02-15T11:30:00Z",
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 967000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1890000 },
+      {
+        "name": "teaching_license.pdf",
+        "type": "application/pdf",
+        "size": 534000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 287000
+      },
+      {
+        "name": "recommendation_letter.pdf",
+        "type": "application/pdf",
+        "size": 412000
+      }
+    ],
+    "demo_schedule": {
+      "date": "2024-03-20",
+      "time": "14:00",
+      "location": "Room 205",
+      "duration": "45",
+      "notes": "Prepare a lesson on poetry analysis using a Filipino poem"
+    },
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-5",
+    "user_id": "user-4",
+    "applicant_name": "Carlos Rivera",
+    "applicant_email": "carlos.rivera@example.com",
+    "phone": "+639176543210",
+    "address": "321 Elm Street, Taguig City",
+    "program": "Physical Education",
+    "subject_specialization": "Physical Education and Health",
+    "education": "Bachelor of Science in Physical Education, Far Eastern University (2022). Certified Fitness Trainer and Sports Coach.",
+    "experience": "1.5 years coaching experience in various sports including basketball, volleyball, and track and field. Led school teams to regional competitions.",
+    "motivation": "Physical education builds character and teaches teamwork. I want to promote healthy lifestyles and develop athletic talents in students.",
+    "status": "approved",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-02-20T08:45:00Z",
+    "updated_at": "2024-02-25T16:15:00Z",
+    "approved_at": "2024-02-25T16:15:00Z",
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 823000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1456000 },
+      {
+        "name": "coaching_certification.pdf",
+        "type": "application/pdf",
+        "size": 678000
+      },
+      { "name": "government_id.pdf", "type": "application/pdf", "size": 213000 }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-6",
+    "user_id": "user-5",
+    "applicant_name": "Ana Gutierrez",
+    "applicant_email": "ana.gutierrez@example.com",
+    "phone": "+639182345678",
+    "address": "654 Maple Drive, Las Piñas City",
+    "program": "Special Education",
+    "subject_specialization": "Special Education (Learning Disabilities)",
+    "education": "Bachelor of Special Education, Philippine Normal University (2020). Specialized training in autism spectrum disorders and learning disabilities.",
+    "experience": "3 years experience working with children with special needs at various therapy centers. Developed individualized education programs and conducted parent training sessions.",
+    "motivation": "Every child has unique potential. I want to help children with special needs reach their full potential and become independent learners.",
+    "status": "completed",
+    "result": "pass",
+    "total_score": 92,
+    "feedback": "Outstanding demonstration of patience and specialized teaching techniques. Excellent understanding of special education methodologies and excellent rapport with students.",
+    "created_at": "2024-01-05T11:00:00Z",
+    "updated_at": "2024-02-28T13:45:00Z",
+    "approved_at": "2024-01-10T09:30:00Z",
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 1123000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 2100000 },
+      {
+        "name": "special_ed_certification.pdf",
+        "type": "application/pdf",
+        "size": 789000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 245000
+      },
+      {
+        "name": "training_certificates.pdf",
+        "type": "application/pdf",
+        "size": 1560000
+      }
+    ],
+    "demo_schedule": {
+      "date": "2024-02-15",
+      "time": "09:00",
+      "location": "Special Education Room",
+      "duration": "60",
+      "notes": "Demonstrate teaching techniques for children with learning disabilities"
+    },
+    "scores": [
+      { "criteria_id": "communication", "score": 95 },
+      { "criteria_id": "knowledge", "score": 98 },
+      { "criteria_id": "teaching_skills", "score": 90 },
+      { "criteria_id": "professionalism", "score": 88 }
+    ],
+    "rejection_reason": null
+  },
+  {
+    "id": "app-7",
+    "user_id": "user-6",
+    "applicant_name": "Robert Chen",
+    "applicant_email": "robert.chen@example.com",
+    "phone": "+639198765432",
+    "address": "88 Tech Boulevard, Ortigas Center, Pasig City",
+    "program": "Computer Science Education",
+    "subject_specialization": "Programming and Web Development",
+    "education": "Bachelor of Science in Computer Science, De La Salle University (2021). Certified in Python, Java, and React. Google Developer Certification.",
+    "experience": "2 years as software developer, 1 year teaching coding bootcamps. Created online programming tutorials with 10K+ views. Mentored junior developers.",
+    "motivation": "Technology shapes our future. I want to equip students with programming skills and computational thinking to thrive in the digital age.",
+    "status": "completed",
+    "result": "pass",
+    "total_score": 89,
+    "feedback": "Impressive technical knowledge and ability to explain complex concepts simply. Great use of interactive coding examples during demonstration.",
+    "created_at": "2024-01-25T13:15:00Z",
+    "updated_at": "2024-03-10T15:30:00Z",
+    "approved_at": "2024-02-05T11:00:00Z",
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 945000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1678000 },
+      {
+        "name": "certifications.pdf",
+        "type": "application/pdf",
+        "size": 1234000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 267000
+      },
+      {
+        "name": "portfolio_projects.pdf",
+        "type": "application/pdf",
+        "size": 2100000
+      }
+    ],
+    "demo_schedule": {
+      "date": "2024-03-05",
+      "time": "15:30",
+      "location": "Computer Lab 2",
+      "duration": "50",
+      "notes": "Demonstrate teaching basic HTML/CSS to beginners with hands-on activities"
+    },
+    "scores": [
+      { "criteria_id": "communication", "score": 90 },
+      { "criteria_id": "knowledge", "score": 95 },
+      { "criteria_id": "teaching_skills", "score": 87 },
+      { "criteria_id": "professionalism", "score": 85 }
+    ],
+    "rejection_reason": null
+  },
+  {
+    "id": "app-8",
+    "user_id": "user-7",
+    "applicant_name": "Patricia Williams",
+    "applicant_email": "patricia.williams@example.com",
+    "phone": "+639187654321",
+    "address": "234 Garden Street, Alabang, Muntinlupa City",
+    "program": "Pre-School Education",
+    "subject_specialization": "Early Childhood Development",
+    "education": "Bachelor of Early Childhood Education, Miriam College (2023). Certified in Montessori Method. Child Psychology Certificate.",
+    "experience": "6 months student teaching at Sunshine Kindergarten. Volunteer at local daycare centers. Created educational games for toddlers and preschoolers.",
+    "motivation": "Early childhood is the foundation of learning. I want to create joyful learning experiences that foster curiosity and love for learning in young children.",
+    "status": "rejected",
+    "result": "fail",
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-03-01T10:30:00Z",
+    "updated_at": "2024-03-15T14:20:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 678000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1345000 },
+      {
+        "name": "montessori_cert.pdf",
+        "type": "application/pdf",
+        "size": 567000
+      },
+      { "name": "government_id.pdf", "type": "application/pdf", "size": 189000 }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": "Limited practical experience with preschool age group. Recommendation: Complete additional supervised teaching hours with 3-5 year olds and reapply."
+  },
+  {
+    "id": "app-9",
+    "user_id": "user-8",
+    "applicant_name": "Miguel Reyes",
+    "applicant_email": "miguel.reyes@example.com",
+    "phone": "+639176543210",
+    "address": "567 Commerce Avenue, Cebu Business Park, Cebu City",
+    "program": "Business Education",
+    "subject_specialization": "Accounting and Finance",
+    "education": "Bachelor of Science in Accountancy, University of San Carlos (2020). Certified Public Accountant (CPA). MBA in Finance (ongoing).",
+    "experience": "3 years as Senior Accountant at major corporation. Part-time lecturer at local college teaching basic accounting. Conducted corporate training seminars.",
+    "motivation": "Financial literacy is crucial for success. I want to teach students practical business skills and ethical financial practices that will serve them throughout life.",
+    "status": "approved",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-02-28T14:45:00Z",
+    "updated_at": "2024-03-05T10:15:00Z",
+    "approved_at": "2024-03-05T10:15:00Z",
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 1134000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1789000 },
+      { "name": "cpa_license.pdf", "type": "application/pdf", "size": 423000 },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 298000
+      },
+      {
+        "name": "work_certificates.pdf",
+        "type": "application/pdf",
+        "size": 867000
+      }
+    ],
+    "demo_schedule": {
+      "date": "2024-03-25",
+      "time": "09:30",
+      "location": "Room 302",
+      "duration": "55",
+      "notes": "Prepare a lesson on basic financial statements and their importance in business decision making"
+    },
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-10",
+    "user_id": "user-9",
+    "applicant_name": "Lisa Rodriguez",
+    "applicant_email": "lisa.rodriguez@example.com",
+    "phone": "+639165432109",
+    "address": "123 Arts District, Iloilo City, Iloilo",
+    "program": "Arts Education",
+    "subject_specialization": "Visual Arts and Digital Media",
+    "education": "Bachelor of Fine Arts, University of the Philippines Diliman (2022). Certificate in Digital Art and Animation. Adobe Certified Expert.",
+    "experience": "1 year as freelance graphic designer. Taught art workshops for children and adults. Won 3 local art competitions. Active in community art projects.",
+    "motivation": "Art develops creativity and self-expression. I want to help students discover their artistic voice and use visual arts as a tool for communication and personal growth.",
+    "status": "under review",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-03-10T11:20:00Z",
+    "updated_at": "2024-03-10T11:20:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 856000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1456000 },
+      {
+        "name": "art_portfolio.pdf",
+        "type": "application/pdf",
+        "size": 4567000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 234000
+      },
+      { "name": "certificates.pdf", "type": "application/pdf", "size": 678000 }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-11",
+    "user_id": "user-10",
+    "applicant_name": "David Kim",
+    "applicant_email": "david.kim@example.com",
+    "phone": "+639154321098",
+    "address": "789 University Belt, Sampaloc, Manila",
+    "program": "Secondary Education - History",
+    "subject_specialization": "Philippine History and World History",
+    "education": "Bachelor of Arts in History, University of Santo Tomas (2021). Master of Arts in Philippine Studies (ongoing). Research published in historical journals.",
+    "experience": "2 years as museum guide and historical researcher. Conducted heritage tours and educational seminars. Active in historical preservation advocacy.",
+    "motivation": "History teaches us about our identity and shapes our future. I want students to understand the relevance of historical events and develop critical thinking about past and present.",
+    "status": "rejected",
+    "result": "fail",
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-02-15T09:30:00Z",
+    "updated_at": "2024-03-01T16:45:00Z",
+    "approved_at": null,
+    "attempt_number": 2,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 987000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1567000 },
+      {
+        "name": "research_publications.pdf",
+        "type": "application/pdf",
+        "size": 2345000
+      },
+      { "name": "government_id.pdf", "type": "application/pdf", "size": 276000 }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": "Teaching demonstration lacked student engagement techniques. Content knowledge is excellent but needs improvement in interactive teaching methods. Consider pedagogical training."
+  },
+  {
+    "id": "app-12",
+    "user_id": "user-11",
+    "applicant_name": "Sarah Johnson",
+    "applicant_email": "sarah.johnson@example.com",
+    "phone": "+639143210987",
+    "address": "456 Medical Center Road, Davao City",
+    "program": "Health Education",
+    "subject_specialization": "Health and Wellness",
+    "education": "Bachelor of Science in Nursing, Ateneo de Davao University (2020). Registered Nurse license. Certificate in Public Health Education.",
+    "experience": "3 years as hospital nurse in pediatric ward. Conducted health education seminars in schools. Volunteer in community health programs and vaccination drives.",
+    "motivation": "Health education saves lives. I want to teach students about preventive care, healthy lifestyle choices, and basic medical knowledge that can benefit them and their families.",
+    "status": "completed",
+    "result": "pass",
+    "total_score": 91,
+    "feedback": "Excellent knowledge of health concepts and ability to communicate medical information in age-appropriate language. Strong rapport with students and practical teaching approach.",
+    "created_at": "2024-01-30T08:15:00Z",
+    "updated_at": "2024-03-08T12:30:00Z",
+    "approved_at": "2024-02-10T14:00:00Z",
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 1023000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1678000 },
+      {
+        "name": "nursing_license.pdf",
+        "type": "application/pdf",
+        "size": 345000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 254000
+      },
+      {
+        "name": "health_certificates.pdf",
+        "type": "application/pdf",
+        "size": 789000
+      }
+    ],
+    "demo_schedule": {
+      "date": "2024-03-02",
+      "time": "13:00",
+      "location": "Health Science Lab",
+      "duration": "45",
+      "notes": "Demonstrate teaching proper handwashing and basic first aid to middle school students"
+    },
+    "scores": [
+      { "criteria_id": "communication", "score": 93 },
+      { "criteria_id": "knowledge", "score": 96 },
+      { "criteria_id": "teaching_skills", "score": 89 },
+      { "criteria_id": "professionalism", "score": 88 }
+    ],
+    "rejection_reason": null
+  },
+  {
+    "id": "app-13",
+    "user_id": "user-12",
+    "applicant_name": "Antonio Cruz",
+    "applicant_email": "antonio.cruz@example.com",
+    "phone": "+639132109876",
+    "address": "321 Music Street, Baguio City",
+    "program": "Music Education",
+    "subject_specialization": "Vocal and Instrumental Music",
+    "education": "Bachelor of Music Education, University of the Philippines Diliman (2019). Grade 8 Piano certification. Choir conducting certificate.",
+    "experience": "4 years as church musician and choir director. Private music teacher for piano and voice. Organized community musical performances and school competitions.",
+    "motivation": "Music enriches the soul and builds discipline. I want to help students discover their musical talents and appreciate the beauty of music as a universal language.",
+    "status": "pending",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-03-12T16:45:00Z",
+    "updated_at": "2024-03-12T16:45:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 789000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1432000 },
+      {
+        "name": "music_certificates.pdf",
+        "type": "application/pdf",
+        "size": 567000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 201000
+      },
+      {
+        "name": "performance_videos.mp4",
+        "type": "video/mp4",
+        "size": 15000000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-14",
+    "user_id": "user-13",
+    "applicant_name": "Jennifer Lopez",
+    "applicant_email": "jennifer.lopez@example.com",
+    "phone": "+639121098765",
+    "address": "654 Language Center, Cagayan de Oro City",
+    "program": "Foreign Language Education",
+    "subject_specialization": "Spanish Language and Culture",
+    "education": "Bachelor of Arts in Spanish Language, Ateneo de Manila University (2022). Certificate in Spanish Language Teaching. Studied abroad in Madrid, Spain for 6 months.",
+    "experience": "1 year as Spanish tutor at language centers. Interpreter for Spanish-speaking tourists. Cultural exchange program coordinator.",
+    "motivation": "Learning languages opens doors to new cultures and opportunities. I want to make Spanish learning enjoyable and help students connect with Hispanic culture and heritage.",
+    "status": "under review",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-03-08T12:30:00Z",
+    "updated_at": "2024-03-08T12:30:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 834000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1234000 },
+      {
+        "name": "spanish_certificates.pdf",
+        "type": "application/pdf",
+        "size": 678000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 223000
+      },
+      {
+        "name": "study_abroad_cert.pdf",
+        "type": "application/pdf",
+        "size": 456000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-15",
+    "user_id": "user-14",
+    "applicant_name": "Michael Brown",
+    "applicant_email": "michael.brown@example.com",
+    "phone": "+639110987654",
+    "address": "987 Sports Complex, General Santos City",
+    "program": "Physical Education",
+    "subject_specialization": "Sports Science and Athletics",
+    "education": "Bachelor of Science in Sports Science, Mindanao State University (2021). Certified Athletic Trainer. First Aid and CPR certified.",
+    "experience": "2 years as gym instructor and personal trainer. Assistant coach for local basketball and volleyball teams. Sports injury rehabilitation experience.",
+    "motivation": "Sports teach life lessons about perseverance and teamwork. I want to help students develop athletic skills while building character and maintaining physical fitness.",
+    "status": "approved",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2024-03-05T15:20:00Z",
+    "updated_at": "2024-03-12T09:45:00Z",
+    "approved_at": "2024-03-12T09:45:00Z",
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 912000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1567000 },
+      {
+        "name": "trainer_certificates.pdf",
+        "type": "application/pdf",
+        "size": 734000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 267000
+      },
+      {
+        "name": "first_aid_cert.pdf",
+        "type": "application/pdf",
+        "size": 389000
+      }
+    ],
+    "demo_schedule": {
+      "date": "2024-03-28",
+      "time": "08:00",
+      "location": "Sports Gymnasium",
+      "duration": "60",
+      "notes": "Demonstrate teaching basic basketball fundamentals and teamwork exercises for high school students"
+    },
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-16",
+    "user_id": "user-15",
+    "applicant_name": "Rachel Garcia",
+    "applicant_email": "rachel.garcia@example.com",
+    "phone": "+639203456789",
+    "address": "445 Academic Street, Caloocan City",
+    "program": "Elementary Education",
+    "subject_specialization": "Mathematics for Elementary",
+    "education": "Bachelor of Elementary Education, Philippine Normal University (2024). Specialized in Mathematics Education. Summa Cum Laude graduate.",
+    "experience": "Fresh graduate with 6 months student teaching at Rizal Elementary School. Tutored struggling students in mathematics. Created interactive math games for young learners.",
+    "motivation": "Mathematics doesn't have to be scary for young children. I want to make math fun and accessible through creative teaching methods and hands-on activities.",
+    "status": "pending",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2025-09-15T10:30:00Z",
+    "updated_at": "2025-09-15T10:30:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 925000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1634000 },
+      {
+        "name": "teaching_license.pdf",
+        "type": "application/pdf",
+        "size": 456000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 234000
+      },
+      {
+        "name": "recommendation_letters.pdf",
+        "type": "application/pdf",
+        "size": 578000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-17",
+    "user_id": "user-16",
+    "applicant_name": "Kevin Tan",
+    "applicant_email": "kevin.tan@example.com",
+    "phone": "+639214567890",
+    "address": "678 Science Avenue, Antipolo City",
+    "program": "Secondary Education - Chemistry",
+    "subject_specialization": "Chemistry",
+    "education": "Bachelor of Science in Chemistry, University of the Philippines Los Baños (2023). Currently pursuing Master's in Chemistry Education. Outstanding thesis on green chemistry.",
+    "experience": "1 year as laboratory assistant and research associate. Conducted chemistry workshops for high school students. Published research on environmental chemistry applications.",
+    "motivation": "Chemistry is everywhere in our daily lives. I want to help students understand how chemical principles apply to real-world problems and inspire them to pursue scientific careers.",
+    "status": "pending",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2025-09-18T14:15:00Z",
+    "updated_at": "2025-09-18T14:15:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 1045000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1789000 },
+      {
+        "name": "teaching_license.pdf",
+        "type": "application/pdf",
+        "size": 567000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 289000
+      },
+      {
+        "name": "research_papers.pdf",
+        "type": "application/pdf",
+        "size": 2345000
+      },
+      {
+        "name": "workshop_certificates.pdf",
+        "type": "application/pdf",
+        "size": 678000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-18",
+    "user_id": "user-17",
+    "applicant_name": "Grace Mendoza",
+    "applicant_email": "grace.mendoza@example.com",
+    "phone": "+639225678901",
+    "address": "890 Liberal Arts Road, San Juan City",
+    "program": "Secondary Education - Filipino",
+    "subject_specialization": "Filipino Language and Literature",
+    "education": "Bachelor of Arts in Filipino, Ateneo de Manila University (2022). Certificate in Creative Writing in Filipino. Active in campus literary organizations.",
+    "experience": "2 years as content writer for Filipino publications. Conducted storytelling workshops for children. Volunteer teacher for adult literacy programs in Filipino communities.",
+    "motivation": "Ang wikang Filipino ay kayamanan natin. I want to instill pride in our national language and help students appreciate the richness of Filipino literature and culture.",
+    "status": "pending",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2025-09-20T09:45:00Z",
+    "updated_at": "2025-09-20T09:45:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 876000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1456000 },
+      {
+        "name": "teaching_license.pdf",
+        "type": "application/pdf",
+        "size": 423000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 245000
+      },
+      {
+        "name": "writing_portfolio.pdf",
+        "type": "application/pdf",
+        "size": 1890000
+      },
+      {
+        "name": "workshop_certificates.pdf",
+        "type": "application/pdf",
+        "size": 567000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-19",
+    "user_id": "user-18",
+    "applicant_name": "Daniel Santos",
+    "applicant_email": "daniel.santos@example.com",
+    "phone": "+639236789012",
+    "address": "234 Technology Hub, Bonifacio Global City, Taguig",
+    "program": "Technical Vocational Education",
+    "subject_specialization": "Information Technology and Computer Systems",
+    "education": "Bachelor of Science in Information Technology, Mapúa University (2021). Multiple industry certifications in networking, cybersecurity, and cloud computing.",
+    "experience": "3 years as IT specialist in corporate environment. Conducted technical training for new employees. Freelance consultant for small businesses on IT solutions.",
+    "motivation": "Technology skills are essential for the modern workforce. I want to prepare students with practical IT knowledge and problem-solving abilities that will make them employable and competitive.",
+    "status": "pending",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2025-09-21T16:20:00Z",
+    "updated_at": "2025-09-21T16:20:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 1123000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1678000 },
+      {
+        "name": "it_certifications.pdf",
+        "type": "application/pdf",
+        "size": 2100000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 267000
+      },
+      {
+        "name": "project_portfolio.pdf",
+        "type": "application/pdf",
+        "size": 3456000
+      },
+      {
+        "name": "training_certificates.pdf",
+        "type": "application/pdf",
+        "size": 789000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-20",
+    "user_id": "user-19",
+    "applicant_name": "Michelle Rivera",
+    "applicant_email": "michelle.rivera@example.com",
+    "phone": "+639247890123",
+    "address": "567 Social Sciences Boulevard, Quezon City",
+    "program": "Secondary Education - Social Studies",
+    "subject_specialization": "Araling Panlipunan (Social Studies)",
+    "education": "Bachelor of Arts in Political Science, University of the Philippines Diliman (2023). Certificate in Social Studies Education. Active in student government and social advocacy.",
+    "experience": "1 year as research assistant for social policy think tank. Volunteer coordinator for community development programs. Conducted civic education seminars for youth groups.",
+    "motivation": "Social studies education develops informed and engaged citizens. I want to help students understand their role in society and inspire them to become active participants in nation-building.",
+    "status": "pending",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2025-09-22T11:30:00Z",
+    "updated_at": "2025-09-22T11:30:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 934000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1567000 },
+      {
+        "name": "teaching_license.pdf",
+        "type": "application/pdf",
+        "size": 445000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 234000
+      },
+      {
+        "name": "civic_education_certs.pdf",
+        "type": "application/pdf",
+        "size": 678000
+      },
+      {
+        "name": "research_publications.pdf",
+        "type": "application/pdf",
+        "size": 1234000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-21",
+    "user_id": "user-20",
+    "applicant_name": "Alex Torres",
+    "applicant_email": "alex.torres@example.com",
+    "phone": "+639258901234",
+    "address": "789 Creative Arts Center, Marikina City",
+    "program": "Arts Education",
+    "subject_specialization": "Multimedia Arts and Digital Design",
+    "education": "Bachelor of Fine Arts in Multimedia Arts, De La Salle-College of Saint Benilde (2024). Specialized in digital illustration, video production, and interactive media design.",
+    "experience": "6 months as junior graphic designer at advertising agency. Created educational content for online learning platforms. Led art workshops for teenagers in community centers.",
+    "motivation": "Digital arts and multimedia are the future of creative expression. I want to equip students with both traditional art fundamentals and modern digital tools to thrive in the creative industry.",
+    "status": "pending",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2025-09-23T08:45:00Z",
+    "updated_at": "2025-09-23T08:45:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 1045000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1678000 },
+      {
+        "name": "digital_portfolio.pdf",
+        "type": "application/pdf",
+        "size": 5678000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 267000
+      },
+      {
+        "name": "software_certifications.pdf",
+        "type": "application/pdf",
+        "size": 789000
+      },
+      {
+        "name": "workshop_documentation.pdf",
+        "type": "application/pdf",
+        "size": 1234000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  },
+  {
+    "id": "app-22",
+    "user_id": "user-21",
+    "applicant_name": "Sofia Valdez",
+    "applicant_email": "sofia.valdez@example.com",
+    "phone": "+639269012345",
+    "address": "123 Psychology Avenue, Las Piñas City",
+    "program": "Guidance and Counseling",
+    "subject_specialization": "Guidance Counseling and Student Development",
+    "education": "Bachelor of Science in Psychology, Ateneo de Manila University (2022). Master's in Guidance and Counseling (ongoing). Specialized training in adolescent psychology and crisis intervention.",
+    "experience": "2 years as psychology intern at mental health clinic. Volunteer counselor for youth crisis hotline. Conducted workshops on stress management and study skills for students.",
+    "motivation": "Every student deserves support in their personal and academic growth. I want to help students navigate challenges, discover their strengths, and develop resilience for lifelong success.",
+    "status": "pending",
+    "result": null,
+    "total_score": null,
+    "feedback": null,
+    "created_at": "2025-09-24T13:15:00Z",
+    "updated_at": "2025-09-24T13:15:00Z",
+    "approved_at": null,
+    "attempt_number": 1,
+    "documents": [
+      { "name": "resume.pdf", "type": "application/pdf", "size": 987000 },
+      { "name": "transcript.pdf", "type": "application/pdf", "size": 1456000 },
+      {
+        "name": "counseling_license.pdf",
+        "type": "application/pdf",
+        "size": 567000
+      },
+      {
+        "name": "government_id.pdf",
+        "type": "application/pdf",
+        "size": 234000
+      },
+      {
+        "name": "psychology_certifications.pdf",
+        "type": "application/pdf",
+        "size": 1123000
+      },
+      {
+        "name": "training_workshops.pdf",
+        "type": "application/pdf",
+        "size": 678000
+      },
+      {
+        "name": "crisis_intervention_cert.pdf",
+        "type": "application/pdf",
+        "size": 445000
+      }
+    ],
+    "demo_schedule": null,
+    "scores": null,
+    "rejection_reason": null
+  }
+]
