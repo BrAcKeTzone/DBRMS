@@ -198,6 +198,13 @@ const SignupForm = () => {
           We've sent a 6-digit code to <strong>{signupData.email}</strong>.
           Please check your email and enter the code below.
         </p>
+        {generatedOtp && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-4">
+            <p className="text-sm">
+              <strong>Demo OTP:</strong> {generatedOtp}
+            </p>
+          </div>
+        )}
         <Input
           label="Enter OTP"
           name="otp"
@@ -338,9 +345,9 @@ const SignupForm = () => {
 
   const renderPhase4 = () => (
     <div className="mt-8 text-center space-y-6">
-      <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100">
+      <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-sky-100">
         <svg
-          className="h-8 w-8 text-blue-600"
+          className="h-8 w-8 text-sky-600"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -373,7 +380,7 @@ const SignupForm = () => {
           className="w-full"
           onClick={() => navigate("/signin")}
         >
-          Sign In Now
+          Login Now
         </Button>
 
         <Button variant="outline" className="w-full" onClick={handleStartOver}>
@@ -385,13 +392,13 @@ const SignupForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-md w-full space-y-8 bg-white shadow-md rounded-lg p-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Join BCFI Clinic Management
+            Register to the BCFI Clinic
           </p>
         </div>
 
@@ -442,7 +449,7 @@ const SignupForm = () => {
                 to="/signin"
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
-                Sign in here
+                Login here
               </Link>
             </span>
           </div>

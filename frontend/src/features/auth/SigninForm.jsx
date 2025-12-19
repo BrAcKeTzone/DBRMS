@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import Input from "../../components/ui/Input";
-import PasswordInput from "../../components/ui/PasswordInput";
-import Button from "../../components/ui/Button";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import Input from "../ui/Input";
+import PasswordInput from "../ui/PasswordInput";
+import Button from "../ui/Button";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
 const SigninForm = () => {
   const navigate = useNavigate();
@@ -34,10 +34,12 @@ const SigninForm = () => {
     try {
       const { user } = await login(formData);
       // Navigate to appropriate dashboard based on user role
-      if (user?.role === "HR") {
-        navigate("/hr/dashboard");
+      if (user?.role === "CLINIC_ADMIN" || user?.role === "CLINIC_STAFF") {
+        navigate("/clinic/dashboard");
+      } else if (user?.role === "PARENT_GUARDIAN") {
+        navigate("/parent/dashboard");
       } else {
-        navigate("/applicant/dashboard");
+        navigate("/");
       }
     } catch (err) {
       // Error is handled by the store
@@ -113,6 +115,21 @@ const SigninForm = () => {
                 Register here
               </Link>
             </span>
+          </div>
+
+          <div className="mt-6 text-sm text-gray-600">
+            <p className="font-medium mb-2">Demo accounts (use to sign in):</p>
+            <ul className="text-left text-xs space-y-1">
+              <li>
+                <strong>Clinic Admin:</strong> admin@demo / password123
+              </li>
+              <li>
+                <strong>Clinic Staff:</strong> staff@demo / staff123
+              </li>
+              <li>
+                <strong>Parent:</strong> parent@demo / parent123
+              </li>
+            </ul>
           </div>
         </form>
       </div>

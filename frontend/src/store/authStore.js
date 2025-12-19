@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { authApi } from "../api/authAPI";
 import usersData from "../data/users.json";
 
 export const useAuthStore = create(
@@ -35,17 +34,24 @@ export const useAuthStore = create(
         confirmPassword: "",
       },
       forgotPasswordOtp: null,
+      changePasswordOtp: null,
 
       // Actions
       login: async (credentials) => {
         try {
           set({ loading: true, error: null });
 
-          // Call backend API
-          const response = await authApi.login(credentials);
+          const { email, password } = credentials;
+          const users = get().users || usersData;
+          const user = users.find((u) => u.email === email);
 
-          // Extract user and token from response
-          const { user, token } = response.data;
+          if (!user || user.password !== password) {
+            const errMsg = "Invalid email or password";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
+
+          const token = `demo-token-${user.id}`;
 
           set({
             user,
@@ -55,20 +61,20 @@ export const useAuthStore = create(
             error: null,
           });
 
-          // Store token and user data in localStorage
-          localStorage.setItem("authToken", token);
-          localStorage.setItem("user", JSON.stringify(user));
+          try {
+            localStorage.setItem("authToken", token);
+            localStorage.setItem("user", JSON.stringify(user));
+            // persist users list for the demo
+            localStorage.setItem("users", JSON.stringify(users));
+          } catch (e) {
+            // ignore localStorage failures in some environments
+          }
 
           return { user, token };
         } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message || error.message || "Login failed";
-
-          set({
-            loading: false,
-            error: errorMessage,
-          });
+          if (!error.message) {
+            set({ loading: false, error: "Login failed" });
+          }
           throw error;
         }
       },
@@ -77,71 +83,77 @@ export const useAuthStore = create(
         try {
           set({ loading: true, error: null });
 
-          // Call backend API
-          const response = await authApi.register(userData);
+          const users = get().users ? [...get().users] : [...usersData];
+          const exists = users.find((u) => u.email === userData.email);
+          if (exists) {
+            const errMsg = "Email already registered";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
 
-          set({
-            loading: false,
-            error: null,
-          });
+          const id = users.reduce((maxId, u) => Math.max(maxId, u.id), 0) + 1;
+          const newUser = {
+            id,
+            email: userData.email,
+            password: userData.password,
+            firstName: userData.firstName || "",
+            middleName: userData.middleName || "",
+            lastName: userData.lastName || "",
+            role: userData.role || "PARENT_GUARDIAN",
+            isActive: true,
+          };
 
-          return response.data;
+          users.push(newUser);
+          set({ users, loading: false, error: null });
+
+          try {
+            localStorage.setItem("users", JSON.stringify(users));
+          } catch (e) {}
+
+          return newUser;
         } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Registration failed";
-
           set({
             loading: false,
-            error: errorMessage,
+            error: error.message || "Registration failed",
           });
           throw error;
         }
       },
 
-      // Phase 1: Send OTP to email
+      // Phase 1: Send OTP to email (demo)
       sendOtp: async (email) => {
         try {
           set({ loading: true, error: null });
 
-          // Call backend API
-          const response = await authApi.sendOtp(email);
+          const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
           set({
             loading: false,
             error: null,
             signupPhase: 2,
             signupData: { ...get().signupData, email },
-            generatedOtp: null, // Don't store OTP on frontend
+            generatedOtp: otp,
           });
 
-          return response.data;
+          return { otp };
         } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Failed to send OTP";
-
-          set({
-            loading: false,
-            error: errorMessage,
-          });
+          set({ loading: false, error: "Failed to send OTP" });
           throw error;
         }
       },
 
-      // Phase 2: Verify OTP
+      // Phase 2: Verify OTP (demo)
       verifyOtp: async (otp) => {
         try {
           set({ loading: true, error: null });
 
-          const { signupData } = get();
+          const { signupData, generatedOtp } = get();
 
-          // Call backend API
-          const response = await authApi.verifyOtp(signupData.email, otp);
+          if (!generatedOtp || otp !== generatedOtp) {
+            const errMsg = "Invalid OTP";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
 
           set({
             loading: false,
@@ -150,59 +162,62 @@ export const useAuthStore = create(
             signupData: { ...signupData, otp },
           });
 
-          return response.data;
+          return { success: true };
         } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "OTP verification failed";
-
           set({
             loading: false,
-            error: errorMessage,
+            error: error.message || "OTP verification failed",
           });
           throw error;
         }
       },
 
-      // Phase 3: Complete registration
+      // Phase 3: Complete registration (demo)
       completeRegistration: async (personalData) => {
         try {
           set({ loading: true, error: null });
 
           const { signupData } = get();
+          const users = get().users ? [...get().users] : [...usersData];
 
-          // Prepare registration data for backend
-          const registrationData = {
+          const exists = users.find((u) => u.email === signupData.email);
+          if (exists) {
+            const errMsg = "Email already registered";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
+
+          const id = users.reduce((maxId, u) => Math.max(maxId, u.id), 0) + 1;
+          const newUser = {
+            id,
             email: signupData.email,
             password: personalData.password,
-            firstName: personalData.firstName,
-            middleName: personalData.middleName,
-            lastName: personalData.lastName,
+            firstName: personalData.firstName || "",
+            middleName: personalData.middleName || "",
+            lastName: personalData.lastName || "",
+            role: personalData.role || "PARENT_GUARDIAN",
+            isActive: true,
           };
 
-          // Call backend API
-          const response = await authApi.register(registrationData);
+          users.push(newUser);
 
           set({
+            users,
             loading: false,
             error: null,
             signupPhase: 4,
             signupData: { ...signupData, ...personalData },
           });
 
-          return response.data;
-        } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Registration failed";
+          try {
+            localStorage.setItem("users", JSON.stringify(users));
+          } catch (e) {}
 
+          return newUser;
+        } catch (error) {
           set({
             loading: false,
-            error: errorMessage,
+            error: error.message || "Registration failed",
           });
           throw error;
         }
@@ -227,50 +242,51 @@ export const useAuthStore = create(
       },
 
       // Forgot Password Functions
-      // Phase 1: Send OTP for password reset
+      // Phase 1: Send OTP for password reset (demo)
       sendPasswordResetOtp: async (email) => {
         try {
           set({ loading: true, error: null });
 
-          // Call backend API
-          const response = await authApi.sendOtpForReset(email);
+          const users = get().users || usersData;
+          const user = users.find((u) => u.email === email);
+          if (!user) {
+            const errMsg = "No account found for this email";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
+
+          const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
           set({
             loading: false,
             error: null,
             forgotPasswordPhase: 2,
             forgotPasswordData: { ...get().forgotPasswordData, email },
-            forgotPasswordOtp: null, // Don't store OTP on frontend
+            forgotPasswordOtp: otp,
           });
 
-          return response.data;
+          return { otp };
         } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Failed to send password reset OTP";
-
           set({
             loading: false,
-            error: errorMessage,
+            error: error.message || "Failed to send password reset OTP",
           });
           throw error;
         }
       },
 
-      // Phase 2: Verify OTP for password reset
+      // Phase 2: Verify OTP for password reset (demo)
       verifyPasswordResetOtp: async (otp) => {
         try {
           set({ loading: true, error: null });
 
-          const { forgotPasswordData } = get();
+          const { forgotPasswordOtp, forgotPasswordData } = get();
 
-          // Call backend API
-          const response = await authApi.verifyOtpForReset(
-            forgotPasswordData.email,
-            otp
-          );
+          if (!forgotPasswordOtp || otp !== forgotPasswordOtp) {
+            const errMsg = "Invalid OTP";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
 
           set({
             loading: false,
@@ -279,54 +295,52 @@ export const useAuthStore = create(
             forgotPasswordData: { ...forgotPasswordData, otp },
           });
 
-          return response.data;
+          return { success: true };
         } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "OTP verification failed";
-
           set({
             loading: false,
-            error: errorMessage,
+            error: error.message || "OTP verification failed",
           });
           throw error;
         }
       },
 
-      // Phase 3: Reset password
+      // Phase 3: Reset password (demo)
       resetPassword: async (passwordData) => {
         try {
           set({ loading: true, error: null });
 
           const { forgotPasswordData } = get();
+          const users = get().users ? [...get().users] : [...usersData];
 
-          // Call backend API
-          const response = await authApi.resetPassword(
-            forgotPasswordData.email,
-            forgotPasswordData.otp,
-            passwordData.newPassword
+          const idx = users.findIndex(
+            (u) => u.email === forgotPasswordData.email
           );
+          if (idx === -1) {
+            const errMsg = "No account found";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
+
+          users[idx] = { ...users[idx], password: passwordData.newPassword };
 
           set({
+            users,
             loading: false,
             error: null,
             forgotPasswordPhase: 4,
             forgotPasswordData: { ...forgotPasswordData, ...passwordData },
           });
 
-          return response.data;
-        } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Password reset failed";
+          try {
+            localStorage.setItem("users", JSON.stringify(users));
+          } catch (e) {}
 
+          return { success: true };
+        } catch (error) {
           set({
             loading: false,
-            error: errorMessage,
+            error: error.message || "Password reset failed",
           });
           throw error;
         }
@@ -474,7 +488,7 @@ export const useAuthStore = create(
         }
       },
 
-      // Send OTP for password change
+      // Send OTP for password change (demo)
       sendOtpForPasswordChange: async (currentPassword) => {
         try {
           set({ loading: true, error: null });
@@ -484,82 +498,84 @@ export const useAuthStore = create(
             throw new Error("No user logged in");
           }
 
-          // Call backend API
-          const response = await authApi.sendOtpForChange(
-            user.email,
-            currentPassword
-          );
+          // Verify current password against stored users
+          const users = get().users || usersData;
+          const account = users.find((u) => u.email === user.email);
+          if (!account || account.password !== currentPassword) {
+            const errMsg = "Current password is incorrect";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
 
-          set({
-            loading: false,
-            error: null,
-          });
+          const otp = Math.floor(100000 + Math.random() * 900000).toString();
+          set({ loading: false, error: null, changePasswordOtp: otp });
 
-          return response.data;
+          return { otp };
         } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Failed to send OTP for password change";
-
           set({
             loading: false,
-            error: errorMessage,
+            error: error.message || "Failed to send OTP for password change",
           });
           throw error;
         }
       },
 
-      // Password change with OTP verification
+      // Password change with OTP verification (demo)
       changePasswordWithOtp: async (currentPassword, newPassword, otp) => {
         try {
           set({ loading: true, error: null });
 
-          const { user } = get();
+          const { user, changePasswordOtp } = get();
           if (!user) {
             throw new Error("No user logged in");
           }
 
-          // First verify the OTP
-          await authApi.verifyOtpForChange(user.email, otp);
+          if (!changePasswordOtp || otp !== changePasswordOtp) {
+            const errMsg = "Invalid OTP";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
 
-          // Then change the password
-          const response = await authApi.changePassword(
-            user.email,
-            currentPassword,
-            otp,
-            newPassword
-          );
+          const users = get().users ? [...get().users] : [...usersData];
+          const idx = users.findIndex((u) => u.email === user.email);
+          if (idx === -1) {
+            const errMsg = "User not found";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
 
-          // Update user state with password change timestamp
+          if (users[idx].password !== currentPassword) {
+            const errMsg = "Current password is incorrect";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
+
+          users[idx] = { ...users[idx], password: newPassword };
+
           set({
-            user: {
-              ...user,
-              passwordChangedAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
+            users,
+            changePasswordOtp: null,
+            user: { ...users[idx] },
             loading: false,
             error: null,
           });
 
-          return response.data;
-        } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Failed to change password";
+          try {
+            localStorage.setItem("users", JSON.stringify(users));
+            localStorage.setItem("user", JSON.stringify(users[idx]));
+          } catch (e) {}
 
+          return { success: true };
+        } catch (error) {
           set({
             loading: false,
-            error: errorMessage,
+            error: error.message || "Failed to change password",
           });
           throw error;
         }
       },
 
-      // Simple password change (keeping the existing functionality for compatibility)
+      // Simple password change (demo)
       changePassword: async (currentPassword, newPassword) => {
         try {
           set({ loading: true, error: null });
@@ -569,39 +585,31 @@ export const useAuthStore = create(
             throw new Error("No user logged in");
           }
 
-          // For now, we'll keep the dummy data logic for compatibility
-          // In a real app, you'd call the OTP-based password change or a simpler endpoint
-          const userData = usersData.find((u) => u.id === user.id);
-          if (!userData) {
+          const users = get().users ? [...get().users] : [...usersData];
+          const idx = users.findIndex((u) => u.id === user.id);
+          if (idx === -1) {
             throw new Error("User not found");
           }
 
           // Verify current password
-          if (userData.password !== currentPassword) {
+          if (users[idx].password !== currentPassword) {
             throw new Error("Current password is incorrect");
           }
 
-          // Update password in usersData (for demo purposes)
-          const userIndex = usersData.findIndex((u) => u.id === user.id);
-          if (userIndex !== -1) {
-            usersData[userIndex] = {
-              ...usersData[userIndex],
-              password: newPassword,
-              passwordChangedAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            };
-          }
+          // Update password in users list
+          users[idx] = {
+            ...users[idx],
+            password: newPassword,
+            passwordChangedAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          };
 
-          // Update user state with password change timestamp
-          set({
-            user: {
-              ...user,
-              passwordChangedAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString(),
-            },
-            loading: false,
-            error: null,
-          });
+          set({ users, user: users[idx], loading: false, error: null });
+
+          try {
+            localStorage.setItem("users", JSON.stringify(users));
+            localStorage.setItem("user", JSON.stringify(users[idx]));
+          } catch (e) {}
 
           return { message: "Password changed successfully!" };
         } catch (error) {
@@ -704,17 +712,26 @@ export const useAuthStore = create(
         set({ error: null });
       },
 
-      // Initialize auth state from localStorage
+      // Initialize auth state from localStorage and seed users for demo
       initializeAuth: () => {
+        try {
+          const storedUsers = localStorage.getItem("users");
+          const users = storedUsers ? JSON.parse(storedUsers) : usersData;
+          set({ users });
+        } catch (e) {
+          set({ users: usersData });
+        }
+
         const token = localStorage.getItem("authToken");
-        if (token) {
-          set({ token });
-          get()
-            .verifyToken()
-            .catch(() => {
-              // Token is invalid, clear it
-              localStorage.removeItem("authToken");
-            });
+        const storedUser = localStorage.getItem("user");
+        if (token && storedUser) {
+          try {
+            const user = JSON.parse(storedUser);
+            set({ token, user, isAuthenticated: true });
+          } catch (e) {
+            localStorage.removeItem("authToken");
+            localStorage.removeItem("user");
+          }
         }
       },
 
@@ -726,7 +743,7 @@ export const useAuthStore = create(
 
       isHROrAdmin: () => {
         const { user } = get();
-        return user?.role === "HR";
+        return user?.role === "CLINIC_ADMIN" || user?.role === "CLINIC_STAFF";
       },
     }),
     {

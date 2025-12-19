@@ -34,10 +34,12 @@ const SigninForm = () => {
     try {
       const { user } = await login(formData);
       // Navigate to appropriate dashboard based on user role
-      if (user?.role === "HR") {
-        navigate("/hr/dashboard");
+      if (user?.role === "CLINIC_ADMIN" || user?.role === "CLINIC_STAFF") {
+        navigate("/clinic/dashboard");
+      } else if (user?.role === "PARENT_GUARDIAN") {
+        navigate("/parent/dashboard");
       } else {
-        navigate("/applicant/dashboard");
+        navigate("/");
       }
     } catch (err) {
       // Error is handled by the store
@@ -47,12 +49,14 @@ const SigninForm = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+      <div className="max-w-md w-full space-y-8 bg-white shadow-md rounded-lg p-8">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Sign in to your account
+            Login to your account
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">JHCSC E-PTA</p>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            BCFI Clinic Management
+          </p>
         </div>
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -89,7 +93,7 @@ const SigninForm = () => {
             className="w-full"
             disabled={loading || !formData.email || !formData.password}
           >
-            {loading ? <LoadingSpinner size="sm" /> : "Sign in"}
+            {loading ? <LoadingSpinner size="sm" /> : "Login"}
           </Button>
 
           <div className="text-center">
@@ -108,9 +112,24 @@ const SigninForm = () => {
                 to="/signup"
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
-                Sign up here
+                Register here
               </Link>
             </span>
+          </div>
+
+          <div className="mt-6 text-sm text-gray-600">
+            <p className="font-medium mb-2">Demo accounts (use to sign in):</p>
+            <ul className="text-left text-xs space-y-1">
+              <li>
+                <strong>Clinic Admin:</strong> admin@demo / password123
+              </li>
+              <li>
+                <strong>Clinic Staff:</strong> staff@demo / staff123
+              </li>
+              <li>
+                <strong>Parent:</strong> parent@demo / parent123
+              </li>
+            </ul>
           </div>
         </form>
       </div>

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import Input from "../../components/ui/Input";
-import PasswordInput from "../../components/ui/PasswordInput";
-import Button from "../../components/ui/Button";
-import LoadingSpinner from "../../components/ui/LoadingSpinner";
+import Input from "../ui/Input";
+import PasswordInput from "../ui/PasswordInput";
+import Button from "../ui/Button";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
 const SignupForm = () => {
   const navigate = useNavigate();
@@ -198,6 +198,13 @@ const SignupForm = () => {
           We've sent a 6-digit code to <strong>{signupData.email}</strong>.
           Please check your email and enter the code below.
         </p>
+        {generatedOtp && (
+          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-4">
+            <p className="text-sm">
+              <strong>Demo OTP:</strong> {generatedOtp}
+            </p>
+          </div>
+        )}
         <Input
           label="Enter OTP"
           name="otp"

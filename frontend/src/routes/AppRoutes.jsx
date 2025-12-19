@@ -28,8 +28,9 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
     // redirect to appropriate dashboard
-    if (user?.role === "HR") return <Navigate to="/clinic/dashboard" replace />;
-    if (user?.role === "PARENT")
+    if (user?.role === "CLINIC_ADMIN" || user?.role === "CLINIC_STAFF")
+      return <Navigate to="/clinic/dashboard" replace />;
+    if (user?.role === "PARENT_GUARDIAN")
       return <Navigate to="/parent/dashboard" replace />;
     return <Navigate to="/signin" replace />;
   }
@@ -42,8 +43,9 @@ const PublicRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
 
   if (isAuthenticated) {
-    if (user?.role === "HR") return <Navigate to="/clinic/dashboard" replace />;
-    if (user?.role === "PARENT")
+    if (user?.role === "CLINIC_ADMIN" || user?.role === "CLINIC_STAFF")
+      return <Navigate to="/clinic/dashboard" replace />;
+    if (user?.role === "PARENT_GUARDIAN")
       return <Navigate to="/parent/dashboard" replace />;
     return <Navigate to="/clinic/dashboard" replace />;
   }
@@ -94,7 +96,7 @@ const AppRoutes = () => {
       <Route
         path="/clinic"
         element={
-          <ProtectedRoute allowedRoles={["HR"]}>
+          <ProtectedRoute allowedRoles={["CLINIC_ADMIN", "CLINIC_STAFF"]}>
             <div />
           </ProtectedRoute>
         }
@@ -110,7 +112,7 @@ const AppRoutes = () => {
       <Route
         path="/parent"
         element={
-          <ProtectedRoute allowedRoles={["PARENT"]}>
+          <ProtectedRoute allowedRoles={["PARENT_GUARDIAN"]}>
             <div />
           </ProtectedRoute>
         }
