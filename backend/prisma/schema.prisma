@@ -191,13 +191,13 @@ model SystemSetting {
 
 model ActivityLog {
   id        Int      @id @default(autoincrement())
-  userId    Int
+  userId    Int?
   action    String // e.g., "USER_LOGIN_SUCCESS", "USER_LOGIN_FAIL", "STUDENT_RECORD_CREATED"
   details   String?  @db.Text
   ipAddress String?
   userAgent String?
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 

@@ -530,7 +530,7 @@ export const requestLinkStudent = async (
     throw new ApiError(404, "Parent account not found");
   }
 
-  if (parent.role !== "PARENT") {
+  if (parent.role !== "PARENT_GUARDIAN") {
     throw new ApiError(400, "Only parent accounts can link students");
   }
 
@@ -625,7 +625,10 @@ export const unlinkStudent = async (
   }
 
   // Only the linked parent or admin can unlink
-  if (requestingUserRole !== "ADMIN" && student.parentId !== requestingUserId) {
+  if (
+    requestingUserRole !== "CLINIC_ADMIN" &&
+    student.parentId !== requestingUserId
+  ) {
     throw new ApiError(403, "You can only unlink your own students");
   }
 

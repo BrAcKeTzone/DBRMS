@@ -53,17 +53,23 @@ export const sendOtp = async (email: string): Promise<{ message: string }> => {
   };
   const otp = otpGenerator.generate(6, otpOptions);
   console.log("📱 Generated OTP:", otp); // Remove this in production
-  const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
   try {
     await prisma.otp.create({
       data: {
         email,
         otp,
-        createdAt: expires,
+        createdAt: new Date(),
+        expiresAt,
       },
     });
     console.log("💾 OTP saved to database");
+
+    // Log OTP sent (no userId since user may not exist yet)
+    await prisma.activityLog.create({
+      data: { action: "OTP_SENT", details: `email:${email}` },
+    });
   } catch (error) {
     console.error("❌ Failed to save OTP to database:", error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -205,20 +211,31 @@ export const verifyOtp = async (
     where: {
       email,
       otp,
-      createdAt: {
-        gt: new Date(Date.now() - 10 * 60 * 1000), // Not expired
+      expiresAt: {
+        gt: new Date(), // Not expired
       },
     },
+    orderBy: { createdAt: "desc" },
   });
 
   if (!otpRecord) {
     throw new ApiError(400, "Invalid or expired OTP.");
   }
 
-  // Mark this OTP as verified but don't delete it yet
+  // Mark this OTP as verified
   await prisma.otp.update({
     where: { id: otpRecord.id },
     data: { verified: true },
+  });
+
+  // Log verification (attach userId if user exists)
+  const user = await prisma.user.findUnique({ where: { email } });
+  await prisma.activityLog.create({
+    data: {
+      userId: user ? user.id : null,
+      action: "OTP_VERIFIED",
+      details: `email:${email}`,
+    },
   });
 
   return { message: "Email verified successfully.", verified: true };
@@ -230,22 +247,24 @@ interface RegisterData {
   firstName: string;
   middleName?: string;
   lastName: string;
+  phone: string;
 }
 
 export const register = async (
   userData: RegisterData
 ): Promise<{ user: User; token: string }> => {
-  const { email, password, firstName, middleName, lastName } = userData;
+  const { email, password, firstName, middleName, lastName, phone } = userData;
 
   // Check if OTP has been verified for this email
   const otpRecord = await prisma.otp.findFirst({
     where: {
       email,
       verified: true,
-      createdAt: {
-        gt: new Date(Date.now() - 10 * 60 * 1000), // Not expired
+      expiresAt: {
+        gt: new Date(), // Not expired
       },
     },
+    orderBy: { createdAt: "desc" },
   });
 
   if (!otpRecord) {
@@ -255,9 +274,22 @@ export const register = async (
     );
   }
 
-  // Check if this is the first user in the system
+  // Ensure phone or email do not already exist
+  const existingByEmail = await prisma.user.findUnique({ where: { email } });
+  if (existingByEmail) {
+    throw new ApiError(400, "Email already exists");
+  }
+  const existingByPhone = await prisma.user.findUnique({ where: { phone } });
+  if (existingByPhone) {
+    throw new ApiError(400, "Phone number already exists");
+  }
+
+  // Check current user count to determine initial roles
   const userCount = await prisma.user.count();
-  const isFirstUser = userCount === 0;
+  // First user becomes CLINIC_ADMIN, second becomes PARENT_GUARDIAN, others default to PARENT_GUARDIAN
+  let assignedRole: string = "PARENT_GUARDIAN";
+  if (userCount === 0) assignedRole = "CLINIC_ADMIN";
+  else if (userCount === 1) assignedRole = "PARENT_GUARDIAN";
 
   const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -270,17 +302,26 @@ export const register = async (
         firstName,
         middleName: middleName || null,
         lastName,
-        // First user automatically becomes an admin
-        role: isFirstUser ? "ADMIN" : "PARENT",
+        phone,
+        role: assignedRole as any,
       },
     });
 
     // Delete the OTP after successful registration
     await prisma.otp.delete({ where: { id: otpRecord.id } });
+
+    // Log registration
+    await prisma.activityLog.create({
+      data: {
+        userId: user.id,
+        action: "USER_REGISTERED",
+        details: JSON.stringify({ email, phone }),
+      },
+    });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2002") {
-        throw new ApiError(400, "Email already exists");
+        throw new ApiError(400, "Email or phone already exists");
       }
     }
     throw error;
@@ -298,13 +339,36 @@ export const login = async (
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user) {
+    // Log failed login attempt with email (no userId)
+    await prisma.activityLog.create({
+      data: {
+        action: "USER_LOGIN_FAILED",
+        details: `email:${email}`,
+      },
+    });
     throw new AuthenticationError("Incorrect email or password");
   }
 
   const isValidPassword = await bcrypt.compare(password, user.password);
   if (!isValidPassword) {
+    // Log failed login attempt for existing user
+    await prisma.activityLog.create({
+      data: {
+        userId: user.id,
+        action: "USER_LOGIN_FAILED",
+        details: `Incorrect password`,
+      },
+    });
     throw new AuthenticationError("Incorrect email or password");
   }
+
+  // Log successful login
+  await prisma.activityLog.create({
+    data: {
+      userId: user.id,
+      action: "USER_LOGIN_SUCCESS",
+    },
+  });
 
   const token = generateToken(user.id);
 
@@ -325,17 +389,18 @@ export const verifyOtpForReset = async (
     where: {
       email,
       otp,
-      createdAt: {
-        gt: new Date(Date.now() - 10 * 60 * 1000), // Not expired
+      expiresAt: {
+        gt: new Date(), // Not expired
       },
     },
+    orderBy: { createdAt: "desc" },
   });
 
   if (!otpRecord) {
     throw new ApiError(400, "Invalid or expired OTP.");
   }
 
-  // Mark this OTP as verified but don't delete it yet
+  // Mark this OTP as verified
   await prisma.otp.update({
     where: { id: otpRecord.id },
     data: { verified: true },
@@ -361,17 +426,18 @@ export const verifyOtpForChange = async (
     where: {
       email,
       otp,
-      createdAt: {
-        gt: new Date(Date.now() - 10 * 60 * 1000), // Not expired
+      expiresAt: {
+        gt: new Date(), // Not expired
       },
     },
+    orderBy: { createdAt: "desc" },
   });
 
   if (!otpRecord) {
     throw new ApiError(400, "Invalid or expired OTP.");
   }
 
-  // Mark this OTP as verified but don't delete it yet
+  // Mark this OTP as verified
   await prisma.otp.update({
     where: { id: otpRecord.id },
     data: { verified: true },
@@ -399,10 +465,11 @@ export const resetPassword = async (
       email,
       otp,
       verified: true,
-      createdAt: {
-        gt: new Date(Date.now() - 10 * 60 * 1000), // Not expired
+      expiresAt: {
+        gt: new Date(), // Not expired
       },
     },
+    orderBy: { createdAt: "desc" },
   });
 
   if (!otpRecord) {
@@ -419,6 +486,14 @@ export const resetPassword = async (
   await prisma.user.update({
     where: { email },
     data: { password: hashedPassword },
+  });
+
+  // Log password reset
+  await prisma.activityLog.create({
+    data: {
+      userId: user.id,
+      action: "PASSWORD_RESET",
+    },
   });
 
   return { message: "Password reset successfully." };
@@ -442,10 +517,11 @@ export const changePassword = async (
       email,
       otp,
       verified: true,
-      createdAt: {
-        gt: new Date(Date.now() - 10 * 60 * 1000), // Not expired
+      expiresAt: {
+        gt: new Date(), // Not expired
       },
     },
+    orderBy: { createdAt: "desc" },
   });
 
   if (!otpRecord) {
@@ -464,10 +540,13 @@ export const changePassword = async (
     data: { password: hashedPassword },
   });
 
+  // Log password change
+  await prisma.activityLog.create({
+    data: {
+      userId: user.id,
+      action: "PASSWORD_CHANGED",
+    },
+  });
+
   return { message: "Password changed successfully." };
 };
-
-
-
-
-

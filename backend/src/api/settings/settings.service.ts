@@ -46,7 +46,7 @@ export const getSettings = async (): Promise<Settings> => {
   if (!settings) {
     // Find first admin to set as updatedBy
     const admin = await prisma.user.findFirst({
-      where: { role: "ADMIN" },
+      where: { role: "CLINIC_ADMIN" },
     });
 
     if (!admin) {
@@ -64,14 +64,14 @@ export const getSettings = async (): Promise<Settings> => {
           select: {
             id: true,
             firstName: true,
-          lastName: true,
-          middleName: true,
+            lastName: true,
+            middleName: true,
 
-          lastName: true,
-          middleName: true,
+            lastName: true,
+            middleName: true,
 
-          lastName: true,
-          middleName: true,
+            lastName: true,
+            middleName: true,
             email: true,
             role: true,
           },
@@ -387,10 +387,3 @@ export const removeDocumentCategory = async (
 
   return categories;
 };
-
-
-
-
-
-
-

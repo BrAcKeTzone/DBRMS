@@ -78,6 +78,14 @@ export const createUser = async (
     throw new ApiError(400, "Email already exists");
   }
 
+  // If phone is provided, ensure it's unique
+  if (phone) {
+    const existingPhone = await prisma.user.findUnique({ where: { phone } });
+    if (existingPhone) {
+      throw new ApiError(400, "Phone number already exists");
+    }
+  }
+
   // Hash password
   const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -235,7 +243,10 @@ export const getAllUsers = async (filter: GetUsersFilter) => {
   if (role) {
     // Validate and cast role to UserRole enum
     const roleUpper = typeof role === "string" ? role.toUpperCase() : role;
-    if (roleUpper === UserRole.ADMIN || roleUpper === UserRole.PARENT) {
+    if (
+      roleUpper === UserRole.CLINIC_ADMIN ||
+      roleUpper === UserRole.PARENT_GUARDIAN
+    ) {
       whereClause.role = roleUpper as UserRole;
     }
   }
@@ -334,9 +345,12 @@ export const updateUserRole = async (
   }
 
   // Check if this is the last admin
-  if (user.role === UserRole.ADMIN && newRole !== UserRole.ADMIN) {
+  if (
+    user.role === UserRole.CLINIC_ADMIN &&
+    newRole !== UserRole.CLINIC_ADMIN
+  ) {
     const adminCount = await prisma.user.count({
-      where: { role: UserRole.ADMIN },
+      where: { role: UserRole.CLINIC_ADMIN },
     });
 
     if (adminCount <= 1) {
@@ -367,10 +381,10 @@ export const deactivateUser = async (userId: number): Promise<UserSafeData> => {
   }
 
   // Check if this is the last active admin
-  if (user.role === UserRole.ADMIN) {
+  if (user.role === UserRole.CLINIC_ADMIN) {
     const activeAdminCount = await prisma.user.count({
       where: {
-        role: UserRole.ADMIN,
+        role: UserRole.CLINIC_ADMIN,
         isActive: true,
       },
     });
@@ -439,11 +453,11 @@ export const updateUserByAdmin = async (
   // Check if changing role from admin
   if (
     data.role &&
-    userCheck.role === UserRole.ADMIN &&
-    data.role !== UserRole.ADMIN
+    userCheck.role === UserRole.CLINIC_ADMIN &&
+    data.role !== UserRole.CLINIC_ADMIN
   ) {
     const adminCount = await prisma.user.count({
-      where: { role: UserRole.ADMIN },
+      where: { role: UserRole.CLINIC_ADMIN },
     });
 
     if (adminCount <= 1) {
@@ -454,12 +468,12 @@ export const updateUserByAdmin = async (
   // Check if deactivating admin
   if (
     data.isActive === false &&
-    userCheck.role === UserRole.ADMIN &&
+    userCheck.role === UserRole.CLINIC_ADMIN &&
     userCheck.isActive
   ) {
     const activeAdminCount = await prisma.user.count({
       where: {
-        role: UserRole.ADMIN,
+        role: UserRole.CLINIC_ADMIN,
         isActive: true,
       },
     });
@@ -558,11 +572,11 @@ export const getUserStats = async () => {
     prisma.user.count(),
     prisma.user.count({ where: { isActive: true } }),
     prisma.user.count({ where: { isActive: false } }),
-    prisma.user.count({ where: { role: UserRole.ADMIN } }),
-    prisma.user.count({ where: { role: UserRole.PARENT } }),
+    prisma.user.count({ where: { role: UserRole.CLINIC_ADMIN } }),
+    prisma.user.count({ where: { role: UserRole.PARENT_GUARDIAN } }),
     prisma.user.count({
       where: {
-        role: UserRole.PARENT,
+        role: UserRole.PARENT_GUARDIAN,
         students: {
           some: {
             linkStatus: "APPROVED",
@@ -572,7 +586,7 @@ export const getUserStats = async () => {
     }),
     prisma.user.count({
       where: {
-        role: UserRole.PARENT,
+        role: UserRole.PARENT_GUARDIAN,
         students: {
           none: {
             linkStatus: "APPROVED",

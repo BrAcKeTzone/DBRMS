@@ -34,6 +34,7 @@ export const register = Joi.object().keys({
   firstName: Joi.string().required(),
   middleName: Joi.string().allow("", null).optional(),
   lastName: Joi.string().required(),
+  phone: Joi.string().required(),
 });
 
 export const login = Joi.object().keys({

@@ -26,7 +26,7 @@ router.get("/pending-parent-links", studentController.getPendingParentLinks);
 // Clear old rejected parent links (older than 3 days)
 router.post(
   "/clear-rejected-links",
-  authorize("ADMIN"),
+  authorize("CLINIC_ADMIN"),
   studentController.clearOldRejectedLinks
 );
 
@@ -41,7 +41,7 @@ router.post(
 router.get(
   "/export",
   authenticate,
-  authorize("ADMIN"),
+  authorize("CLINIC_ADMIN"),
   studentController.exportStudentsXlsx
 );
 
@@ -49,7 +49,7 @@ router.get(
 router.get(
   "/template",
   authenticate,
-  authorize("ADMIN"),
+  authorize("CLINIC_ADMIN"),
   studentController.downloadStudentsTemplateXlsx
 );
 
@@ -75,7 +75,7 @@ const excelUpload = multer({
 router.post(
   "/bulk-import",
   authenticate,
-  authorize("ADMIN"),
+  authorize("CLINIC_ADMIN"),
   excelUpload.single("file"),
   studentController.bulkImportStudents
 );
