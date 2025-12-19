@@ -362,7 +362,7 @@ const SignupForm = () => {
           Your account has been created successfully.
         </p>
         <p className="text-sm text-gray-500">
-          Welcome to BCFI HR Application System, {signupData.firstName}{" "}
+          Welcome to BCFI Clinic Management, {signupData.firstName}{" "}
           {signupData.lastName}!
         </p>
       </div>
@@ -391,7 +391,7 @@ const SignupForm = () => {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Join BCFI HR Application System
+            Join BCFI Clinic Management
           </p>
         </div>
 

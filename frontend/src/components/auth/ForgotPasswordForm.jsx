@@ -340,7 +340,7 @@ const ForgotPasswordForm = () => {
             Reset your password
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            BCFI HR Application System
+            BCFI Clinic Management
           </p>
         </div>
 
