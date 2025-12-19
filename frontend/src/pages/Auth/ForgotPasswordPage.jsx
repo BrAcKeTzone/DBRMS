@@ -1,6 +1,6 @@
 import React from "react";
-import AuthLayout from "../layouts/AuthLayout";
-import ForgotPasswordForm from "../features/auth/ForgotPasswordForm";
+import AuthLayout from "../../layouts/AuthLayout";
+import ForgotPasswordForm from "../../features/auth/ForgotPasswordForm";
 
 const ForgotPasswordPage = () => {
   return (

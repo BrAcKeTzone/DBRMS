@@ -3,9 +3,9 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
 // Auth pages
-import SigninPage from "../pages/SigninPage";
-import SignupPage from "../pages/SignupPage";
-import ForgotPasswordPage from "../pages/ForgotPasswordPage";
+import SigninPage from "../pages/Auth/SigninPage";
+import SignupPage from "../pages/Auth/SignupPage";
+import ForgotPasswordPage from "../pages/Auth/ForgotPasswordPage";
 import ProfilePage from "../pages/ProfilePage";
 
 // ClinicStaff pages

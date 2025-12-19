@@ -107,7 +107,7 @@ const Navbar = ({ onMenuClick }) => {
               </div>
               <div className="hidden md:block ml-2">
                 <span className="text-blue-600 text-sm font-medium">
-                  Clinic
+                  Clinic Management
                 </span>
               </div>
             </Link>
@@ -256,12 +256,12 @@ const Navbar = ({ onMenuClick }) => {
             <div className="flex items-center space-x-4">
               <Link to="/signin">
                 <Button variant="outline" size="sm">
-                  Sign In
+                  Login
                 </Button>
               </Link>
               <Link to="/signup">
                 <Button variant="primary" size="sm">
-                  Sign Up
+                  Register
                 </Button>
               </Link>
             </div>

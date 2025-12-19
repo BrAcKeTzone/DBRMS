@@ -373,7 +373,7 @@ const SignupForm = () => {
           className="w-full"
           onClick={() => navigate("/signin")}
         >
-          Sign In Now
+          Login Now
         </Button>
 
         <Button variant="outline" className="w-full" onClick={handleStartOver}>
@@ -442,7 +442,7 @@ const SignupForm = () => {
                 to="/signin"
                 className="font-medium text-blue-600 hover:text-blue-500"
               >
-                Sign in here
+                Login here
               </Link>
             </span>
           </div>
