@@ -288,9 +288,9 @@ const ForgotPasswordForm = () => {
 
   const renderPhase4 = () => (
     <div className="mt-8 text-center space-y-6">
-      <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100">
+      <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-blue-100">
         <svg
-          className="h-8 w-8 text-green-600"
+          className="h-8 w-8 text-blue-600"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

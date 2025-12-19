@@ -338,9 +338,9 @@ const SignupForm = () => {
 
   const renderPhase4 = () => (
     <div className="mt-8 text-center space-y-6">
-      <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100">
+      <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-sky-100">
         <svg
-          className="h-8 w-8 text-green-600"
+          className="h-8 w-8 text-sky-600"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -362,7 +362,7 @@ const SignupForm = () => {
           Your account has been created successfully.
         </p>
         <p className="text-sm text-gray-500">
-          Welcome to BCFI HR Application System, {signupData.firstName}{" "}
+          Welcome to BCFI Clinic Management, {signupData.firstName}{" "}
           {signupData.lastName}!
         </p>
       </div>
@@ -391,7 +391,7 @@ const SignupForm = () => {
             Create your account
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Join BCFI HR Application System
+            Register to the BCFI Clinic
           </p>
         </div>
 

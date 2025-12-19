@@ -14,54 +14,53 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     const colorSchemes = [
       {
         active:
-          "bg-gradient-to-r from-green-100 to-green-200 text-green-800 border-r-4 border-green-600 shadow-md",
-        inactive: "text-green-700 hover:bg-green-100 hover:text-green-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
       {
         active:
-          "bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 border-r-4 border-emerald-600 shadow-md",
-        inactive:
-          "text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
       {
         active:
-          "bg-gradient-to-r from-teal-100 to-teal-200 text-teal-800 border-r-4 border-teal-600 shadow-md",
-        inactive: "text-teal-700 hover:bg-teal-100 hover:text-teal-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
       {
         active:
-          "bg-gradient-to-r from-cyan-100 to-cyan-200 text-cyan-800 border-r-4 border-cyan-600 shadow-md",
-        inactive: "text-cyan-700 hover:bg-cyan-100 hover:text-cyan-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
       {
         active:
-          "bg-gradient-to-r from-lime-100 to-lime-200 text-lime-800 border-r-4 border-lime-600 shadow-md",
-        inactive: "text-lime-700 hover:bg-lime-100 hover:text-lime-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
       {
         active:
-          "bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 border-r-4 border-yellow-600 shadow-md",
-        inactive: "text-yellow-700 hover:bg-yellow-100 hover:text-yellow-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
       {
         active:
-          "bg-gradient-to-r from-orange-100 to-orange-200 text-orange-800 border-r-4 border-orange-600 shadow-md",
-        inactive: "text-orange-700 hover:bg-orange-100 hover:text-orange-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
       {
         active:
-          "bg-gradient-to-r from-red-100 to-red-200 text-red-800 border-r-4 border-red-600 shadow-md",
-        inactive: "text-red-700 hover:bg-red-100 hover:text-red-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
       {
         active:
-          "bg-gradient-to-r from-pink-100 to-pink-200 text-pink-800 border-r-4 border-pink-600 shadow-md",
-        inactive: "text-pink-700 hover:bg-pink-100 hover:text-pink-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
       {
         active:
-          "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-800 border-r-4 border-purple-600 shadow-md",
-        inactive: "text-purple-700 hover:bg-purple-100 hover:text-purple-800",
+          "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 border-r-4 border-blue-600 shadow-md",
+        inactive: "text-blue-700 hover:bg-blue-100 hover:text-blue-800",
       },
     ];
 
@@ -71,24 +70,16 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
   const getMenuItemIconColor = (index, isActive) => {
     const iconColors = [
-      isActive ? "text-green-800" : "text-green-600 group-hover:text-green-700",
-      isActive
-        ? "text-emerald-800"
-        : "text-emerald-600 group-hover:text-emerald-700",
-      isActive ? "text-teal-800" : "text-teal-600 group-hover:text-teal-700",
-      isActive ? "text-cyan-800" : "text-cyan-600 group-hover:text-cyan-700",
-      isActive ? "text-lime-800" : "text-lime-600 group-hover:text-lime-700",
-      isActive
-        ? "text-yellow-800"
-        : "text-yellow-600 group-hover:text-yellow-700",
-      isActive
-        ? "text-orange-800"
-        : "text-orange-600 group-hover:text-orange-700",
-      isActive ? "text-red-800" : "text-red-600 group-hover:text-red-700",
-      isActive ? "text-pink-800" : "text-pink-600 group-hover:text-pink-700",
-      isActive
-        ? "text-purple-800"
-        : "text-purple-600 group-hover:text-purple-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
+      isActive ? "text-blue-800" : "text-blue-600 group-hover:text-blue-700",
     ];
 
     return iconColors[index % iconColors.length];
@@ -475,7 +466,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     <>
       {/* Overlay for mobile */}
       <div
-        className={`fixed inset-0 z-30 bg-green-900/20 backdrop-blur-sm transition-opacity lg:hidden ${
+        className={`fixed inset-0 z-30 bg-blue-900/20 backdrop-blur-sm transition-opacity lg:hidden ${
           isOpen ? "block" : "hidden"
         }`}
         onClick={() => setIsOpen(false)}
@@ -483,24 +474,24 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-green-50 to-emerald-50 h-full shadow-lg border-r border-green-200 transform transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:z-10 lg:translate-x-0 lg:h-auto lg:overflow-y-auto ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-blue-50 to-blue-50 h-full shadow-lg border-r border-blue-200 transform transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:z-10 lg:translate-x-0 lg:h-auto lg:overflow-y-auto ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ maxHeight: "calc(100vh - 4rem)" }}
       >
-        <div className="p-6 border-b border-green-200 bg-gradient-to-r from-green-100 to-emerald-100">
+        <div className="p-6 border-b border-blue-200 bg-gradient-to-r from-blue-100 to-blue-100">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h2 className="text-lg font-semibold text-green-800">
+              <h2 className="text-lg font-semibold text-blue-800">
                 Navigation
               </h2>
-              <p className="text-xs text-green-600 mt-1 font-medium">
+              <p className="text-xs text-blue-600 mt-1 font-medium">
                 {user?.role === "ADMIN" ? "Admin Panel" : "Parent Portal"}
               </p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="lg:hidden text-green-500 hover:text-green-700 transition-colors"
+              className="lg:hidden text-blue-500 hover:text-blue-700 transition-colors"
               aria-label="Close sidebar"
             >
               <svg
