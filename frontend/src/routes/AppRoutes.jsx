@@ -3,111 +3,62 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 
 // Auth pages
-import SignupPage from "../pages/SignupPage";
 import SigninPage from "../pages/SigninPage";
+import SignupPage from "../pages/SignupPage";
 import ForgotPasswordPage from "../pages/ForgotPasswordPage";
-
-// Guardians pages
-import GuardiansDashboard from "../pages/Guardians/Dashboard";
-
-// Clinic Staff pages
-import ClinicStaffsDashboard from "../pages/ClinicStaffs/Dashboard";
-import ClinicStaffsUserManagement from "../pages/ClinicStaffs/UserManagement";
-
-// Shared pages
 import ProfilePage from "../pages/ProfilePage";
 
-// Layout components
-import MainLayout from "../layouts/MainLayout";
-import AdminLayout from "../layouts/AdminLayout";
+// ClinicStaff pages
+import AdminDashboard from "../pages/ClinicStaff/AdminDashboard";
+import SystemConfiguration from "../pages/ClinicStaff/SystemConfiguration";
+import HealthRecordManagement from "../pages/ClinicStaff/HealthRecordManagement";
+import ClinicVisitLogging from "../pages/ClinicStaff/ClinicVisitLogging";
 
-// Dashboard Redirect Component
-const DashboardRedirect = () => {
-  const { user } = useAuthStore();
+// Parent pages
+import PGDashboard from "../pages/ParentGuardian/PGDashboard";
+import HealthRecordViewing from "../pages/ParentGuardian/HealthRecordViewing";
+import LinkedStudentProfiles from "../pages/ParentGuardian/LinkedStudentProfiles";
+import SMSNotificationsTracking from "../pages/ParentGuardian/SMSNotificationsTracking";
 
-  if (user?.role === "CLINIC_STAFF") {
-    return <Navigate to="/clinic-staffs/dashboard" replace />;
-  } else {
-    return <Navigate to="/guardians/dashboard" replace />;
-  }
-};
-
-// Profile Redirect Component
-const ProfileRedirect = () => {
-  const { user } = useAuthStore();
-
-  // HR role is not routed to a profile page (profile isn't in the HR sidebar)
-  // Send HR users to their dashboard; applicants go to profile.
-  if (user?.role === "CLINIC_STAFF") {
-    return <Navigate to="/clinic-staffs/dashboard" replace />;
-  } else {
-    return <Navigate to="/guardians/profile" replace />;
-  }
-};
-
-// Protected Route Component
+// Simple protected route component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const { isAuthenticated, user } = useAuthStore();
 
-  if (!isAuthenticated) {
-    return <Navigate to="/signin" replace />;
-  }
+  if (!isAuthenticated) return <Navigate to="/signin" replace />;
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
-    // Redirect to appropriate dashboard based on role
-    if (user?.role === "CLINIC_STAFF") {
-      return <Navigate to="/clinic-staffs/dashboard" replace />;
-    } else {
-      return <Navigate to="/guardians/dashboard" replace />;
-    }
+    // redirect to appropriate dashboard
+    if (user?.role === "HR") return <Navigate to="/clinic/dashboard" replace />;
+    if (user?.role === "PARENT")
+      return <Navigate to="/parent/dashboard" replace />;
+    return <Navigate to="/signin" replace />;
   }
 
   return children;
 };
 
-// Public Route Component (redirect if authenticated)
+// PublicRoute to redirect authenticated users
 const PublicRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
 
   if (isAuthenticated) {
-    // Redirect to appropriate dashboard based on role
-    if (user?.role === "CLINIC_STAFF") {
-      return <Navigate to="/clinic-staffs/dashboard" replace />;
-    } else {
-      return <Navigate to="/guardians/dashboard" replace />;
-    }
+    if (user?.role === "HR") return <Navigate to="/clinic/dashboard" replace />;
+    if (user?.role === "PARENT")
+      return <Navigate to="/parent/dashboard" replace />;
+    return <Navigate to="/clinic/dashboard" replace />;
   }
 
   return children;
 };
 
 const AppRoutes = () => {
-  const { isAuthenticated, user } = useAuthStore();
-
   return (
     <Routes>
-      {/* Root Route - Redirect to signin for unauthenticated, Dashboard for authenticated */}
       <Route
         path="/"
         element={
-          isAuthenticated ? (
-            user?.role === "CLINIC_STAFF" ? (
-              <Navigate to="/clinic-staffs/dashboard" replace />
-            ) : (
-              <Navigate to="/guardians/dashboard" replace />
-            )
-          ) : (
-            <Navigate to="/signin" replace />
-          )
-        }
-      />
-
-      {/* Public Routes */}
-      <Route
-        path="/signup"
-        element={
           <PublicRoute>
-            <SignupPage />
+            <Navigate to="/signin" replace />
           </PublicRoute>
         }
       />
@@ -122,6 +73,15 @@ const AppRoutes = () => {
       />
 
       <Route
+        path="/signup"
+        element={
+          <PublicRoute>
+            <SignupPage />
+          </PublicRoute>
+        }
+      />
+
+      <Route
         path="/forgot-password"
         element={
           <PublicRoute>
@@ -130,53 +90,38 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Guardians Routes */}
+      {/* Clinic staff routes */}
       <Route
-        path="/guardians"
+        path="/clinic"
         element={
-          <ProtectedRoute allowedRoles={["GUARDIAN"]}>
-            <MainLayout />
+          <ProtectedRoute allowedRoles={["HR"]}>
+            <div />
           </ProtectedRoute>
         }
       >
-        <Route path="dashboard" element={<GuardiansDashboard />} />
-        {/* HR profile route removed to match navigation */}
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="system-configuration" element={<SystemConfiguration />} />
+        <Route path="health-records" element={<HealthRecordManagement />} />
+        <Route path="visit-logging" element={<ClinicVisitLogging />} />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
 
-      {/* Clinic Staff Routes */}
+      {/* Parent routes */}
       <Route
-        path="/clinic-staffs"
+        path="/parent"
         element={
-          <ProtectedRoute allowedRoles={["CLINIC_STAFF"]}>
-            <AdminLayout />
+          <ProtectedRoute allowedRoles={["PARENT"]}>
+            <div />
           </ProtectedRoute>
         }
       >
-        <Route path="dashboard" element={<ClinicStaffsDashboard />} />
-        <Route path="users" element={<ClinicStaffsUserManagement />} />
+        <Route path="dashboard" element={<PGDashboard />} />
+        <Route path="health-records" element={<HealthRecordViewing />} />
+        <Route path="linked-students" element={<LinkedStudentProfiles />} />
+        <Route path="sms-tracking" element={<SMSNotificationsTracking />} />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
 
-      {/* Shared Profile Route for direct access - redirect to role-specific profile */}
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfileRedirect />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* Fallback Routes */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardRedirect />
-          </ProtectedRoute>
-        }
-      />
-
-      {/* 404 Route */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

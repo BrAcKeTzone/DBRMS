@@ -1,0 +1,206 @@
+// Prisma schema — upgraded for Prisma v7.
+// NOTE: After upgrading packages, run `npm install`, then `npx prisma generate` and review migrations with `npx prisma migrate dev` (do this in a dev DB).
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "mysql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// ENUMS
+enum UserRole {
+  CLINIC_ADMIN
+  CLINIC_STAFF
+  PARENT_GUARDIAN
+}
+
+enum LinkStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum StudentStatus {
+  ACTIVE
+  INACTIVE
+}
+
+// AUTHENTICATION & USER MANAGEMENT
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  password   String
+  firstName  String
+  middleName String?
+  lastName   String
+  phone      String   @unique
+  role       UserRole @default(PARENT_GUARDIAN)
+  isActive   Boolean  @default(true)
+
+  students         Student[]
+  linkRequests     StudentLinkRequest[] @relation("ParentLinkRequests")
+  approvedRequests StudentLinkRequest[] @relation("ApprovedBy")
+  activityLogs     ActivityLog[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([role])
+}
+
+model Otp {
+  id        Int      @id @default(autoincrement())
+  email     String
+  otp       String
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([email])
+}
+
+// STUDENT & HEALTH RECORDS
+model Student {
+  id         Int           @id @default(autoincrement())
+  studentId  String        @unique
+  firstName  String
+  lastName   String
+  middleName String?
+  birthDate  DateTime
+  yearEnrolled String
+  status     StudentStatus @default(ACTIVE)
+
+  courseId Int
+  course   Course @relation(fields: [courseId], references: [id])
+
+  parentId Int?
+  parent   User? @relation(fields: [parentId], references: [id], onDelete: SetNull)
+
+  healthMetrics HealthMetric[]
+  clinicVisits  ClinicVisit[]
+  linkRequests  StudentLinkRequest[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([parentId])
+  @@index([courseId])
+}
+
+model Course {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  students    Student[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model StudentLinkRequest {
+  id        Int        @id @default(autoincrement())
+  studentId Int
+  parentId  Int
+  status    LinkStatus @default(PENDING)
+  reason    String? // Reason for rejection
+
+  student    Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  parent     User    @relation("ParentLinkRequests", fields: [parentId], references: [id], onDelete: Cascade)
+  approvedBy User?   @relation("ApprovedBy", fields: [approvedById], references: [id])
+  approvedById Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, parentId])
+  @@index([status])
+}
+
+model HealthMetric {
+  id        Int       @id @default(autoincrement())
+  studentId Int
+  year      Int // e.g., 2025
+  heightCm  Float?
+  weightKg  Float?
+  bmi       Float?
+  bloodType String?
+  allergies String? @db.Text
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([studentId, year])
+}
+
+// CLINIC VISIT & NOTIFICATIONS
+model ClinicVisit {
+  id                Int       @id @default(autoincrement())
+  studentId         Int
+  visitDateTime     DateTime  @default(now())
+  symptoms          String    @db.Text
+  bloodPressure     String?
+  temperatureCelsius Float?
+  pulseRate         Int?
+  diagnosis         String?   @db.Text
+  treatment         String?   @db.Text
+  isEmergency       Boolean   @default(false)
+  isReferredToHospital Boolean @default(false)
+  hospitalName      String?
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  smsLog  SmsLog?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([studentId])
+  @@index([visitDateTime])
+}
+
+model SmsLog {
+  id            Int         @id @default(autoincrement())
+  clinicVisitId Int         @unique
+  message       String      @db.Text
+  status        String // e.g., "SENT", "FAILED", "PENDING"
+  sentAt        DateTime?
+  failReason    String?
+
+  clinicVisit ClinicVisit @relation(fields: [clinicVisitId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+// SYSTEM CONFIGURATION & LOGS
+model SystemSetting {
+  id            Int     @id @default(autoincrement())
+  key           String  @unique
+  value         String  @db.Text
+  description   String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ActivityLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  action    String // e.g., "USER_LOGIN_SUCCESS", "USER_LOGIN_FAIL", "STUDENT_RECORD_CREATED"
+  details   String?  @db.Text
+  ipAddress String?
+  userAgent String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+}

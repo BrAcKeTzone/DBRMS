@@ -5,7 +5,7 @@ import SignupForm from "../features/auth/SignupForm";
 const SignupPage = () => {
   return (
     <AuthLayout>
-      <div className="w-full flex justify-center items-center min-h-screen">
+      <div className="container mx-auto flex justify-center items-center min-h-screen">
         <SignupForm />
       </div>
     </AuthLayout>

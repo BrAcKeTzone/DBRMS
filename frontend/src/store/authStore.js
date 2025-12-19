@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import authApi from "../api/authApi.mock";
+import { authApi } from "../api/authAPI";
 import usersData from "../data/users.json";
 
 export const useAuthStore = create(
@@ -13,21 +13,14 @@ export const useAuthStore = create(
       loading: false,
       error: null,
 
-      // Login OTP phase state
-      loginPhase: 1, // 1: Credentials, 2: OTP Verification
-      loginData: {
-        email: "",
-        password: "",
-        otp: "",
-      },
-      loginOtp: null,
-
       // Signup phase state
       signupPhase: 1, // 1: Email, 2: OTP, 3: Personal Details, 4: Success
       signupData: {
         email: "",
         otp: "",
-        name: "",
+        firstName: "",
+        middleName: "",
+        lastName: "",
         password: "",
         confirmPassword: "",
       },
@@ -48,28 +41,10 @@ export const useAuthStore = create(
         try {
           set({ loading: true, error: null });
 
-          // Call backend API - this will now send OTP
+          // Call backend API
           const response = await authApi.login(credentials);
 
-          // Check if OTP is required
-          if (response.data?.requiresOtp) {
-            set({
-              loading: false,
-              error: null,
-              loginPhase: 2,
-              loginData: {
-                email: credentials.email,
-                password: credentials.password,
-                otp: "",
-              },
-              loginOtp: response.data?.otp || null,
-            });
-
-            return { requiresOtp: true, email: credentials.email };
-          }
-
-          // Fallback in case backend doesn't return requiresOtp flag
-          // (shouldn't happen with updated backend)
+          // Extract user and token from response
           const { user, token } = response.data;
 
           set({
@@ -78,11 +53,11 @@ export const useAuthStore = create(
             isAuthenticated: true,
             loading: false,
             error: null,
-            loginPhase: 1,
           });
 
-          // Store token in localStorage
+          // Store token and user data in localStorage
           localStorage.setItem("authToken", token);
+          localStorage.setItem("user", JSON.stringify(user));
 
           return { user, token };
         } catch (error) {
@@ -96,67 +71,6 @@ export const useAuthStore = create(
           });
           throw error;
         }
-      },
-
-      // Verify login OTP and complete authentication
-      verifyLoginOtp: async (otp) => {
-        try {
-          set({ loading: true, error: null });
-
-          const { loginData } = get();
-
-          // Call backend API to verify OTP
-          const response = await authApi.verifyLoginOtp(loginData.email, otp);
-
-          // Extract user and token from response
-          const { user, token } = response.data;
-
-          set({
-            user,
-            token,
-            isAuthenticated: true,
-            loading: false,
-            error: null,
-            loginPhase: 1,
-            loginData: {
-              email: "",
-              password: "",
-              otp: "",
-            },
-            loginOtp: null,
-          });
-
-          // Store token in localStorage
-          localStorage.setItem("authToken", token);
-
-          return { user, token };
-        } catch (error) {
-          // Handle API error response
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "OTP verification failed";
-
-          set({
-            loading: false,
-            error: errorMessage,
-          });
-          throw error;
-        }
-      },
-
-      // Reset login process
-      resetLogin: () => {
-        set({
-          loginPhase: 1,
-          loginData: {
-            email: "",
-            password: "",
-            otp: "",
-          },
-          error: null,
-          loginOtp: null,
-        });
       },
 
       register: async (userData) => {
@@ -200,7 +114,7 @@ export const useAuthStore = create(
             error: null,
             signupPhase: 2,
             signupData: { ...get().signupData, email },
-            generatedOtp: response.data?.otp || null, // Save demo OTP if provided in mock
+            generatedOtp: null, // Don't store OTP on frontend
           });
 
           return response.data;
@@ -264,8 +178,8 @@ export const useAuthStore = create(
             email: signupData.email,
             password: personalData.password,
             firstName: personalData.firstName,
+            middleName: personalData.middleName,
             lastName: personalData.lastName,
-            phone: personalData.phone,
           };
 
           // Call backend API
@@ -301,7 +215,9 @@ export const useAuthStore = create(
           signupData: {
             email: "",
             otp: "",
-            name: "",
+            firstName: "",
+            middleName: "",
+            lastName: "",
             password: "",
             confirmPassword: "",
           },
@@ -324,7 +240,7 @@ export const useAuthStore = create(
             error: null,
             forgotPasswordPhase: 2,
             forgotPasswordData: { ...get().forgotPasswordData, email },
-            forgotPasswordOtp: response.data?.otp || null, // demo OTP for local testing
+            forgotPasswordOtp: null, // Don't store OTP on frontend
           });
 
           return response.data;
@@ -446,6 +362,7 @@ export const useAuthStore = create(
             error: null,
           });
           localStorage.removeItem("authToken");
+          localStorage.removeItem("user");
         }
       },
 
@@ -454,7 +371,7 @@ export const useAuthStore = create(
           set({ loading: true, error: null });
 
           // Get latest user data from the backend
-          const { userApi } = await import("../api/userApi.mock");
+          const { userApi } = await import("../api/userApi");
           const response = await userApi.getCurrentUser();
 
           // Update local user state with fresh data from backend
@@ -481,14 +398,14 @@ export const useAuthStore = create(
           set({ loading: true, error: null });
 
           // Import userApi dynamically to avoid circular imports
-          const { userApi } = await import("../api/userApi.mock");
+          const { userApi } = await import("../api/userApi");
 
           // Call the backend API to update the current user
           const response = await userApi.updateCurrentUser({
             firstName: profileData.firstName,
+            middleName: profileData.middleName,
             lastName: profileData.lastName,
             email: profileData.email,
-            phone: profileData.phone,
           });
 
           // Update the local user state with the response from backend
@@ -513,6 +430,46 @@ export const useAuthStore = create(
             loading: false,
             error: errorMessage,
           });
+          throw error;
+        }
+      },
+
+      // Upload profile picture and update user in store
+      uploadProfilePicture: async (profilePictureData) => {
+        try {
+          set({ loading: true, error: null });
+
+          const { user } = get();
+          if (!user) {
+            throw new Error("No user logged in");
+          }
+
+          const { userApi } = await import("../api/userApi");
+          const response = await userApi.uploadProfilePicture(
+            profilePictureData
+          );
+
+          const updatedUser = response.data;
+
+          set({
+            user: updatedUser,
+            loading: false,
+            error: null,
+          });
+
+          try {
+            localStorage.setItem("user", JSON.stringify(updatedUser));
+          } catch (err) {
+            // ignore localStorage errors
+          }
+
+          return { user: updatedUser };
+        } catch (error) {
+          const errorMessage =
+            error?.response?.data?.message ||
+            error.message ||
+            "Failed to upload profile picture";
+          set({ loading: false, error: errorMessage });
           throw error;
         }
       },
@@ -606,23 +563,36 @@ export const useAuthStore = create(
       changePassword: async (currentPassword, newPassword) => {
         try {
           set({ loading: true, error: null });
+
           const { user } = get();
           if (!user) {
             throw new Error("No user logged in");
           }
 
-          // Call mock API to change password
-          const { data } = await authApi.changePassword(
-            user.email,
-            currentPassword,
-            // We'll pass a fake OTP stored for the user when using change flow
-            // For now, we'll generate and verify OTP directly in UI flows or test harness.
-            // Here, we assume OTP verification was done before this call.
-            "000000",
-            newPassword
-          );
+          // For now, we'll keep the dummy data logic for compatibility
+          // In a real app, you'd call the OTP-based password change or a simpler endpoint
+          const userData = usersData.find((u) => u.id === user.id);
+          if (!userData) {
+            throw new Error("User not found");
+          }
 
-          // Update local state with timestamp
+          // Verify current password
+          if (userData.password !== currentPassword) {
+            throw new Error("Current password is incorrect");
+          }
+
+          // Update password in usersData (for demo purposes)
+          const userIndex = usersData.findIndex((u) => u.id === user.id);
+          if (userIndex !== -1) {
+            usersData[userIndex] = {
+              ...usersData[userIndex],
+              password: newPassword,
+              passwordChangedAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+            };
+          }
+
+          // Update user state with password change timestamp
           set({
             user: {
               ...user,
@@ -633,13 +603,12 @@ export const useAuthStore = create(
             error: null,
           });
 
-          return data;
+          return { message: "Password changed successfully!" };
         } catch (error) {
-          const errorMessage =
-            error.response?.data?.message ||
-            error.message ||
-            "Failed to change password";
-          set({ loading: false, error: errorMessage });
+          set({
+            loading: false,
+            error: error.message || "Failed to change password",
+          });
           throw error;
         }
       },
@@ -656,13 +625,16 @@ export const useAuthStore = create(
           // Call backend API to get current user data instead of using static JSON
           try {
             // Import userApi dynamically to avoid circular imports
-            const { userApi } = await import("../api/userApi.mock");
+            const { userApi } = await import("../api/userApi");
 
             // Get current user from backend API
             const response = await userApi.getCurrentUser();
             const user = response.data;
 
             if (!user) {
+              // Clear invalid token and user data
+              localStorage.removeItem("authToken");
+              localStorage.removeItem("user");
               throw new Error("Invalid token - user not found");
             }
 
@@ -723,6 +695,7 @@ export const useAuthStore = create(
             error: null,
           });
           localStorage.removeItem("authToken");
+          localStorage.removeItem("user");
           throw error;
         }
       },
@@ -753,11 +726,7 @@ export const useAuthStore = create(
 
       isHROrAdmin: () => {
         const { user } = get();
-        return user?.role === "CLINIC_STAFF";
-      },
-      isClinicStaffOrAdmin: () => {
-        const { user } = get();
-        return user?.role === "CLINIC_STAFF";
+        return user?.role === "HR";
       },
     }),
     {

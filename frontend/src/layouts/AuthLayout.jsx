@@ -1,11 +1,9 @@
 import React from "react";
-import Navbar from "../components/Navbar";
 
 const AuthLayout = ({ children }) => {
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-1 w-full">{children}</main>
+    <div className="min-h-screen flex items-center justify-center">
+      {children}
     </div>
   );
 };

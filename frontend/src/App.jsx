@@ -1,12 +1,11 @@
 import React, { useEffect } from "react";
-import { useAuthStore } from "./store/authStore";
 import AppRoutes from "./routes/AppRoutes";
+import { useAuthStore } from "./store/authStore";
 
 const App = () => {
   const { initializeAuth } = useAuthStore();
 
   useEffect(() => {
-    // Initialize auth state from localStorage if available
     try {
       initializeAuth();
     } catch (error) {
