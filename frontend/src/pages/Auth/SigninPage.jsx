@@ -5,9 +5,7 @@ import SigninForm from "../../features/auth/SigninForm";
 const SigninPage = () => {
   return (
     <AuthLayout>
-      <div className="container mx-auto flex justify-center items-center min-h-screen">
-        <SigninForm />
-      </div>
+      <SigninForm />
     </AuthLayout>
   );
 };
