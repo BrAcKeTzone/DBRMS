@@ -106,3 +106,9 @@ body {
   background-color: #dbeafe;
   color: #1e40af;
 }
+
+@media (pointer: coarse), (hover: none) {
+  .bg-fixed {
+    background-attachment: scroll; /* or remove fixed positioning */
+  }
+}
