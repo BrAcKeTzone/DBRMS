@@ -258,7 +258,7 @@ const SignupForm = () => {
                 value={formData.firstName}
                 onChange={handleChange}
                 required
-                placeholder="John"
+                placeholder="Enter your first name"
               />
               {validationErrors.firstName && (
                 <p className="mt-1 text-sm text-red-600">
@@ -275,7 +275,7 @@ const SignupForm = () => {
                 value={formData.lastName}
                 onChange={handleChange}
                 required
-                placeholder="Doe"
+                placeholder="Enter your last name"
               />
               {validationErrors.lastName && (
                 <p className="mt-1 text-sm text-red-600">
@@ -292,7 +292,7 @@ const SignupForm = () => {
               type="text"
               value={formData.middleName}
               onChange={handleChange}
-              placeholder="M."
+              placeholder="Enter your middle name"
             />
           </div>
 
