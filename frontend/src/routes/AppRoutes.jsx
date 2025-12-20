@@ -6,7 +6,6 @@ import { useAuthStore } from "../store/authStore";
 import SigninPage from "../pages/Auth/SigninPage";
 import SignupPage from "../pages/Auth/SignupPage";
 import ForgotPasswordPage from "../pages/Auth/ForgotPasswordPage";
-import ProfilePage from "../pages/ProfilePage";
 
 // ClinicStaff pages
 import AdminDashboard from "../pages/ClinicStaff/AdminDashboard";
@@ -19,6 +18,13 @@ import PGDashboard from "../pages/ParentGuardian/PGDashboard";
 import HealthRecordViewing from "../pages/ParentGuardian/HealthRecordViewing";
 import LinkedStudentProfiles from "../pages/ParentGuardian/LinkedStudentProfiles";
 import SMSNotificationsTracking from "../pages/ParentGuardian/SMSNotificationsTracking";
+
+// Shared pages
+import ProfilePage from "../pages/ProfilePage";
+
+// Layout components
+import MainLayout from "../layouts/MainLayout";
+import AdminLayout from "../layouts/AdminLayout";
 
 // Simple protected route component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
@@ -97,7 +103,7 @@ const AppRoutes = () => {
         path="/clinic"
         element={
           <ProtectedRoute allowedRoles={["CLINIC_ADMIN", "CLINIC_STAFF"]}>
-            <div />
+            <AdminLayout />
           </ProtectedRoute>
         }
       >
@@ -113,7 +119,7 @@ const AppRoutes = () => {
         path="/parent"
         element={
           <ProtectedRoute allowedRoles={["PARENT_GUARDIAN"]}>
-            <div />
+            <MainLayout />
           </ProtectedRoute>
         }
       >
