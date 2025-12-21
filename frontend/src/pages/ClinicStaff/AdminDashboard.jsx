@@ -55,7 +55,9 @@ const AdminDashboard = () => {
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
             Clinic Dashboard
           </h1>
-          <p className="text-gray-600">Overview of students, users and recent activity</p>
+          <p className="text-gray-600">
+            Overview of students, users and recent activity
+          </p>
         </div>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
@@ -91,16 +93,25 @@ const AdminDashboard = () => {
           <div className="text-2xl sm:text-3xl font-bold text-blue-600">
             {stats ? stats.total : "—"}
           </div>
-          <p className="text-xs text-gray-500 mt-1">Active: {stats ? stats.active : "—"} | Inactive: {stats ? stats.inactive : "—"}</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Active: {stats ? stats.active : "—"} | Inactive:{" "}
+            {stats ? stats.inactive : "—"}
+          </p>
         </DashboardCard>
 
         <DashboardCard title="Grade Levels" className="text-center">
           <div className="text-sm text-gray-700">
-            {stats && stats.gradeLevelCounts && Object.keys(stats.gradeLevelCounts).length > 0 ? (
+            {stats &&
+            stats.gradeLevelCounts &&
+            Object.keys(stats.gradeLevelCounts).length > 0 ? (
               <div className="space-y-1">
-                {Object.entries(stats.gradeLevelCounts).slice(0, 3).map(([g, cnt]) => (
-                  <div key={g} className="text-sm text-gray-800">{g}: <span className="font-semibold">{cnt}</span></div>
-                ))}
+                {Object.entries(stats.gradeLevelCounts)
+                  .slice(0, 3)
+                  .map(([g, cnt]) => (
+                    <div key={g} className="text-sm text-gray-800">
+                      {g}: <span className="font-semibold">{cnt}</span>
+                    </div>
+                  ))}
               </div>
             ) : (
               <div className="text-gray-500">No data</div>
@@ -112,11 +123,16 @@ const AdminDashboard = () => {
           <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
             {userStats ? userStats.total : "—"}
           </div>
-          <p className="text-xs text-gray-500 mt-1">Admins: {userStats?.adminCount ?? "—"} | Parents: {userStats?.parentCount ?? "—"}</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Admins: {userStats?.adminCount ?? "—"} | Parents:{" "}
+            {userStats?.parentCount ?? "—"}
+          </p>
         </DashboardCard>
 
         <DashboardCard title="Recent Activity" className="text-center">
-          <div className="text-sm text-gray-700">Recent student registrations and updates are shown below.</div>
+          <div className="text-sm text-gray-700">
+            Recent student registrations and updates are shown below.
+          </div>
         </DashboardCard>
       </div>
 
@@ -144,10 +160,21 @@ const AdminDashboard = () => {
                 <tbody>
                   {recentStudents.map((s) => (
                     <tr key={s.id} className="border-t">
-                      <td className="px-3 py-3 text-sm text-gray-900">{s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}</td>
-                      <td className="px-3 py-3 text-sm text-gray-600">{s.studentId || 'N/A'}</td>
-                      <td className="px-3 py-3 text-sm text-gray-600">{s.course ? `${s.course.code} - ${s.course.name}` : 'N/A'}</td>
-                      <td className="px-3 py-3 text-sm text-gray-600">{s.createdAt ? formatDate(s.createdAt) : 'N/A'}</td>
+                      <td className="px-3 py-3 text-sm text-gray-900">
+                        {s.firstName} {s.middleName ? s.middleName + " " : ""}
+                        {s.lastName}
+                      </td>
+                      <td className="px-3 py-3 text-sm text-gray-600">
+                        {s.studentId || "N/A"}
+                      </td>
+                      <td className="px-3 py-3 text-sm text-gray-600">
+                        {s.course
+                          ? `${s.course.code} - ${s.course.name}`
+                          : "N/A"}
+                      </td>
+                      <td className="px-3 py-3 text-sm text-gray-600">
+                        {s.createdAt ? formatDate(s.createdAt) : "N/A"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -157,16 +184,34 @@ const AdminDashboard = () => {
             {/* Mobile list */}
             <div className="lg:hidden space-y-3">
               {recentStudents.map((s) => (
-                <div key={s.id} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
+                <div
+                  key={s.id}
+                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                >
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <div className="font-medium text-gray-900">{s.firstName} {s.middleName ? s.middleName + ' ' : ''}{s.lastName}</div>
-                      <div className="text-sm text-gray-600 mt-1">ID: {s.studentId || 'N/A'}</div>
-                      <div className="text-sm text-gray-600">{s.course ? `${s.course.code} - ${s.course.name}` : 'No course'}</div>
-                      <div className="text-xs text-gray-500 mt-1">Joined: {s.createdAt ? formatDate(s.createdAt) : 'N/A'}</div>
+                      <div className="font-medium text-gray-900">
+                        {s.firstName} {s.middleName ? s.middleName + " " : ""}
+                        {s.lastName}
+                      </div>
+                      <div className="text-sm text-gray-600 mt-1">
+                        ID: {s.studentId || "N/A"}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {s.course
+                          ? `${s.course.code} - ${s.course.name}`
+                          : "No course"}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Joined: {s.createdAt ? formatDate(s.createdAt) : "N/A"}
+                      </div>
                     </div>
                     <div className="flex-shrink-0">
-                      <Button variant="outline" className="w-full sm:w-auto" onClick={() => navigate(`/clinic/students`)}>
+                      <Button
+                        variant="outline"
+                        className="w-full sm:w-auto"
+                        onClick={() => navigate(`/clinic/students`)}
+                      >
                         View
                       </Button>
                     </div>
