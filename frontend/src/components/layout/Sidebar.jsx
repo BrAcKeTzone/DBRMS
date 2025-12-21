@@ -90,6 +90,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
   const getNavigationItems = () => {
     // Clinic staff (admins/staff) have access to clinic routes
+    // Ordered by importance: Dashboard → Health Records → Students → Visit Logging → Users → System Config → Profile
     if (isHROrAdmin()) {
       return [
         {
@@ -107,25 +108,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-              />
-            </svg>
-          ),
-        },
-        {
-          name: "System Config",
-          path: "/clinic/system-configuration",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3"
               />
             </svg>
           ),
@@ -150,25 +132,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           ),
         },
         {
-          name: "Visit Logging",
-          path: "/clinic/visit-logging",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3"
-              />
-            </svg>
-          ),
-        },
-        {
           name: "Students",
           path: "/clinic/students",
           icon: (
@@ -188,6 +151,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           ),
         },
         {
+          name: "Visit Logging",
+          path: "/clinic/visit-logging",
+          icon: (
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3"
+              />
+            </svg>
+          ),
+        },
+        {
           name: "Users",
           path: "/clinic/users",
           icon: (
@@ -202,6 +184,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinejoin="round"
                 strokeWidth={2}
                 d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z"
+              />
+            </svg>
+          ),
+        },
+        {
+          name: "System Config",
+          path: "/clinic/system-configuration",
+          icon: (
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4l3 3"
               />
             </svg>
           ),
