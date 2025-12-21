@@ -82,7 +82,7 @@ const AdminDashboard = () => {
             variant="primary"
             className="w-full sm:w-auto whitespace-nowrap"
           >
-            Add Student
+            Manage Students
           </Button>
         </div>
       </div>
