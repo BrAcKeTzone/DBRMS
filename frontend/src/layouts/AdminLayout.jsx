@@ -3,7 +3,6 @@ import { Outlet } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
-import Breadcrumb from "../components/ui/Breadcrumb";
 
 const AdminLayout = () => {
   const { user, isHROrAdmin } = useAuthStore();
@@ -29,7 +28,6 @@ const AdminLayout = () => {
       <div className="flex flex-1">
         <Sidebar isOpen={isSidebarOpen} setIsOpen={setSidebarOpen} />
         <main className="flex-1 p-4 lg:p-6 text-gray-900">
-          <Breadcrumb />
           <Outlet />
         </main>
       </div>

@@ -41,7 +41,12 @@ const userApi = {
 
   getUserById: async (userId) => {
     // Return a small demo user or null
-    const demoUser = { id: userId, firstName: "Demo", lastName: "User", role: "PARENT_GUARDIAN" };
+    const demoUser = {
+      id: userId,
+      firstName: "Demo",
+      lastName: "User",
+      role: "PARENT_GUARDIAN",
+    };
     return Promise.resolve({ data: demoUser });
   },
 
