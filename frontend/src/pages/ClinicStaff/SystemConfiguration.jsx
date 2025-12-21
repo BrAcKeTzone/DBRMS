@@ -15,6 +15,7 @@ const SystemConfiguration = () => {
     systemSettings,
     updateSystemSettings,
     createBackup,
+    restoreBackup,
     optimizeDatabase,
     clearCache,
     loading,
@@ -28,10 +29,6 @@ const SystemConfiguration = () => {
     defaultTemplate: "",
   });
 
-  const [backupSchedule, setBackupSchedule] = useState({
-    frequency: "daily",
-    time: "02:00",
-  });
   const [showConfirmBackup, setShowConfirmBackup] = useState(false);
   const [message, setMessage] = useState(null);
 
@@ -53,12 +50,6 @@ const SystemConfiguration = () => {
     });
   }, [notificationSettings]);
 
-  useEffect(() => {
-    if (systemSettings?.backupSchedule) {
-      setBackupSchedule(systemSettings.backupSchedule);
-    }
-  }, [systemSettings]);
-
   const handleSaveSms = async (e) => {
     e.preventDefault();
     try {
@@ -76,20 +67,20 @@ const SystemConfiguration = () => {
     }
   };
 
-  const handleSaveBackupSchedule = async (e) => {
-    e.preventDefault();
+  // Manual import handler
+  const handleImportBackup = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
     try {
-      await updateSystemSettings({
-        backupSchedule: { ...backupSchedule, format: "xlsx" },
-      });
+      await restoreBackup(file);
       setMessage({
         type: "success",
-        text: "Backup schedule saved (format: XLSX)",
+        text: "Backup file imported successfully",
       });
     } catch (err) {
       setMessage({
         type: "error",
-        text: err.message || "Failed to save backup schedule",
+        text: err.message || "Failed to import backup",
       });
     }
   };
@@ -211,71 +202,51 @@ const SystemConfiguration = () => {
         </form>
       </DashboardCard>
 
-      {/* Backups & Maintenance */}
+      {/* Backups & Maintenance (manual) */}
       <DashboardCard title="Backups & Maintenance">
         <div className="space-y-4">
-          <form
-            onSubmit={handleSaveBackupSchedule}
-            className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end"
-          >
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Frequency
+                Export All Data (XLSX)
               </label>
-              <select
-                className="w-full p-2 border border-gray-300 rounded-md bg-white"
-                value={backupSchedule.frequency}
-                onChange={(e) =>
-                  setBackupSchedule({
-                    ...backupSchedule,
-                    frequency: e.target.value,
-                  })
-                }
-              >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-              </select>
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setShowConfirmBackup(true)}
+                  className="w-full sm:w-auto"
+                >
+                  Export (Download)
+                </Button>
+                <div className="text-sm text-gray-500 ml-2">
+                  {systemSettings?.lastBackup
+                    ? `Last backup: ${systemSettings.lastBackup}`
+                    : ""}
+                </div>
+              </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Time
+                Import Backup (XLSX)
               </label>
-              <input
-                type="time"
-                value={backupSchedule.time}
-                onChange={(e) =>
-                  setBackupSchedule({ ...backupSchedule, time: e.target.value })
-                }
-                className="w-full p-2 border border-gray-300 rounded-md"
-              />
+              <div className="flex gap-2">
+                <input
+                  type="file"
+                  accept=".xlsx"
+                  onChange={handleImportBackup}
+                  className="w-full sm:w-auto"
+                />
+                <div className="text-sm text-gray-500 ml-2">
+                  Upload an XLSX export to restore data
+                </div>
+              </div>
             </div>
-
-            <div className="flex gap-2">
-              <Button type="submit">Save Schedule</Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowConfirmBackup(true)}
-              >
-                Run Backup Now (XLSX)
-              </Button>
-            </div>
-          </form>
-
-          <div className="flex flex-col sm:flex-row gap-2">
-            <Button variant="outline" onClick={handleOptimize}>
-              Optimize Database
-            </Button>
-            <Button variant="outline" onClick={handleClearCache}>
-              Clear Cache
-            </Button>
           </div>
 
           <div>
             <p className="text-sm text-gray-500">
-              Note: Backups will use <strong>XLSX</strong> format and be
-              available for download.
+              Note: Import will replace matching data from the uploaded XLSX.
+              Use with caution.
             </p>
           </div>
         </div>

@@ -252,21 +252,24 @@ export const useSettingsStore = create(
         }
       },
 
-      // Backup and restore
+      // Backup and restore (XLSX)
       createBackup: async () => {
         try {
           set({ loading: true, error: null });
-          const response = await settingsApi.createBackup();
+          const response = await settingsApi.backupSettings();
           set({ loading: false });
 
-          // Create blob and download
-          const blob = new Blob([response.data], { type: "application/zip" });
+          // Handle blob and download as XLSX
+          const blobData = response.data || response;
+          const blob = new Blob([blobData], {
+            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          });
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement("a");
           link.href = url;
-          link.download = `pta-backup-${
+          link.download = `dmrms-backup-${
             new Date().toISOString().split("T")[0]
-          }.zip`;
+          }.xlsx`;
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
