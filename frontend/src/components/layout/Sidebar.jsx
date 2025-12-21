@@ -4,10 +4,13 @@ import { useAuthStore } from "../../store/authStore";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
-  const { user } = useAuthStore();
+  const { user, isHROrAdmin } = useAuthStore();
 
+  // Consider the route active if pathname equals the path or starts with it
   const isActive = (path) => {
-    return location.pathname === path;
+    return (
+      location.pathname === path || location.pathname.startsWith(path + "/")
+    );
   };
 
   const getMenuItemColors = (index, isActive) => {
@@ -86,13 +89,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   };
 
   const getNavigationItems = () => {
-    const role = user?.role;
-
-    if (role === "ADMIN") {
+    // Clinic staff (admins/staff) have access to clinic routes
+    if (isHROrAdmin()) {
       return [
         {
           name: "Dashboard",
-          path: "/admin/dashboard",
+          path: "/clinic/dashboard",
           icon: (
             <svg
               className="w-5 h-5"
@@ -110,8 +112,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           ),
         },
         {
-          name: "Meetings",
-          path: "/admin/meetings",
+          name: "System Config",
+          path: "/clinic/system-configuration",
           icon: (
             <svg
               className="w-5 h-5"
@@ -123,14 +125,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                d="M12 8v4l3 3"
               />
             </svg>
           ),
         },
         {
-          name: "Contributions",
-          path: "/admin/contributions",
+          name: "Health Records",
+          path: "/clinic/health-records",
           icon: (
             <svg
               className="w-5 h-5"
@@ -142,14 +144,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
               />
             </svg>
           ),
         },
         {
-          name: "Projects",
-          path: "/admin/projects",
+          name: "Visit Logging",
+          path: "/clinic/visit-logging",
           icon: (
             <svg
               className="w-5 h-5"
@@ -161,71 +163,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-              />
-            </svg>
-          ),
-        },
-        {
-          name: "Reports",
-          path: "/admin/reports",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-              />
-            </svg>
-          ),
-        },
-        {
-          name: "Announcements",
-          path: "/admin/announcements",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
-              />
-            </svg>
-          ),
-        },
-        {
-          name: "Clearance",
-          path: "/admin/clearance",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                d="M12 8v4l3 3"
               />
             </svg>
           ),
         },
         {
           name: "Students",
-          path: "/admin/students",
+          path: "/clinic/students",
           icon: (
             <svg
               className="w-5 h-5"
@@ -237,33 +182,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-          ),
-        },
-        {
-          name: "Link Requests",
-          path: "/admin/student-links",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z"
               />
             </svg>
           ),
         },
         {
           name: "Users",
-          path: "/admin/users",
+          path: "/clinic/users",
           icon: (
             <svg
               className="w-5 h-5"
@@ -275,32 +201,13 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m-4-5.197v2.25M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-          ),
-        },
-        {
-          name: "Officers",
-          path: "/admin/officers",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z"
               />
             </svg>
           ),
         },
       ];
-    } else if (role === "PARENT") {
+    } else if (user?.role === "PARENT_GUARDIAN") {
       return [
         {
           name: "Dashboard",
@@ -322,8 +229,8 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           ),
         },
         {
-          name: "My Attendance",
-          path: "/parent/attendance",
+          name: "Linked Students",
+          path: "/parent/linked-students",
           icon: (
             <svg
               className="w-5 h-5"
@@ -335,14 +242,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z"
               />
             </svg>
           ),
         },
         {
-          name: "My Contributions",
-          path: "/parent/contributions",
+          name: "Health Records",
+          path: "/parent/health-records",
           icon: (
             <svg
               className="w-5 h-5"
@@ -354,14 +261,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
               />
             </svg>
           ),
         },
         {
-          name: "Announcements",
-          path: "/parent/announcements",
+          name: "SMS Tracking",
+          path: "/parent/sms-tracking",
           icon: (
             <svg
               className="w-5 h-5"
@@ -373,14 +280,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"
+                d="M12 8v4l3 3"
               />
             </svg>
           ),
         },
         {
-          name: "Projects",
-          path: "/parent/projects",
+          name: "Profile",
+          path: "/parent/profile",
           icon: (
             <svg
               className="w-5 h-5"
@@ -392,64 +299,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth={2}
-                d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
-              />
-            </svg>
-          ),
-        },
-        {
-          name: "My Student",
-          path: "/parent/my-children",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-              />
-            </svg>
-          ),
-        },
-        {
-          name: "Officers",
-          path: "/parent/officers",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"
-              />
-            </svg>
-          ),
-        },
-        {
-          name: "QR Scanner",
-          path: "/parent/qr-scanner",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4v1m6 11h2m-6 0h-2v4h2m0-6V9a3 3 0 00-3-3H9m1.5-2-1.5 1.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM6 20v-1a6 6 0 0112 0v1"
               />
             </svg>
           ),
@@ -486,7 +336,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                 Navigation
               </h2>
               <p className="text-xs text-blue-600 mt-1 font-medium">
-                {user?.role === "ADMIN" ? "Admin Panel" : "Parent Portal"}
+                {isHROrAdmin() ? "Clinic Panel" : "Parent Portal"}
               </p>
             </div>
             <button

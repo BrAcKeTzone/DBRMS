@@ -4,7 +4,7 @@ import { useAuthStore } from "../../store/authStore";
 
 const Breadcrumb = () => {
   const location = useLocation();
-  const { user } = useAuthStore();
+  const { user, isHROrAdmin } = useAuthStore();
 
   const getBreadcrumbs = () => {
     const pathnames = location.pathname.split("/").filter((x) => x);
@@ -15,13 +15,13 @@ const Breadcrumb = () => {
     let currentPath = "";
 
     // Add home/dashboard link
-    if (user?.role === "ADMIN") {
+    if (isHROrAdmin()) {
       breadcrumbs.push({
-        name: "Admin Dashboard",
-        path: "/admin/dashboard",
+        name: "Clinic Dashboard",
+        path: "/clinic/dashboard",
         isHome: true,
       });
-    } else if (user?.role === "PARENT") {
+    } else if (user?.role === "PARENT_GUARDIAN") {
       breadcrumbs.push({
         name: "Parent Dashboard",
         path: "/parent/dashboard",

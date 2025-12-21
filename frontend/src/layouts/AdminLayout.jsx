@@ -6,10 +6,11 @@ import Sidebar from "../components/layout/Sidebar";
 import Breadcrumb from "../components/ui/Breadcrumb";
 
 const AdminLayout = () => {
-  const { user } = useAuthStore();
+  const { user, isHROrAdmin } = useAuthStore();
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
-  if (!user || user.role !== "ADMIN") {
+  // Show access denied if user is not logged in or not clinic admin/staff
+  if (!user || !isHROrAdmin()) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">

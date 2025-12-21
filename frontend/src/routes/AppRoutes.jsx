@@ -12,6 +12,8 @@ import AdminDashboard from "../pages/ClinicStaff/AdminDashboard";
 import SystemConfiguration from "../pages/ClinicStaff/SystemConfiguration";
 import HealthRecordManagement from "../pages/ClinicStaff/HealthRecordManagement";
 import ClinicVisitLogging from "../pages/ClinicStaff/ClinicVisitLogging";
+import Students from "../pages/ClinicStaff/Students";
+import Users from "../pages/ClinicStaff/Users";
 
 // Parent pages
 import PGDashboard from "../pages/ParentGuardian/PGDashboard";
@@ -111,6 +113,8 @@ const AppRoutes = () => {
         <Route path="system-configuration" element={<SystemConfiguration />} />
         <Route path="health-records" element={<HealthRecordManagement />} />
         <Route path="visit-logging" element={<ClinicVisitLogging />} />
+        <Route path="students" element={<Students />} />
+        <Route path="users" element={<Users />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
