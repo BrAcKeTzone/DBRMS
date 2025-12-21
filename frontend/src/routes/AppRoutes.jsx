@@ -18,7 +18,7 @@ import Users from "../pages/ClinicStaff/Users";
 // Parent pages
 import PGDashboard from "../pages/ParentGuardian/PGDashboard";
 import HealthRecordViewing from "../pages/ParentGuardian/HealthRecordViewing";
-import LinkedStudentProfiles from "../pages/ParentGuardian/LinkedStudentProfiles";
+import MyChildren from "../pages/ParentGuardian/MyChildren";
 import SMSNotificationsTracking from "../pages/ParentGuardian/SMSNotificationsTracking";
 
 // Shared pages
@@ -129,7 +129,7 @@ const AppRoutes = () => {
       >
         <Route path="dashboard" element={<PGDashboard />} />
         <Route path="health-records" element={<HealthRecordViewing />} />
-        <Route path="linked-students" element={<LinkedStudentProfiles />} />
+        <Route path="linked-students" element={<MyChildren />} />
         <Route path="sms-tracking" element={<SMSNotificationsTracking />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
