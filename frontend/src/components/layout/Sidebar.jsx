@@ -151,6 +151,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           ),
         },
         {
+          name: "Student Links",
+          path: "/clinic/student-links",
+          icon: (
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m4-4h.01M19 7v6a2 2 0 01-2 2h-1"
+              />
+            </svg>
+          ),
+        },
+        {
           name: "Visit Logging",
           path: "/clinic/visit-logging",
           icon: (
@@ -350,34 +369,47 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         style={{ maxHeight: "calc(100vh - 4rem)" }}
       >
         <div className="p-6 border-b border-blue-200 bg-linear-to-r from-blue-100 to-blue-100">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-lg font-semibold text-blue-800">
-                Navigation
-              </h2>
-              <p className="text-xs text-blue-600 mt-1 font-medium">
-                {isHROrAdmin() ? "Clinic Panel" : "Parent Portal"}
-              </p>
+          <div className="flex flex-col items-start mb-6">
+            <div className="w-full mb-3">
+              <img
+                src="/assets/logo.png"
+                alt="Logo"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/assets/logo.svg";
+                }}
+                className="w-full h-56 md:h-48 sm:h-44 rounded-md object-contain"
+              />
             </div>
-            <button
-              onClick={() => setIsOpen(false)}
-              className="lg:hidden text-blue-500 hover:text-blue-700 transition-colors"
-              aria-label="Close sidebar"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="w-full flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-semibold text-blue-800">
+                  Navigation
+                </h2>
+                <p className="text-xs text-blue-600 mt-1 font-medium">
+                  {isHROrAdmin() ? "Clinic Panel" : "Parent Portal"}
+                </p>
+              </div>
+              <button
+                onClick={() => setIsOpen(false)}
+                className="lg:hidden text-blue-500 hover:text-blue-700 transition-colors"
+                aria-label="Close sidebar"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <nav className="space-y-2">

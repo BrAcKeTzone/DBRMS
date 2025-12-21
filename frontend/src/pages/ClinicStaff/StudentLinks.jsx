@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { studentsApi } from "../../api/studentsApi";
-import Table from "../../components/Table";
-import Button from "../../components/Button";
-import Modal from "../../components/Modal";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import Table from "../../components/ui/Table";
+import Button from "../../components/ui/Button";
+import Modal from "../../components/ui/Modal";
+import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { formatDate } from "../../utils/formatDate";
-import StatusBadge from "../../components/StatusBadge";
+import StatusBadge from "../../components/ui/StatusBadge";
 
 const StudentLinksManagement = () => {
   const [linkRequests, setLinkRequests] = useState([]);
