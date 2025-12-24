@@ -1,4 +1,4 @@
-// Prisma schema — upgraded for Prisma v7.
+// Prisma schema — prepared for Prisma v6.
 // NOTE: After upgrading packages, run `npm install`, then `npx prisma generate` and review migrations with `npx prisma migrate dev` (do this in a dev DB).
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
