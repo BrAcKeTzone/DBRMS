@@ -1,38 +1,32 @@
-// Minimal stub API for development
+import { fetchClient } from "../utils/fetchClient";
+
 export const authApi = {
   login: async ({ email, password }) => {
-    // For local dev, accept any credentials and return a demo user
-    const demoUser = {
-      id: 1,
-      email,
-      firstName: "Demo",
-      lastName: "User",
-      role: "HR",
-    };
-    const token = "demo-token";
-    return Promise.resolve({ data: { user: demoUser, token } });
+    return fetchClient.post("/auth/login", { email, password });
   },
   register: async (userData) => {
-    // Accept registration and return success
-    return Promise.resolve({ data: { success: true } });
+    return fetchClient.post("/auth/register", userData);
   },
   sendOtp: async (email) => {
-    return Promise.resolve({ data: { success: true } });
+    return fetchClient.post("/auth/send-otp", { email });
   },
   verifyOtp: async (email, otp) => {
-    return Promise.resolve({ data: { success: true } });
+    return fetchClient.post("/auth/verify-otp", { email, otp });
   },
   sendOtpForReset: async (email) => {
-    return Promise.resolve({ data: { success: true } });
+    return fetchClient.post("/auth/send-otp-reset", { email });
   },
   verifyOtpForReset: async (email, otp) => {
-    return Promise.resolve({ data: { success: true } });
+    return fetchClient.post("/auth/verify-otp-reset", { email, otp });
   },
   resetPassword: async (email, otp, newPassword) => {
-    return Promise.resolve({ data: { success: true } });
+    return fetchClient.post("/auth/reset-password", {
+      email,
+      otp,
+      password: newPassword,
+    });
   },
   verifyToken: async (token) => {
-    // In demo, treat any token as valid
-    return Promise.resolve({ data: { valid: true } });
+    return fetchClient.post("/auth/verify-token", { token });
   },
 };

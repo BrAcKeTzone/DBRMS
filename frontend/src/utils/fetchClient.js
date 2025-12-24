@@ -1,8 +1,13 @@
 import axios from "axios";
 
 // Create axios instance with default configuration
+const API_ROOT = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const BASE_API_URL = API_ROOT.endsWith("/api")
+  ? API_ROOT
+  : `${API_ROOT.replace(/\/$/, "")}/api`;
+
 const fetchClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
+  baseURL: BASE_API_URL,
   timeout: 30000, // Increased to 30 seconds for file uploads
   headers: {
     "Content-Type": "application/json",
@@ -11,7 +16,7 @@ const fetchClient = axios.create({
 
 // Create a special instance for file uploads with extended timeout
 const fileUploadClient = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:3000",
+  baseURL: BASE_API_URL,
   timeout: 120000, // 2 minutes for large file uploads
   headers: {},
 });

@@ -27,6 +27,7 @@ const SignupForm = () => {
     firstName: "",
     middleName: "",
     lastName: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
@@ -88,6 +89,12 @@ const SignupForm = () => {
       errors.lastName = "Last name is required";
     }
 
+    if (!formData.phone.trim()) {
+      errors.phone = "Phone number is required";
+    } else if (!/^\+?\d{7,15}$/.test(formData.phone)) {
+      errors.phone = "Please enter a valid phone number";
+    }
+
     if (!formData.password) {
       errors.password = "Password is required";
     } else if (formData.password.length < 6) {
@@ -109,7 +116,7 @@ const SignupForm = () => {
     if (!validateEmail()) return;
 
     try {
-      const result = await sendOtp(formData.email);
+      await sendOtp(formData.email);
       // OTP will be sent to the user's email
     } catch (err) {
       console.error("Failed to send OTP:", err);
@@ -136,6 +143,7 @@ const SignupForm = () => {
         firstName: formData.firstName,
         middleName: formData.middleName,
         lastName: formData.lastName,
+        phone: formData.phone,
         password: formData.password,
       });
     } catch (err) {
@@ -151,6 +159,7 @@ const SignupForm = () => {
       firstName: "",
       middleName: "",
       lastName: "",
+      phone: "",
       password: "",
       confirmPassword: "",
     });
@@ -283,6 +292,23 @@ const SignupForm = () => {
                 </p>
               )}
             </div>
+          </div>
+
+          <div>
+            <Input
+              label="Phone Number"
+              name="phone"
+              type="tel"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+              placeholder="e.g. +632912345678"
+            />
+            {validationErrors.phone && (
+              <p className="mt-1 text-sm text-red-600">
+                {validationErrors.phone}
+              </p>
+            )}
           </div>
 
           <div>

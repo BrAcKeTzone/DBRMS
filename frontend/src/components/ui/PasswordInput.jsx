@@ -2,7 +2,6 @@ import React, { useState } from "react";
 
 const PasswordInput = ({
   name,
-  label,
   value,
   onChange,
   placeholder = "Password",

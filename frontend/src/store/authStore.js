@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import usersData from "../data/users.json";
+import { authApi } from "../api/authAPI";
 
 export const useAuthStore = create(
   persist(
@@ -42,35 +43,57 @@ export const useAuthStore = create(
           set({ loading: true, error: null });
 
           const { email, password } = credentials;
-          const users = get().users || usersData;
-          const user = users.find((u) => u.email === email);
 
-          if (!user || user.password !== password) {
-            const errMsg = "Invalid email or password";
+          try {
+            const response = await authApi.login({ email, password });
+            const payload = response.data?.data || response.data;
+            const { user, token } = payload;
+
+            set({
+              user,
+              token,
+              isAuthenticated: true,
+              loading: false,
+              error: null,
+            });
+
+            try {
+              localStorage.setItem("authToken", token);
+              localStorage.setItem("user", JSON.stringify(user));
+            } catch (e) {
+              console.debug(e);
+            }
+
+            return { user, token };
+          } catch (apiError) {
+            // If backend returned error, try demo fallback
+            const apiMessage =
+              apiError?.response?.data?.message || apiError?.message;
+            const users = get().users || usersData;
+            const user = users.find((u) => u.email === email);
+
+            if (user && user.password === password) {
+              const token = `demo-token-${user.id}`;
+              set({
+                user,
+                token,
+                isAuthenticated: true,
+                loading: false,
+                error: null,
+              });
+              try {
+                localStorage.setItem("authToken", token);
+                localStorage.setItem("user", JSON.stringify(user));
+              } catch (e) {
+                console.debug(e);
+              }
+              return { user, token };
+            }
+
+            const errMsg = apiMessage || "Invalid email or password";
             set({ loading: false, error: errMsg });
             throw new Error(errMsg);
           }
-
-          const token = `demo-token-${user.id}`;
-
-          set({
-            user,
-            token,
-            isAuthenticated: true,
-            loading: false,
-            error: null,
-          });
-
-          try {
-            localStorage.setItem("authToken", token);
-            localStorage.setItem("user", JSON.stringify(user));
-            // persist users list for the demo
-            localStorage.setItem("users", JSON.stringify(users));
-          } catch (e) {
-            // ignore localStorage failures in some environments
-          }
-
-          return { user, token };
         } catch (error) {
           if (!error.message) {
             set({ loading: false, error: "Login failed" });
@@ -108,7 +131,9 @@ export const useAuthStore = create(
 
           try {
             localStorage.setItem("users", JSON.stringify(users));
-          } catch (e) {}
+          } catch (e) {
+            console.debug(e);
+          }
 
           return newUser;
         } catch (error) {
@@ -120,49 +145,90 @@ export const useAuthStore = create(
         }
       },
 
-      // Phase 1: Send OTP to email (demo)
+      // Phase 1: Send OTP to email (server-backed, with fallback)
       sendOtp: async (email) => {
         try {
           set({ loading: true, error: null });
 
-          const otp = Math.floor(100000 + Math.random() * 900000).toString();
+          try {
+            await authApi.sendOtp(email);
 
-          set({
-            loading: false,
-            error: null,
-            signupPhase: 2,
-            signupData: { ...get().signupData, email },
-            generatedOtp: otp,
-          });
+            set({
+              loading: false,
+              error: null,
+              signupPhase: 2,
+              signupData: { ...get().signupData, email },
+              generatedOtp: null,
+            });
 
-          return { otp };
+            return { success: true };
+          } catch (apiError) {
+            const msg =
+              apiError?.response?.data?.message ||
+              apiError?.message ||
+              "Failed to send OTP";
+            // If no response (network), fallback to demo OTP
+            if (!apiError?.response) {
+              const otp = Math.floor(
+                100000 + Math.random() * 900000
+              ).toString();
+              set({
+                loading: false,
+                error: null,
+                signupPhase: 2,
+                signupData: { ...get().signupData, email },
+                generatedOtp: otp,
+              });
+              return { otp };
+            }
+
+            set({ loading: false, error: msg });
+            throw new Error(msg);
+          }
         } catch (error) {
-          set({ loading: false, error: "Failed to send OTP" });
+          set({ loading: false, error: error.message || "Failed to send OTP" });
           throw error;
         }
       },
 
-      // Phase 2: Verify OTP (demo)
+      // Phase 2: Verify OTP (server-backed, with fallback)
       verifyOtp: async (otp) => {
         try {
           set({ loading: true, error: null });
 
-          const { signupData, generatedOtp } = get();
+          const { signupData } = get();
 
-          if (!generatedOtp || otp !== generatedOtp) {
-            const errMsg = "Invalid OTP";
-            set({ loading: false, error: errMsg });
-            throw new Error(errMsg);
+          try {
+            await authApi.verifyOtp(signupData.email, otp);
+
+            set({
+              loading: false,
+              error: null,
+              signupPhase: 3,
+              signupData: { ...signupData, otp },
+            });
+
+            return { success: true };
+          } catch (apiError) {
+            const msg =
+              apiError?.response?.data?.message ||
+              apiError?.message ||
+              "Invalid OTP";
+            // Fallback: if generatedOtp exists, verify against that
+            const { generatedOtp } = get();
+            if (!apiError?.response && generatedOtp && otp === generatedOtp) {
+              set({
+                loading: false,
+                error: null,
+                signupPhase: 3,
+                signupData: { ...signupData, otp },
+              });
+              return { success: true };
+            }
+
+            set({ loading: false, error: msg });
+            throw new Error(msg);
           }
-
-          set({
-            loading: false,
-            error: null,
-            signupPhase: 3,
-            signupData: { ...signupData, otp },
-          });
-
-          return { success: true };
         } catch (error) {
           set({
             loading: false,
@@ -172,48 +238,101 @@ export const useAuthStore = create(
         }
       },
 
-      // Phase 3: Complete registration (demo)
+      // Phase 3: Complete registration (server-backed, with fallback)
       completeRegistration: async (personalData) => {
         try {
           set({ loading: true, error: null });
 
           const { signupData } = get();
-          const users = get().users ? [...get().users] : [...usersData];
-
-          const exists = users.find((u) => u.email === signupData.email);
-          if (exists) {
-            const errMsg = "Email already registered";
-            set({ loading: false, error: errMsg });
-            throw new Error(errMsg);
-          }
-
-          const id = users.reduce((maxId, u) => Math.max(maxId, u.id), 0) + 1;
-          const newUser = {
-            id,
-            email: signupData.email,
-            password: personalData.password,
-            firstName: personalData.firstName || "",
-            middleName: personalData.middleName || "",
-            lastName: personalData.lastName || "",
-            role: personalData.role || "PARENT_GUARDIAN",
-            isActive: true,
-          };
-
-          users.push(newUser);
-
-          set({
-            users,
-            loading: false,
-            error: null,
-            signupPhase: 4,
-            signupData: { ...signupData, ...personalData },
-          });
 
           try {
-            localStorage.setItem("users", JSON.stringify(users));
-          } catch (e) {}
+            const payload = {
+              email: signupData.email,
+              otp: signupData.otp,
+              firstName: personalData.firstName,
+              middleName: personalData.middleName,
+              lastName: personalData.lastName,
+              phone: personalData.phone || "",
+              password: personalData.password,
+            };
 
-          return newUser;
+            const response = await authApi.register(payload);
+            const result = response.data?.data || response.data;
+            const { user, token } = result;
+
+            set({
+              user,
+              token,
+              isAuthenticated: true,
+              loading: false,
+              error: null,
+              signupPhase: 4,
+              signupData: { ...signupData, ...personalData },
+            });
+
+            try {
+              localStorage.setItem("authToken", token);
+              localStorage.setItem("user", JSON.stringify(user));
+            } catch (e) {
+              console.debug(e);
+            }
+
+            return user;
+          } catch (apiError) {
+            const msg =
+              apiError?.response?.data?.message ||
+              apiError?.message ||
+              "Registration failed";
+            // Fallback: create demo user locally if network error
+            if (!apiError?.response) {
+              const users = get().users ? [...get().users] : [...usersData];
+              const exists = users.find((u) => u.email === signupData.email);
+              if (exists) {
+                const errMsg = "Email already registered";
+                set({ loading: false, error: errMsg });
+                throw new Error(errMsg);
+              }
+
+              const id =
+                users.reduce((maxId, u) => Math.max(maxId, u.id), 0) + 1;
+              const newUser = {
+                id,
+                email: signupData.email,
+                password: personalData.password,
+                firstName: personalData.firstName || "",
+                middleName: personalData.middleName || "",
+                lastName: personalData.lastName || "",
+                role: personalData.role || "PARENT_GUARDIAN",
+                isActive: true,
+              };
+
+              users.push(newUser);
+
+              set({
+                users,
+                loading: false,
+                error: null,
+                signupPhase: 4,
+                signupData: { ...signupData, ...personalData },
+                user: newUser,
+                token: `demo-token-${id}`,
+                isAuthenticated: true,
+              });
+
+              try {
+                localStorage.setItem("users", JSON.stringify(users));
+                localStorage.setItem("authToken", `demo-token-${id}`);
+                localStorage.setItem("user", JSON.stringify(newUser));
+              } catch (e) {
+                console.debug(e);
+              }
+
+              return newUser;
+            }
+
+            set({ loading: false, error: msg });
+            throw new Error(msg);
+          }
         } catch (error) {
           set({
             loading: false,
@@ -242,30 +361,51 @@ export const useAuthStore = create(
       },
 
       // Forgot Password Functions
-      // Phase 1: Send OTP for password reset (demo)
+      // Phase 1: Send OTP for password reset (server-backed, with fallback)
       sendPasswordResetOtp: async (email) => {
         try {
           set({ loading: true, error: null });
 
-          const users = get().users || usersData;
-          const user = users.find((u) => u.email === email);
-          if (!user) {
-            const errMsg = "No account found for this email";
-            set({ loading: false, error: errMsg });
-            throw new Error(errMsg);
+          try {
+            await authApi.sendOtpForReset(email);
+
+            set({
+              loading: false,
+              error: null,
+              forgotPasswordPhase: 2,
+              forgotPasswordData: { ...get().forgotPasswordData, email },
+              forgotPasswordOtp: null,
+            });
+
+            return { success: true };
+          } catch (apiError) {
+            const msg =
+              apiError?.response?.data?.message ||
+              apiError?.message ||
+              "Failed to send password reset OTP";
+            if (!apiError?.response) {
+              const users = get().users || usersData;
+              const user = users.find((u) => u.email === email);
+              if (!user) {
+                const errMsg = "No account found for this email";
+                set({ loading: false, error: errMsg });
+                throw new Error(errMsg);
+              }
+              const otp = Math.floor(
+                100000 + Math.random() * 900000
+              ).toString();
+              set({
+                loading: false,
+                error: null,
+                forgotPasswordPhase: 2,
+                forgotPasswordData: { ...get().forgotPasswordData, email },
+                forgotPasswordOtp: otp,
+              });
+              return { otp };
+            }
+            set({ loading: false, error: msg });
+            throw new Error(msg);
           }
-
-          const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-          set({
-            loading: false,
-            error: null,
-            forgotPasswordPhase: 2,
-            forgotPasswordData: { ...get().forgotPasswordData, email },
-            forgotPasswordOtp: otp,
-          });
-
-          return { otp };
         } catch (error) {
           set({
             loading: false,
@@ -275,27 +415,44 @@ export const useAuthStore = create(
         }
       },
 
-      // Phase 2: Verify OTP for password reset (demo)
+      // Phase 2: Verify OTP for password reset (server-backed, with fallback)
       verifyPasswordResetOtp: async (otp) => {
         try {
           set({ loading: true, error: null });
 
-          const { forgotPasswordOtp, forgotPasswordData } = get();
+          const { forgotPasswordData } = get();
 
-          if (!forgotPasswordOtp || otp !== forgotPasswordOtp) {
-            const errMsg = "Invalid OTP";
-            set({ loading: false, error: errMsg });
-            throw new Error(errMsg);
+          try {
+            await authApi.verifyOtpForReset(forgotPasswordData.email, otp);
+            set({
+              loading: false,
+              error: null,
+              forgotPasswordPhase: 3,
+              forgotPasswordData: { ...forgotPasswordData, otp },
+            });
+            return { success: true };
+          } catch (apiError) {
+            const msg =
+              apiError?.response?.data?.message ||
+              apiError?.message ||
+              "Invalid OTP";
+            const { forgotPasswordOtp } = get();
+            if (
+              !apiError?.response &&
+              forgotPasswordOtp &&
+              otp === forgotPasswordOtp
+            ) {
+              set({
+                loading: false,
+                error: null,
+                forgotPasswordPhase: 3,
+                forgotPasswordData: { ...forgotPasswordData, otp },
+              });
+              return { success: true };
+            }
+            set({ loading: false, error: msg });
+            throw new Error(msg);
           }
-
-          set({
-            loading: false,
-            error: null,
-            forgotPasswordPhase: 3,
-            forgotPasswordData: { ...forgotPasswordData, otp },
-          });
-
-          return { success: true };
         } catch (error) {
           set({
             loading: false,
@@ -305,38 +462,63 @@ export const useAuthStore = create(
         }
       },
 
-      // Phase 3: Reset password (demo)
+      // Phase 3: Reset password (server-backed, with fallback)
       resetPassword: async (passwordData) => {
         try {
           set({ loading: true, error: null });
 
           const { forgotPasswordData } = get();
-          const users = get().users ? [...get().users] : [...usersData];
-
-          const idx = users.findIndex(
-            (u) => u.email === forgotPasswordData.email
-          );
-          if (idx === -1) {
-            const errMsg = "No account found";
-            set({ loading: false, error: errMsg });
-            throw new Error(errMsg);
-          }
-
-          users[idx] = { ...users[idx], password: passwordData.newPassword };
-
-          set({
-            users,
-            loading: false,
-            error: null,
-            forgotPasswordPhase: 4,
-            forgotPasswordData: { ...forgotPasswordData, ...passwordData },
-          });
 
           try {
-            localStorage.setItem("users", JSON.stringify(users));
-          } catch (e) {}
+            await authApi.resetPassword(
+              forgotPasswordData.email,
+              forgotPasswordData.otp,
+              passwordData.newPassword
+            );
+            set({
+              loading: false,
+              error: null,
+              forgotPasswordPhase: 4,
+              forgotPasswordData: { ...forgotPasswordData, ...passwordData },
+            });
+            return { success: true };
+          } catch (apiError) {
+            const msg =
+              apiError?.response?.data?.message ||
+              apiError?.message ||
+              "Password reset failed";
+            if (!apiError?.response) {
+              const users = get().users ? [...get().users] : [...usersData];
+              const idx = users.findIndex(
+                (u) => u.email === forgotPasswordData.email
+              );
+              if (idx === -1) {
+                const errMsg = "No account found";
+                set({ loading: false, error: errMsg });
+                throw new Error(errMsg);
+              }
+              users[idx] = {
+                ...users[idx],
+                password: passwordData.newPassword,
+              };
+              set({
+                users,
+                loading: false,
+                error: null,
+                forgotPasswordPhase: 4,
+                forgotPasswordData: { ...forgotPasswordData, ...passwordData },
+              });
+              try {
+                localStorage.setItem("users", JSON.stringify(users));
+              } catch (e) {
+                console.debug(e);
+              }
+              return { success: true };
+            }
 
-          return { success: true };
+            set({ loading: false, error: msg });
+            throw new Error(msg);
+          }
         } catch (error) {
           set({
             loading: false,
@@ -563,7 +745,9 @@ export const useAuthStore = create(
           try {
             localStorage.setItem("users", JSON.stringify(users));
             localStorage.setItem("user", JSON.stringify(users[idx]));
-          } catch (e) {}
+          } catch (e) {
+            console.debug(e);
+          }
 
           return { success: true };
         } catch (error) {
@@ -609,7 +793,9 @@ export const useAuthStore = create(
           try {
             localStorage.setItem("users", JSON.stringify(users));
             localStorage.setItem("user", JSON.stringify(users[idx]));
-          } catch (e) {}
+          } catch (e) {
+            console.debug(e);
+          }
 
           return { message: "Password changed successfully!" };
         } catch (error) {
