@@ -88,6 +88,10 @@ export const sendOtp = async (email: string): Promise<{ message: string }> => {
     console.log("✅ Email sent successfully");
   } catch (error) {
     console.error("❌ Email sending failed:", error);
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Development mode: returning OTP in response for testing");
+      return { message: "OTP sent to your email.", otp };
+    }
     throw new ApiError(
       500,
       "There was an error sending the email. Please try again later."
@@ -120,7 +124,8 @@ export const sendOtpForReset = async (
       data: {
         email,
         otp,
-        createdAt: expires,
+        createdAt: new Date(),
+        expiresAt: expires,
       },
     });
   } catch (error) {
@@ -137,7 +142,13 @@ export const sendOtpForReset = async (
       message: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Email send failed:", error);
+    // In development, return the OTP in the response to make testing easier
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Development mode: returning OTP in response for testing");
+      return { message: "OTP sent to your email for password reset.", otp };
+    }
+
     throw new ApiError(
       500,
       "There was an error sending the email. Please try again later."
@@ -176,7 +187,8 @@ export const sendOtpForChange = async (
       data: {
         email,
         otp,
-        createdAt: expires,
+        createdAt: new Date(),
+        expiresAt: expires,
       },
     });
   } catch (error) {
@@ -193,7 +205,12 @@ export const sendOtpForChange = async (
       message: `Your OTP for password change is: ${otp}. It will expire in 10 minutes.`,
     });
   } catch (error) {
-    console.error(error);
+    console.error("Email send failed:", error);
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Development mode: returning OTP in response for testing");
+      return { message: "OTP sent to your email for password change.", otp };
+    }
+
     throw new ApiError(
       500,
       "There was an error sending the email. Please try again later."

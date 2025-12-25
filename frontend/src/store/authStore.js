@@ -151,17 +151,19 @@ export const useAuthStore = create(
           set({ loading: true, error: null });
 
           try {
-            await authApi.sendOtp(email);
+            const response = await authApi.sendOtp(email);
+            const result = response.data?.data || response.data;
+            const otp = result?.otp || null;
 
             set({
               loading: false,
               error: null,
               signupPhase: 2,
               signupData: { ...get().signupData, email },
-              generatedOtp: null,
+              generatedOtp: otp,
             });
 
-            return { success: true };
+            return { success: true, otp };
           } catch (apiError) {
             const msg =
               apiError?.response?.data?.message ||
@@ -367,17 +369,19 @@ export const useAuthStore = create(
           set({ loading: true, error: null });
 
           try {
-            await authApi.sendOtpForReset(email);
+            const response = await authApi.sendOtpForReset(email);
+            const result = response.data?.data || response.data;
+            const otp = result?.otp || null;
 
             set({
               loading: false,
               error: null,
               forgotPasswordPhase: 2,
               forgotPasswordData: { ...get().forgotPasswordData, email },
-              forgotPasswordOtp: null,
+              forgotPasswordOtp: otp,
             });
 
-            return { success: true };
+            return { success: true, otp };
           } catch (apiError) {
             const msg =
               apiError?.response?.data?.message ||
