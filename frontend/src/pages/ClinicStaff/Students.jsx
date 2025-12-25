@@ -367,7 +367,9 @@ const StudentsManagement = () => {
     } catch (error) {
       console.error("Error creating student:", error);
       const msg =
-        error?.response?.data?.message || error?.message || "Failed to create student";
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to create student";
       alert(msg);
     } finally {
       setLoading(false);
