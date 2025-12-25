@@ -365,7 +365,10 @@ const MyChildren = () => {
         <div className="space-y-6">
           {/* Search Section */}
           <div>
-            <label htmlFor="link-search" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="link-search"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Search for Student
             </label>
             <div className="flex space-x-2">

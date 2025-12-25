@@ -400,7 +400,10 @@ const UsersManagement = () => {
         <div className="space-y-4">
           {/* Search Input */}
           <div>
-            <label htmlFor="users-search" className="block text-sm font-medium text-gray-700 mb-2">
+            <label
+              htmlFor="users-search"
+              className="block text-sm font-medium text-gray-700 mb-2"
+            >
               Search by Name, Email, or Phone
             </label>
             <Input
@@ -449,7 +452,10 @@ const UsersManagement = () => {
 
             {/* Date From Filter */}
             <div>
-              <label htmlFor="joined-from" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="joined-from"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Joined From
               </label>
               <input
@@ -463,7 +469,10 @@ const UsersManagement = () => {
 
             {/* Date To Filter */}
             <div>
-              <label htmlFor="joined-to" className="block text-sm font-medium text-gray-700 mb-2">
+              <label
+                htmlFor="joined-to"
+                className="block text-sm font-medium text-gray-700 mb-2"
+              >
                 Joined To
               </label>
               <input

@@ -856,7 +856,10 @@ const StudentsManagement = () => {
             <div className="space-y-4">
               {/* Search Input */}
               <div>
-                <label htmlFor="students-search" className="block text-sm font-medium text-gray-700 mb-2">
+                <label
+                  htmlFor="students-search"
+                  className="block text-sm font-medium text-gray-700 mb-2"
+                >
                   Search by Name, Student ID, or Parent Email
                 </label>
                 <Input
@@ -873,7 +876,10 @@ const StudentsManagement = () => {
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Status Filter */}
                 <div>
-                  <label htmlFor="filter-status" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="filter-status"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Status
                   </label>
                   <select
@@ -890,7 +896,10 @@ const StudentsManagement = () => {
 
                 {/* Year Enrolled Filter */}
                 <div>
-                  <label htmlFor="filter-year" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="filter-year"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Year Enrolled
                   </label>
                   <select
@@ -910,7 +919,10 @@ const StudentsManagement = () => {
 
                 {/* Link Status Filter */}
                 <div>
-                  <label htmlFor="filter-link-status" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="filter-link-status"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Parent Link Status
                   </label>
                   <select
@@ -927,7 +939,10 @@ const StudentsManagement = () => {
 
                 {/* Course Filter */}
                 <div>
-                  <label htmlFor="filter-course" className="block text-sm font-medium text-gray-700 mb-2">
+                  <label
+                    htmlFor="filter-course"
+                    className="block text-sm font-medium text-gray-700 mb-2"
+                  >
                     Course
                   </label>
                   <select
