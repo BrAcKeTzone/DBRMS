@@ -1,12 +1,11 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { shallow } from "zustand/shallow";
 
 const Breadcrumb = () => {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  const isHROrAdmin = useAuthStore((s) => s.isHROrAdmin);
+  const isHROrAdmin = useAuthStore((s) => s.user?.role === "CLINIC_ADMIN" || s.user?.role === "CLINIC_STAFF");
 
   const getBreadcrumbs = () => {
     const pathnames = location.pathname.split("/").filter((x) => x);
@@ -16,7 +15,7 @@ const Breadcrumb = () => {
     const breadcrumbs = [];
     let currentPath = "";
 
-    // Add home/dashboard link
+    if (isHROrAdmin) {
     if (isHROrAdmin()) {
       breadcrumbs.push({
         name: "Clinic Dashboard",

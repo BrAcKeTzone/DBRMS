@@ -35,9 +35,10 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const loading = useAuthStore((s) => s.loading);
+  const hasHydrated = useAuthStore((s) => s._hasHydrated);
 
-  // If we are loading, show nothing or a spinner
-  if (loading) {
+  // If we are loading or haven't hydrated yet, show spinner
+  if (loading || !hasHydrated) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -77,10 +78,15 @@ const PublicRoute = ({ children }) => {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const user = useAuthStore((s) => s.user);
   const loading = useAuthStore((s) => s.loading);
+  const hasHydrated = useAuthStore((s) => s._hasHydrated);
 
-  // If loading, wait before redirecting
-  if (loading) {
-    return children;
+  // If loading or not hydrated, show spinner to prevent flash of public content
+  if (loading || !hasHydrated) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   if (isAuthenticated && user && user.role) {

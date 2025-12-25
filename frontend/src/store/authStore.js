@@ -10,7 +10,8 @@ export const useAuthStore = create(
       user: null,
       token: null,
       isAuthenticated: false,
-      loading: false,
+      loading: true, // Start with loading true to prevent premature redirects on reload
+      _hasHydrated: false,
       error: null,
 
       // Signup phase state
@@ -575,7 +576,7 @@ export const useAuthStore = create(
           const response = await userApi.getCurrentUser();
 
           // Update local user state with fresh data from backend
-          const updatedUser = response.data;
+          const updatedUser = response.data?.data || response.data;
 
           set({
             user: updatedUser,
@@ -609,7 +610,7 @@ export const useAuthStore = create(
           });
 
           // Update the local user state with the response from backend
-          const updatedUser = response.data;
+          const updatedUser = response.data?.data || response.data;
 
           set({
             user: updatedUser,
@@ -649,7 +650,7 @@ export const useAuthStore = create(
             profilePictureData
           );
 
-          const updatedUser = response.data;
+          const updatedUser = response.data?.data || response.data;
 
           set({
             user: updatedUser,
@@ -823,9 +824,12 @@ export const useAuthStore = create(
 
             // Get current user from backend API
             const response = await userApi.getCurrentUser();
-            const user = response.data;
+            const user = response.data?.data || response.data;
 
-            if (!user) {
+            if (
+              !user ||
+              (typeof user === "object" && Object.keys(user).length === 0)
+            ) {
               // Invalid token - user not found
               throw new Error("Invalid token - user not found");
             }
@@ -842,11 +846,31 @@ export const useAuthStore = create(
           } catch (apiError) {
             // If API call fails, fall back to JWT decoding for basic validation
             console.warn(
-              "Failed to fetch user from API, falling back to JWT decode:",
+              "Failed to fetch user from API, falling back to local validation:",
               apiError
             );
 
             try {
+              // Handle demo tokens
+              if (token.startsWith("demo-token-")) {
+                const userId = token.replace("demo-token-", "");
+                const user = (get().users || usersData).find(
+                  (u) => u.id === userId || u.id === parseInt(userId)
+                );
+                if (!user) throw new Error("Demo user not found");
+
+                const { password: _, ...userWithoutPassword } = user;
+                set({
+                  user: userWithoutPassword,
+                  token,
+                  isAuthenticated: true,
+                  loading: false,
+                  error: null,
+                });
+                return { user: userWithoutPassword };
+              }
+
+              // Handle JWT tokens
               const payload = JSON.parse(atob(token.split(".")[1]));
               const currentTime = Date.now() / 1000;
 
@@ -855,8 +879,8 @@ export const useAuthStore = create(
               }
 
               // Only use static data as absolute fallback
-              const user = usersData.find(
-                (u) => u.id === payload.id.toString()
+              const user = (get().users || usersData).find(
+                (u) => u.id === payload.id.toString() || u.id === payload.id
               );
 
               if (!user) {
@@ -874,7 +898,8 @@ export const useAuthStore = create(
               });
 
               return { user: userWithoutPassword };
-            } catch {
+            } catch (err) {
+              console.error("Local token validation failed:", err);
               throw new Error("Invalid token format");
             }
           }
@@ -895,8 +920,13 @@ export const useAuthStore = create(
         set({ error: null });
       },
 
+      setHasHydrated: (state) => {
+        set({ _hasHydrated: state });
+      },
+
       // Initialize auth state: seed users and verify any existing token in store
       initializeAuth: () => {
+        console.debug("initializeAuth: starting");
         try {
           const storedUsers = localStorage.getItem("users");
           const users = storedUsers ? JSON.parse(storedUsers) : usersData;
@@ -910,6 +940,7 @@ export const useAuthStore = create(
           const legacyToken = localStorage.getItem("authToken");
           const legacyUserStr = localStorage.getItem("user");
           if (legacyToken || legacyUserStr) {
+            console.debug("initializeAuth: found legacy keys, migrating");
             let legacyUser = null;
             try {
               legacyUser = legacyUserStr ? JSON.parse(legacyUserStr) : null;
@@ -938,23 +969,43 @@ export const useAuthStore = create(
                 .verifyToken()
                 .catch(() => {
                   /* verifyToken will clear state on failure */
+                  set({ loading: false });
                 });
+            } else {
+              set({ loading: false });
             }
 
             return;
           }
-        } catch {
-          // ignore and proceed
+        } catch (err) {
+          console.error("initializeAuth: legacy migration failed", err);
         }
 
         // If a token exists in the zustand state (rehydrated by persist), verify it
         const token = get().token;
+        const isAuthenticated = get().isAuthenticated;
+        console.debug("initializeAuth: checking rehydrated state", {
+          hasToken: !!token,
+          isAuthenticated,
+        });
+
         if (token) {
           get()
             .verifyToken()
-            .catch(() => {
+            .catch((err) => {
+              console.error("initializeAuth: verifyToken failed", err);
               // verification failed; verifyToken will clear the state on failure
+              set({ loading: false });
             });
+        } else {
+          console.debug("initializeAuth: no token found, clearing auth state");
+          // No token found, ensure state is clean and stop loading
+          set({
+            token: null,
+            user: null,
+            isAuthenticated: false,
+            loading: false,
+          });
         }
       },
 
@@ -976,6 +1027,11 @@ export const useAuthStore = create(
         token: state.token,
         isAuthenticated: state.isAuthenticated,
       }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setHasHydrated(true);
+        }
+      },
     }
   )
 );

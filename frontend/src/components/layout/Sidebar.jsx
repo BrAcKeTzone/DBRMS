@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { shallow } from "zustand/shallow";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();

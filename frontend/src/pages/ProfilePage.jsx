@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuthStore } from "../store/authStore";
-import { shallow } from "zustand/shallow";
 import DashboardCard from "../components/dashboard/DashboardCard";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
