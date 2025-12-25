@@ -51,7 +51,7 @@ const Navbar = ({ onMenuClick }) => {
               <>
                 <div className="hidden md:flex flex-col items-end mr-2">
                   <span className="text-sm font-medium text-gray-900">
-                    {user.name}
+                    {user.firstName} {user.lastName}
                   </span>
                   <span className="text-xs text-gray-500 capitalize">
                     {user.role?.replace("_", " ").toLowerCase()}
