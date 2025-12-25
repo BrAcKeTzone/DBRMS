@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useAuthStore } from "../store/authStore";
+import { shallow } from "zustand/shallow";
 import DashboardCard from "../components/dashboard/DashboardCard";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
@@ -8,17 +9,20 @@ import Modal from "../components/ui/Modal";
 import { formatDate } from "../utils/formatDate";
 
 const ProfilePage = () => {
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
+  const error = useAuthStore((s) => s.error);
+
+  // Actions (non-subscribing)
   const {
-    user,
     updateProfile,
     getProfile,
     changePasswordWithOtp,
     sendOtpForPasswordChange,
     uploadProfilePicture,
-    loading,
-    error,
     clearError,
-  } = useAuthStore();
+  } = useAuthStore.getState();
+
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showProfilePictureModal, setShowProfilePictureModal] = useState(false);

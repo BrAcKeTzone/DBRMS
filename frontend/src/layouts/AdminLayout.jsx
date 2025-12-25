@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
+import { shallow } from "zustand/shallow";
 import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
 
 const AdminLayout = () => {
-  const { user, isHROrAdmin } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const isHROrAdmin = useAuthStore(
+    (s) => s.user?.role === "CLINIC_ADMIN" || s.user?.role === "CLINIC_STAFF"
+  );
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   // Show access denied if user is not logged in or not clinic admin/staff
-  if (!user || !isHROrAdmin()) {
+  if (!user || !isHROrAdmin) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
         <div className="text-center">

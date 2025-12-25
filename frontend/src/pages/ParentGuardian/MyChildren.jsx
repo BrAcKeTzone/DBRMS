@@ -9,7 +9,7 @@ import StatusBadge from "../../components/ui/StatusBadge";
 import { useAuthStore } from "../../store/authStore";
 
 const MyChildren = () => {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const [myChildren, setMyChildren] = useState([]);
   const [linkRequests, setLinkRequests] = useState([]);
   const [availableStudents, setAvailableStudents] = useState([]);

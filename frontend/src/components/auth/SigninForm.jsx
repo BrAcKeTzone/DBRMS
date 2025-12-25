@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { shallow } from "zustand/shallow";
 import Input from "../ui/Input";
 import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
@@ -8,7 +9,11 @@ import LoadingSpinner from "../ui/LoadingSpinner";
 
 const SigninForm = () => {
   const navigate = useNavigate();
-  const { login, loading, error, clearError } = useAuthStore();
+  const login = useAuthStore((s) => s.login);
+  const loading = useAuthStore((s) => s.loading);
+  const error = useAuthStore((s) => s.error);
+  // Access clearError as non-subscribing reference
+  const clearError = useAuthStore.getState().clearError;
 
   const [formData, setFormData] = useState({
     email: "",

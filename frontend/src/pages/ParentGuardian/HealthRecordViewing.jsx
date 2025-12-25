@@ -8,7 +8,7 @@ import Modal from "../../components/ui/Modal";
 import { formatDate } from "../../utils/formatDate";
 
 const HealthRecordViewing = () => {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const {
     myChildren,
     fetchMyChildren,

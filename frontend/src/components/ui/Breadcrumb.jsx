@@ -1,10 +1,12 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { shallow } from "zustand/shallow";
 
 const Breadcrumb = () => {
   const location = useLocation();
-  const { user, isHROrAdmin } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const isHROrAdmin = useAuthStore((s) => s.isHROrAdmin);
 
   const getBreadcrumbs = () => {
     const pathnames = location.pathname.split("/").filter((x) => x);

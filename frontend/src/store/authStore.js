@@ -200,6 +200,12 @@ export const useAuthStore = create(
               signupData: { ...signupData, otp },
             });
 
+            console.debug(
+              "authStore.verifyOtp success",
+              get().signupPhase,
+              get().signupData
+            );
+
             return { success: true };
           } catch (apiError) {
             const msg =
@@ -232,6 +238,11 @@ export const useAuthStore = create(
 
       // Phase 3: Complete registration (server-backed, with fallback)
       completeRegistration: async (personalData) => {
+        console.debug(
+          "authStore.completeRegistration called",
+          personalData,
+          get().signupData
+        );
         try {
           set({ loading: true, error: null });
 
@@ -251,6 +262,11 @@ export const useAuthStore = create(
             const response = await authApi.register(payload);
             const result = response.data?.data || response.data;
             const { user, token } = result;
+
+            console.debug("authStore.completeRegistration success", {
+              user,
+              token,
+            });
 
             set({
               user,
@@ -330,6 +346,7 @@ export const useAuthStore = create(
 
       // Reset signup process
       resetSignup: () => {
+        console.debug("authStore.resetSignup called");
         set({
           signupPhase: 1,
           signupData: {
@@ -857,7 +874,7 @@ export const useAuthStore = create(
               });
 
               return { user: userWithoutPassword };
-            } catch (jwtError) {
+            } catch {
               throw new Error("Invalid token format");
             }
           }
@@ -884,7 +901,7 @@ export const useAuthStore = create(
           const storedUsers = localStorage.getItem("users");
           const users = storedUsers ? JSON.parse(storedUsers) : usersData;
           set({ users });
-        } catch (e) {
+        } catch {
           set({ users: usersData });
         }
 
@@ -896,7 +913,7 @@ export const useAuthStore = create(
             let legacyUser = null;
             try {
               legacyUser = legacyUserStr ? JSON.parse(legacyUserStr) : null;
-            } catch (e) {
+            } catch {
               legacyUser = null;
             }
 
@@ -910,7 +927,7 @@ export const useAuthStore = create(
             try {
               localStorage.removeItem("authToken");
               localStorage.removeItem("user");
-            } catch (e) {
+            } catch {
               // ignore
             }
 
@@ -926,7 +943,7 @@ export const useAuthStore = create(
 
             return;
           }
-        } catch (e) {
+        } catch {
           // ignore and proceed
         }
 

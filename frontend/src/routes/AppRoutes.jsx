@@ -31,16 +31,41 @@ import AdminLayout from "../layouts/AdminLayout";
 
 // Simple protected route component
 const ProtectedRoute = ({ children, allowedRoles = [] }) => {
-  const { isAuthenticated, user } = useAuthStore();
+  // select only what's needed to reduce re-renders
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
 
-  if (!isAuthenticated) return <Navigate to="/signin" replace />;
+  // If we are loading, show nothing or a spinner
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
-    // redirect to appropriate dashboard
-    if (user?.role === "CLINIC_ADMIN" || user?.role === "CLINIC_STAFF")
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  // If authenticated but user data is missing, we might be in a transition state
+  // or rehydration hasn't finished. If loading is false, this is an error state.
+  if (!user) {
+    return <Navigate to="/signin" replace />;
+  }
+
+  // Ensure user has a role before checking
+  const userRole = user?.role;
+
+  if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
+    // redirect to appropriate dashboard based on role
+    if (userRole === "CLINIC_ADMIN" || userRole === "CLINIC_STAFF") {
       return <Navigate to="/clinic/dashboard" replace />;
-    if (user?.role === "PARENT_GUARDIAN")
+    }
+    if (userRole === "PARENT_GUARDIAN") {
       return <Navigate to="/parent/dashboard" replace />;
+    }
     return <Navigate to="/signin" replace />;
   }
 
@@ -49,14 +74,23 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
 // PublicRoute to redirect authenticated users
 const PublicRoute = ({ children }) => {
-  const { isAuthenticated, user } = useAuthStore();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+  const loading = useAuthStore((s) => s.loading);
 
-  if (isAuthenticated) {
-    if (user?.role === "CLINIC_ADMIN" || user?.role === "CLINIC_STAFF")
+  // If loading, wait before redirecting
+  if (loading) {
+    return children;
+  }
+
+  if (isAuthenticated && user && user.role) {
+    const userRole = user.role;
+    if (userRole === "CLINIC_ADMIN" || userRole === "CLINIC_STAFF") {
       return <Navigate to="/clinic/dashboard" replace />;
-    if (user?.role === "PARENT_GUARDIAN")
+    }
+    if (userRole === "PARENT_GUARDIAN") {
       return <Navigate to="/parent/dashboard" replace />;
-    return <Navigate to="/clinic/dashboard" replace />;
+    }
   }
 
   return children;

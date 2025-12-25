@@ -1,10 +1,14 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { shallow } from "zustand/shallow";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
-  const { user, isHROrAdmin } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
+  const isHROrAdmin = useAuthStore(
+    (s) => s.user?.role === "CLINIC_ADMIN" || s.user?.role === "CLINIC_STAFF"
+  );
 
   // Consider the route active if pathname equals the path or starts with it
   const isActive = (path) => {
@@ -519,7 +523,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   Navigation
                 </h2>
                 <p className="text-xs text-blue-600 mt-1 font-medium">
-                  {isHROrAdmin() ? "Clinic Panel" : "Parent Portal"}
+                  {isHROrAdmin ? "Clinic Panel" : "Parent Portal"}
                 </p>
               </div>
               <button

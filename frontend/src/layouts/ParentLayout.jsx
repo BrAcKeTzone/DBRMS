@@ -5,7 +5,7 @@ import Navbar from "../components/layout/Navbar";
 import Sidebar from "../components/layout/Sidebar";
 
 const ParentLayout = () => {
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   if (!user || user.role !== "PARENT_GUARDIAN") {

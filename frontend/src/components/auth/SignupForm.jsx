@@ -1,25 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { shallow } from "zustand/shallow";
 import Input from "../ui/Input";
 import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
 import LoadingSpinner from "../ui/LoadingSpinner";
 
 const SignupForm = () => {
+  console.debug("SignupForm render");
+
   const navigate = useNavigate();
-  const {
-    signupPhase,
-    signupData,
-    generatedOtp,
-    sendOtp,
-    verifyOtp,
-    completeRegistration,
-    resetSignup,
-    loading,
-    error,
-    clearError,
-  } = useAuthStore();
+  const signupPhase = useAuthStore((s) => s.signupPhase);
+  const generatedOtp = useAuthStore((s) => s.generatedOtp);
+  const loading = useAuthStore((s) => s.loading);
+  const error = useAuthStore((s) => s.error);
+
+  // Non-subscribing access for action functions to avoid selector churn
+  const { sendOtp, verifyOtp, completeRegistration, resetSignup, clearError } =
+    useAuthStore.getState();
+  const rawSignupData = useAuthStore.getState().signupData;
 
   const [formData, setFormData] = useState({
     email: "",
@@ -33,11 +33,6 @@ const SignupForm = () => {
   });
 
   const [validationErrors, setValidationErrors] = useState({});
-
-  // Reset signup process when component mounts
-  useEffect(() => {
-    resetSignup();
-  }, [resetSignup]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -204,8 +199,8 @@ const SignupForm = () => {
           Step 2 of 3: Verify your email
         </h3>
         <p className="text-sm text-gray-600 mb-4">
-          We've sent a 6-digit code to <strong>{signupData.email}</strong>.
-          Please check your email and enter the code below.
+          We've sent a 6-digit code to <strong>{formData.email}</strong>. Please
+          check your email and enter the code below.
         </p>
         {generatedOtp && (
           <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-4">
@@ -395,8 +390,9 @@ const SignupForm = () => {
           Your account has been created successfully.
         </p>
         <p className="text-sm text-gray-500">
-          Welcome to BCFI Clinic Management, {signupData.firstName}{" "}
-          {signupData.lastName}!
+          Welcome to BCFI Clinic Management,{" "}
+          {rawSignupData?.firstName || formData.firstName}{" "}
+          {rawSignupData?.lastName || formData.lastName}!
         </p>
       </div>
 

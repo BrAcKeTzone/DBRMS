@@ -1,0 +1,12 @@
+# Ignore Playwright artifacts and test results
+
+playwright-report/
+test-results/
+
+# Ignore build output
+
+dist/
+
+# Ignore Vite cache
+
+node_modules/

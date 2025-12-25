@@ -9,7 +9,7 @@ import { formatDate } from "../../utils/formatDate";
 
 const PGDashboard = () => {
   const navigate = useNavigate();
-  const { user } = useAuthStore();
+  const user = useAuthStore((s) => s.user);
   const {
     myChildren,
     fetchMyChildren,

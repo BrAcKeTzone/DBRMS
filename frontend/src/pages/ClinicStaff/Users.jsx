@@ -15,7 +15,8 @@ import { formatDate, formatDateOnly } from "../../utils/formatDate";
 import { getRoleLabel, getRoleBadgeClasses } from "../../utils/helpers";
 
 const UsersManagement = () => {
-  const { user: currentUser, logout } = useAuthStore();
+  const currentUser = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
   const {
     users,

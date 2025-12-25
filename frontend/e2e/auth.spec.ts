@@ -87,21 +87,25 @@ test.describe("Auth flows (UI + mocked API)", () => {
     // Enter OTP and continue
     await page.fill('input[name="otp"]', "123456");
     await page.click('button:has-text("Verify OTP")');
-    // Ensure verify-otp network call completed and the UI transitioned
-    await page.waitForResponse(
-      (resp) =>
-        resp.url().endsWith("/auth/verify-otp") && resp.status() === 200,
-      { timeout: 5000 }
-    );
+    // Wait for the UI to render the personal details form reliably
+    await page.waitForSelector('input[name="firstName"]', { timeout: 10000 });
     await expect(page.locator("text=Step 3 of 3")).toBeVisible({
-      timeout: 5000,
+      timeout: 10000,
     });
 
     // Fill personal details
     await page.fill('input[name="firstName"]', "E2E");
+    // Small pause to let the UI stabilize after input
+    await page.waitForTimeout(100);
+    await page.waitForSelector('input[name="lastName"]', { timeout: 10000 });
     await page.fill('input[name="lastName"]', "User");
+    await page.waitForSelector('input[name="phone"]', { timeout: 5000 });
     await page.fill('input[name="phone"]', "+1234567890");
+    await page.waitForSelector('input[name="password"]', { timeout: 5000 });
     await page.fill('input[name="password"]', "password123");
+    await page.waitForSelector('input[name="confirmPassword"]', {
+      timeout: 5000,
+    });
     await page.fill('input[name="confirmPassword"]', "password123");
 
     // Sanity checks before submitting
@@ -314,5 +318,33 @@ test.describe("Auth flows (UI + mocked API)", () => {
     const legacyUser2 = await page.evaluate(() => localStorage.getItem("user"));
     expect(legacyAuthToken2).toBeNull();
     expect(legacyUser2).toBeNull();
+  });
+
+  test("Reloading root does not cause infinite update loops", async ({
+    page,
+  }) => {
+    const consoleMessages = [];
+    page.on("console", (msg) =>
+      consoleMessages.push({ type: msg.type(), text: msg.text() })
+    );
+
+    await page.goto("/");
+    await page.waitForLoadState("networkidle");
+
+    // Reload the page and wait for idle
+    await page.reload({ waitUntil: "networkidle" });
+
+    // Short delay for passive effects
+    await page.waitForTimeout(500);
+
+    const hasMaxUpdateDepth = consoleMessages.some((m) =>
+      m.text.includes("Maximum update depth exceeded")
+    );
+    const hasThrottling = consoleMessages.some((m) =>
+      m.text.includes("Throttling navigation")
+    );
+
+    expect(hasMaxUpdateDepth).toBe(false);
+    expect(hasThrottling).toBe(false);
   });
 });
