@@ -4,7 +4,7 @@ import Button from "../../components/ui/Button";
 import Modal from "../../components/ui/Modal";
 import Input from "../../components/ui/Input";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate, formatDateOnly } from "../../utils/formatDate";
 import StatusBadge from "../../components/ui/StatusBadge";
 import { useAuthStore } from "../../store/authStore";
 
@@ -412,8 +412,7 @@ const MyChildren = () => {
                         </p>
                         {student.birthDate && (
                           <p className="text-sm text-gray-600">
-                            Birthday:{" "}
-                            {new Date(student.birthDate).toLocaleDateString()}
+                            Birthday: {formatDateOnly(student.birthDate)}
                           </p>
                         )}
                         {student.yearEnrolled && (
@@ -467,7 +466,7 @@ const MyChildren = () => {
               {selectedStudent.birthDate && (
                 <p className="text-sm text-blue-800">
                   <strong>Birthday:</strong>{" "}
-                  {new Date(selectedStudent.birthDate).toLocaleDateString()}
+                  {formatDateOnly(selectedStudent.birthDate)}
                 </p>
               )}
               {selectedStudent.yearEnrolled && (

@@ -9,7 +9,7 @@ import Modal from "../../components/ui/Modal";
 import Input from "../../components/ui/Input";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import Pagination from "../../components/ui/Pagination";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate, formatDateOnly } from "../../utils/formatDate";
 
 const StudentsManagement = () => {
   const [students, setStudents] = useState([]);
@@ -464,7 +464,7 @@ const StudentsManagement = () => {
       accessor: "birthDate",
       cell: (row) => (
         <div className="text-sm text-gray-600">
-          {row.birthDate ? formatDate(row.birthDate) : "N/A"}
+          {row.birthDate ? formatDateOnly(row.birthDate) : "N/A"}
         </div>
       ),
     },
@@ -1129,7 +1129,7 @@ const StudentsManagement = () => {
                         <span className="text-gray-500">
                           DOB:{" "}
                           {student.birthDate
-                            ? formatDate(student.birthDate)
+                            ? formatDateOnly(student.birthDate)
                             : "N/A"}
                         </span>
                       </div>
