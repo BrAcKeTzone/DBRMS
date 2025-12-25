@@ -10,7 +10,7 @@ import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Pagination from "../../components/ui/Pagination";
 import StatusBadge from "../../components/ui/StatusBadge";
 import DashboardCard from "../../components/dashboard/DashboardCard";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate, formatDateOnly } from "../../utils/formatDate";
 import { getRoleLabel, getRoleBadgeClasses } from "../../utils/helpers";
 
 const UsersManagement = () => {
@@ -273,10 +273,10 @@ const UsersManagement = () => {
       render: (user) => (
         <div>
           <div className="text-sm text-gray-900">
-            {formatDate(user.createdAt)}
+            {formatDateOnly(user.createdAt)}
           </div>
           <div className="text-xs text-gray-500">
-            Updated: {formatDate(user.updatedAt)}
+            Updated: {formatDateOnly(user.updatedAt)}
           </div>
         </div>
       ),
@@ -634,9 +634,7 @@ const UsersManagement = () => {
                         </div>
                         <div className="flex justify-between">
                           <span>Joined:</span>
-                          <span>
-                            {new Date(user.createdAt).toLocaleDateString()}
-                          </span>
+                          <span>{formatDateOnly(user.createdAt)}</span>
                         </div>
                       </div>
 
