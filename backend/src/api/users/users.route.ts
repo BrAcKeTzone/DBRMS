@@ -2,7 +2,7 @@ import express from "express";
 import * as userController from "./users.controller";
 import validate from "../../middlewares/validate.middleware";
 import * as userValidation from "./users.validation";
-import { authenticate } from "../../middlewares/auth.middleware";
+import { authenticate, authorize } from "../../middlewares/auth.middleware";
 
 const router = express.Router();
 
@@ -41,33 +41,78 @@ router.post(
 // Admin routes for user management - specific routes BEFORE dynamic :id routes
 router.post(
   "/",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
   validate(userValidation.createUser),
   userController.createUser
 );
 
-router.get("/stats", userController.getUserStats);
+router.get(
+  "/stats",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
+  userController.getUserStats
+);
 
-router.get("/", validate(userValidation.getUsers), userController.getAllUsers);
+// Promote to admin
+router.patch(
+  "/:id/promote",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
+  userController.promoteToAdmin
+);
+
+router.get(
+  "/",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
+  validate(userValidation.getUsers),
+  userController.getAllUsers
+);
 
 // Dynamic :id routes - MUST come after specific routes
-router.get("/:id", userController.getUserById);
+router.get(
+  "/:id",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
+  userController.getUserById
+);
 
 router.put(
   "/:id",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
   validate(userValidation.updateUserByAdmin),
   userController.updateUserByAdmin
 );
 
-router.delete("/:id", userController.deleteUser);
+router.delete(
+  "/:id",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
+  userController.deleteUser
+);
 
 router.patch(
   "/:id/role",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
   validate(userValidation.updateUserRole),
   userController.updateUserRole
 );
 
-router.patch("/:id/deactivate", userController.deactivateUser);
+router.patch(
+  "/:id/deactivate",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
+  userController.deactivateUser
+);
 
-router.patch("/:id/activate", userController.activateUser);
+router.patch(
+  "/:id/activate",
+  authenticate,
+  authorize("CLINIC_ADMIN"),
+  userController.activateUser
+);
 
 export default router;

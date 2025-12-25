@@ -113,6 +113,25 @@ export const deactivateUser = asyncHandler(
   }
 );
 
+// Promote user to Clinic Admin (admin only)
+export const promoteToAdmin = asyncHandler(
+  async (req: Request, res: Response) => {
+    const id = parseInt(req.params.id);
+
+    if (isNaN(id)) {
+      return res
+        .status(400)
+        .json(new ApiResponse(400, null, "Invalid user ID"));
+    }
+
+    const result = await userService.promoteUserToAdmin(id);
+
+    res
+      .status(200)
+      .json(new ApiResponse(200, result, "User promoted to Clinic Admin"));
+  }
+);
+
 // Activate user (admin only)
 export const activateUser = asyncHandler(
   async (req: Request, res: Response) => {

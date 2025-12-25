@@ -41,6 +41,12 @@ const userApi = {
   updateUserPassword: async (userId, passwordData) => {
     return fetchClient.post("/users/change-password", passwordData);
   },
+
+  // Promote user to Clinic Admin (demotes existing admins)
+  promoteToAdmin: async (userId) => {
+    const res = await fetchClient.patch(`/users/${userId}/promote`);
+    return { data: res.data.data };
+  },
 };
 
 export { userApi };

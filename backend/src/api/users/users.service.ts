@@ -361,6 +361,43 @@ export const updateUserRole = async (
   return excludePassword(updatedUser);
 };
 
+// Promote user to Clinic Admin and demote existing admins to Clinic Staff
+export const promoteUserToAdmin = async (
+  userId: number
+): Promise<{ promoted: UserSafeData; demotedIds: number[] }> => {
+  const userToPromote = await prisma.user.findUnique({ where: { id: userId } });
+  if (!userToPromote) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Find current admin ids BEFORE transaction so we can inform clients who was demoted
+  const currentAdmins = await prisma.user.findMany({
+    where: { role: UserRole.CLINIC_ADMIN },
+    select: { id: true },
+  });
+  const demotedIds = currentAdmins
+    .map((a) => a.id)
+    .filter((id) => id !== userId);
+
+  // Use transaction to ensure atomicity: demote all current admins, then promote target
+  await prisma.$transaction(async (tx) => {
+    await tx.user.updateMany({
+      where: { role: UserRole.CLINIC_ADMIN },
+      data: { role: UserRole.CLINIC_STAFF },
+    });
+
+    await tx.user.update({
+      where: { id: userId },
+      data: { role: UserRole.CLINIC_ADMIN },
+    });
+  });
+
+  // Return the promoted user (fresh) and list of demoted ids
+  const promoted = await prisma.user.findUnique({ where: { id: userId } });
+  if (!promoted) throw new ApiError(500, "Failed to promote user");
+  return { promoted: excludePassword(promoted), demotedIds };
+};
+
 // Deactivate user (admin only)
 export const deactivateUser = async (userId: number): Promise<UserSafeData> => {
   const user = await prisma.user.findUnique({
