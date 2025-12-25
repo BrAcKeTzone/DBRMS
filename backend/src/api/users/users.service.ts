@@ -120,17 +120,15 @@ export const getUserById = async (id: number): Promise<UserSafeData> => {
           birthDate: true,
           yearEnrolled: true,
           status: true,
-          linkStatus: true,
         },
       },
       _count: {
         select: {
           students: true,
-          attendances: true,
-          contributions: true,
-          penalties: true,
-          createdAnnouncements: true,
-          createdMeetings: true,
+          linkRequests: true,
+          approvedRequests: true,
+          activityLogs: true,
+          createdCourses: true,
         },
       },
     },
@@ -149,9 +147,6 @@ export const getUserProfile = async (userId: number): Promise<UserSafeData> => {
     where: { id: userId },
     include: {
       students: {
-        where: {
-          linkStatus: "APPROVED",
-        },
         select: {
           id: true,
           studentId: true,
@@ -161,7 +156,6 @@ export const getUserProfile = async (userId: number): Promise<UserSafeData> => {
           birthDate: true,
           yearEnrolled: true,
           status: true,
-          linkStatus: true,
         },
       },
     },
@@ -311,9 +305,10 @@ export const getAllUsers = async (filter: GetUsersFilter) => {
         _count: {
           select: {
             students: true,
-            attendances: true,
-            contributions: true,
-            penalties: true,
+            linkRequests: true,
+            approvedRequests: true,
+            activityLogs: true,
+            createdCourses: true,
           },
         },
       },
@@ -512,9 +507,9 @@ export const deleteUser = async (userId: number): Promise<void> => {
   }
 
   // Check if this is the last admin
-  if (user.role === UserRole.ADMIN) {
+  if (user.role === UserRole.CLINIC_ADMIN) {
     const adminCount = await prisma.user.count({
-      where: { role: UserRole.ADMIN },
+      where: { role: UserRole.CLINIC_ADMIN },
     });
 
     if (adminCount <= 1) {
@@ -574,23 +569,21 @@ export const getUserStats = async () => {
     prisma.user.count({ where: { isActive: false } }),
     prisma.user.count({ where: { role: UserRole.CLINIC_ADMIN } }),
     prisma.user.count({ where: { role: UserRole.PARENT_GUARDIAN } }),
+    // Parents who have at least one student linked (parentId set on Student)
     prisma.user.count({
       where: {
         role: UserRole.PARENT_GUARDIAN,
         students: {
-          some: {
-            linkStatus: "APPROVED",
-          },
+          some: {},
         },
       },
     }),
+    // Parents who have no students linked
     prisma.user.count({
       where: {
         role: UserRole.PARENT_GUARDIAN,
         students: {
-          none: {
-            linkStatus: "APPROVED",
-          },
+          none: {},
         },
       },
     }),

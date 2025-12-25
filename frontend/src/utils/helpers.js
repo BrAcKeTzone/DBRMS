@@ -132,6 +132,25 @@ export const toTitleCase = (str) => {
   );
 };
 
+// Role helpers
+export const getRoleLabel = (role) => {
+  if (!role) return "";
+  if (role === "CLINIC_ADMIN" || role === "CLINIC_STAFF") return "Clinic Staff";
+  if (role === "PARENT_GUARDIAN") return "Parent/Guardians";
+  // fallback to title-case of role
+  return toTitleCase(role.replace(/_/g, " "));
+};
+
+export const getRoleBadgeClasses = (role) => {
+  if (role === "CLINIC_ADMIN" || role === "CLINIC_STAFF") {
+    return "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800";
+  }
+  if (role === "PARENT_GUARDIAN") {
+    return "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800";
+  }
+  return "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800";
+};
+
 /**
  * Convert camelCase to kebab-case
  * @param {string} str - String to convert

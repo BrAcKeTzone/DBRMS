@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import Button from "../ui/Button";
+import { getRoleLabel, getRoleBadgeClasses } from "../../utils/helpers";
 
 const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
@@ -23,33 +24,11 @@ const Navbar = ({ onMenuClick }) => {
   };
 
   const getRoleDisplayName = (role) => {
-    switch (role) {
-      case "ADMIN":
-        return "PTA Administrator";
-      case "PARENT":
-        return "Parent Member";
-      case "HR":
-        return "HR Manager";
-      case "APPLICANT":
-        return "Applicant";
-      default:
-        return role;
-    }
+    return getRoleLabel(role);
   };
 
   const getRoleBadgeColor = (role) => {
-    switch (role) {
-      case "ADMIN":
-        return "bg-blue-100 text-blue-800";
-      case "PARENT":
-        return "bg-blue-100 text-blue-800";
-      case "HR":
-        return "bg-blue-100 text-blue-800";
-      case "APPLICANT":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
+    return getRoleBadgeClasses(role);
   };
 
   const getUserInitials = (firstName, lastName) => {
@@ -139,13 +118,12 @@ const Navbar = ({ onMenuClick }) => {
                   onClick={() => setIsMenuOpen(!isMenuOpen)}
                   className={`w-10 h-10 rounded-full text-white font-medium text-sm hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 overflow-hidden ${
                     !user?.profilePicture &&
-                    (user?.role === "ADMIN"
+                    (user?.role === "CLINIC_ADMIN" ||
+                    user?.role === "CLINIC_STAFF"
+                      ? "bg-purple-600 hover:bg-purple-700"
+                      : user?.role === "PARENT_GUARDIAN"
                       ? "bg-blue-600 hover:bg-blue-700"
-                      : user?.role === "PARENT"
-                      ? "bg-blue-600 hover:bg-blue-700"
-                      : user?.role === "HR"
-                      ? "bg-blue-600 hover:bg-blue-700"
-                      : "bg-blue-600 hover:bg-blue-700")
+                      : "bg-gray-600 hover:bg-gray-700")
                   }`}
                   title={`${getFullName()} (${getRoleDisplayName(user?.role)})`}
                 >
@@ -210,13 +188,12 @@ const Navbar = ({ onMenuClick }) => {
 
                     <Link
                       to={
-                        user?.role === "ADMIN"
-                          ? "/admin/dashboard"
-                          : user?.role === "PARENT"
+                        user?.role === "CLINIC_ADMIN" ||
+                        user?.role === "CLINIC_STAFF"
+                          ? "/clinic/dashboard"
+                          : user?.role === "PARENT_GUARDIAN"
                           ? "/parent/dashboard"
-                          : user?.role === "HR"
-                          ? "/hr/dashboard"
-                          : "/applicant/dashboard"
+                          : "/"
                       }
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsMenuOpen(false)}
@@ -226,13 +203,12 @@ const Navbar = ({ onMenuClick }) => {
 
                     <Link
                       to={
-                        user?.role === "ADMIN"
-                          ? "/admin/profile"
-                          : user?.role === "PARENT"
+                        user?.role === "CLINIC_ADMIN" ||
+                        user?.role === "CLINIC_STAFF"
+                          ? "/clinic/profile"
+                          : user?.role === "PARENT_GUARDIAN"
                           ? "/parent/profile"
-                          : user?.role === "HR"
-                          ? "/hr/profile"
-                          : "/applicant/profile"
+                          : "/profile"
                       }
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                       onClick={() => setIsMenuOpen(false)}

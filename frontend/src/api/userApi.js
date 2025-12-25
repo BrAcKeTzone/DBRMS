@@ -1,61 +1,38 @@
-// Minimal stub user API for development
-// Provides both named and default exports to match various import styles
+import { fetchClient } from "../utils/fetchClient";
+
 const userApi = {
   getCurrentUser: async () => {
-    const userStr = localStorage.getItem("user");
-    const user = userStr
-      ? JSON.parse(userStr)
-      : { id: 1, firstName: "Demo", lastName: "User", role: "HR" };
-    return Promise.resolve({ data: user });
+    return fetchClient.get("/users/me");
   },
 
-  // Return an empty paginated users response for list endpoints
+  // Get paginated users
   getAllUsers: async (options = {}) => {
-    return Promise.resolve({
-      data: {
-        users: [],
-        totalPages: 0,
-        currentPage: options.page || 1,
-        totalCount: 0,
-        hasNextPage: false,
-        hasPrevPage: false,
-      },
-    });
+    return fetchClient.get("/users", { params: options });
   },
 
   createUser: async (userData) => {
-    // For demo, echo back the created user with a fake id
-    const user = { id: String(Date.now()), ...userData };
-    return Promise.resolve({ data: user });
+    return fetchClient.post("/users", userData);
   },
 
   updateUser: async (userId, userData) => {
-    // For demo, return the updated user
-    const user = { id: userId, ...userData };
-    return Promise.resolve({ data: user });
+    return fetchClient.put(`/users/${userId}`, userData);
   },
 
   deleteUser: async (userId) => {
-    return Promise.resolve({ data: { success: true } });
+    return fetchClient.delete(`/users/${userId}`);
   },
 
   getUserById: async (userId) => {
-    // Return a small demo user or null
-    const demoUser = {
-      id: userId,
-      firstName: "Demo",
-      lastName: "User",
-      role: "PARENT_GUARDIAN",
-    };
-    return Promise.resolve({ data: demoUser });
+    return fetchClient.get(`/users/${userId}`);
   },
 
   getUserStats: async () => {
-    return Promise.resolve({ data: { total: 0 } });
+    return fetchClient.get("/users/stats");
   },
 
+  // For now use the change-password route (self-service). Admin password reset is not implemented separately.
   updateUserPassword: async (userId, passwordData) => {
-    return Promise.resolve({ data: { success: true } });
+    return fetchClient.post("/users/change-password", passwordData);
   },
 };
 

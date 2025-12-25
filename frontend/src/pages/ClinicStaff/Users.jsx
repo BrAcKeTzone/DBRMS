@@ -11,6 +11,7 @@ import Pagination from "../../components/ui/Pagination";
 import StatusBadge from "../../components/ui/StatusBadge";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import { formatDate } from "../../utils/formatDate";
+import { getRoleLabel, getRoleBadgeClasses } from "../../utils/helpers";
 
 const UsersManagement = () => {
   const { user: currentUser } = useAuthStore();
@@ -49,9 +50,11 @@ const UsersManagement = () => {
     lastName: "",
     email: "",
     password: "",
-    role: "PARENT",
+    role: "PARENT_GUARDIAN",
     phone: "",
   });
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [createError, setCreateError] = useState(null);
 
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -82,6 +85,20 @@ const UsersManagement = () => {
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
+
+    // Client-side validation for password match
+    if (!newUser.password || newUser.password.length < 6) {
+      setCreateError("Password must be at least 6 characters");
+      return;
+    }
+
+    if (newUser.password !== confirmPassword) {
+      setCreateError("Passwords do not match");
+      return;
+    }
+
+    setCreateError(null);
+
     try {
       await addUser({
         firstName: newUser.firstName,
@@ -99,12 +116,16 @@ const UsersManagement = () => {
         lastName: "",
         email: "",
         password: "",
-        role: "PARENT",
+        role: "PARENT_GUARDIAN",
         phone: "",
       });
+      setConfirmPassword("");
+      setCreateError(null);
       fetchData();
     } catch (error) {
       console.error("Error creating user:", error);
+      // Show any server-side validation error
+      setCreateError(error.response?.data?.message || error.message);
     }
   };
 
@@ -154,7 +175,14 @@ const UsersManagement = () => {
 
     // Apply role filter
     if (filterRole) {
-      result = result.filter((user) => user.role === filterRole);
+      if (filterRole === "CLINIC_STAFF") {
+        // include both clinic admin and staff under Clinic Staff umbrella
+        result = result.filter((user) =>
+          ["CLINIC_ADMIN", "CLINIC_STAFF"].includes(user.role)
+        );
+      } else {
+        result = result.filter((user) => user.role === filterRole);
+      }
     }
 
     // Apply status filter
@@ -222,10 +250,9 @@ const UsersManagement = () => {
       header: "Role",
       sortable: true,
       render: (user) => (
-        <StatusBadge
-          status={user.role}
-          variant={user.role === "ADMIN" ? "success" : "info"}
-        />
+        <StatusBadge className={getRoleBadgeClasses(user.role)}>
+          {getRoleLabel(user.role)}
+        </StatusBadge>
       ),
     },
     {
@@ -260,8 +287,8 @@ const UsersManagement = () => {
       render: (user) => (
         <div className="text-xs text-gray-600">
           <div>Students: {user._count?.students || 0}</div>
-          <div>Contributions: {user._count?.contributions || 0}</div>
-          <div>Attendance: {user._count?.attendances || 0}</div>
+          <div>Link Requests: {user._count?.linkRequests || 0}</div>
+          <div>Activity Logs: {user._count?.activityLogs || 0}</div>
         </div>
       ),
     },
@@ -321,7 +348,11 @@ const UsersManagement = () => {
           </p>
         </div>
         <Button
-          onClick={() => setShowCreateModal(true)}
+          onClick={() => {
+            setShowCreateModal(true);
+            setCreateError(null);
+            setConfirmPassword("");
+          }}
           variant="primary"
           className="w-full md:w-auto whitespace-nowrap"
         >
@@ -429,8 +460,8 @@ const UsersManagement = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">All Roles</option>
-                <option value="PARENT">Parent</option>
-                <option value="ADMIN">Administrator</option>
+                <option value="CLINIC_STAFF">Clinic Staff</option>
+                <option value="PARENT_GUARDIAN">Parent/Guardians</option>
               </select>
             </div>
 
@@ -571,16 +602,8 @@ const UsersManagement = () => {
                             {user.email}
                           </p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                user.role === "ADMIN"
-                                  ? "bg-purple-100 text-purple-800"
-                                  : user.role === "PARENT"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-gray-100 text-gray-800"
-                              }`}
-                            >
-                              {user.role}
+                            <span className={getRoleBadgeClasses(user.role)}>
+                              {getRoleLabel(user.role)}
                             </span>
                             <span
                               className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
@@ -681,11 +704,20 @@ const UsersManagement = () => {
       {/* Create User Modal */}
       <Modal
         isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
+        onClose={() => {
+          setShowCreateModal(false);
+          setCreateError(null);
+          setConfirmPassword("");
+        }}
         title="Add New User"
         size="lg"
       >
         <form onSubmit={handleCreateUser} className="space-y-4 sm:space-y-6">
+          {createError && (
+            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative">
+              {createError}
+            </div>
+          )}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Input
               label="First Name"
@@ -733,11 +765,24 @@ const UsersManagement = () => {
             label="Password"
             name="password"
             value={newUser.password}
-            onChange={(e) =>
-              setNewUser({ ...newUser, password: e.target.value })
-            }
+            onChange={(e) => {
+              setNewUser({ ...newUser, password: e.target.value });
+              if (createError) setCreateError(null);
+            }}
             required
             placeholder="Minimum 6 characters"
+          />
+
+          <PasswordInput
+            label="Confirm Password"
+            name="confirmPassword"
+            value={confirmPassword}
+            onChange={(e) => {
+              setConfirmPassword(e.target.value);
+              if (createError) setCreateError(null);
+            }}
+            required
+            placeholder="Re-enter password"
           />
 
           <div>
@@ -749,8 +794,8 @@ const UsersManagement = () => {
               value={newUser.role}
               onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
             >
-              <option value="PARENT">Parent</option>
-              <option value="ADMIN">Administrator</option>
+              <option value="CLINIC_STAFF">Clinic Staff</option>
+              <option value="PARENT_GUARDIAN">Parent/Guardian</option>
             </select>
           </div>
 
@@ -842,8 +887,8 @@ const UsersManagement = () => {
                   setSelectedUser({ ...selectedUser, role: e.target.value })
                 }
               >
-                <option value="PARENT">Parent</option>
-                <option value="ADMIN">Administrator</option>
+                <option value="CLINIC_STAFF">Clinic Staff</option>
+                <option value="PARENT_GUARDIAN">Parent/Guardian</option>
               </select>
             </div>
 
