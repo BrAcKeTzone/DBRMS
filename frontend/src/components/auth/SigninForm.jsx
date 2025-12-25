@@ -116,21 +116,6 @@ const SigninForm = () => {
               </Link>
             </span>
           </div>
-
-          <div className="mt-6 text-sm text-gray-600">
-            <p className="font-medium mb-2">Demo accounts (use to sign in):</p>
-            <ul className="text-left text-xs space-y-1">
-              <li>
-                <strong>Clinic Admin:</strong> admin@demo / password123
-              </li>
-              <li>
-                <strong>Clinic Staff:</strong> staff@demo / staff123
-              </li>
-              <li>
-                <strong>Parent:</strong> parent@demo / parent123
-              </li>
-            </ul>
-          </div>
         </form>
       </div>
     </div>
