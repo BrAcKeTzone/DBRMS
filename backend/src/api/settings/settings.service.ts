@@ -1,4 +1,4 @@
-import { PrismaClient, Settings } from "@prisma/client";
+import { PrismaClient, SystemSetting } from "@prisma/client";
 import ApiError from "../../utils/ApiError";
 import prisma from "../../configs/prisma";
 
@@ -20,19 +20,13 @@ const DEFAULT_DOCUMENT_CATEGORIES = [
  * Get system settings (creates default if not exists)
  */
 export const getSettings = async (): Promise<Settings> => {
-  let settings = await prisma.settings.findUnique({
+  let settings = await prisma.systemSetting.findUnique({
     where: { key: SYSTEM_CONFIG_KEY },
     include: {
       updatedBy: {
         select: {
           id: true,
           firstName: true,
-          lastName: true,
-          middleName: true,
-
-          lastName: true,
-          middleName: true,
-
           lastName: true,
           middleName: true,
           email: true,
@@ -53,7 +47,7 @@ export const getSettings = async (): Promise<Settings> => {
       throw new ApiError(500, "No admin user found to initialize settings");
     }
 
-    settings = await prisma.settings.create({
+    settings = await prisma.systemSetting.create({
       data: {
         key: SYSTEM_CONFIG_KEY,
         documentCategories: JSON.stringify(DEFAULT_DOCUMENT_CATEGORIES),
@@ -64,12 +58,6 @@ export const getSettings = async (): Promise<Settings> => {
           select: {
             id: true,
             firstName: true,
-            lastName: true,
-            middleName: true,
-
-            lastName: true,
-            middleName: true,
-
             lastName: true,
             middleName: true,
             email: true,
@@ -93,13 +81,13 @@ export const updateSettings = async (
   updatedById: number
 ): Promise<Settings> => {
   // Ensure settings exist
-  let settings = await prisma.settings.findUnique({
+  let settings = await prisma.systemSetting.findUnique({
     where: { key: SYSTEM_CONFIG_KEY },
   });
 
   // If settings don't exist, create them first
   if (!settings) {
-    settings = await prisma.settings.create({
+    settings = await prisma.systemSetting.create({
       data: {
         key: SYSTEM_CONFIG_KEY,
         documentCategories: JSON.stringify(DEFAULT_DOCUMENT_CATEGORIES),
@@ -165,7 +153,7 @@ export const updateSettings = async (
   }
 
   // Update settings
-  const updatedSettings = await prisma.settings.update({
+  const updatedSettings = await prisma.systemSetting.update({
     where: { key: SYSTEM_CONFIG_KEY },
     data: updatePayload,
     include: {
@@ -173,12 +161,6 @@ export const updateSettings = async (
         select: {
           id: true,
           firstName: true,
-          lastName: true,
-          middleName: true,
-
-          lastName: true,
-          middleName: true,
-
           lastName: true,
           middleName: true,
           email: true,

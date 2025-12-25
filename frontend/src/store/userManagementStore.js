@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import userApi from "../api/userApi";
+import defaultUsers from "../data/users.json";
 
 export const useUserManagementStore = create(
   persist(
@@ -110,6 +111,28 @@ export const useUserManagementStore = create(
           return response.data;
         } catch (error) {
           console.error("Error fetching users:", error);
+          // Development fallback: use bundled demo users when backend is unreachable
+          if (!error.response) {
+            const demo = defaultUsers;
+            set({
+              error: "Using demo users (backend unreachable)",
+              loading: false,
+              users: demo,
+              usersData: { users: demo },
+              totalPages: 1,
+              currentPage: 1,
+              totalCount: demo.length,
+              hasNextPage: false,
+              hasPrevPage: false,
+            });
+            return {
+              users: demo,
+              totalCount: demo.length,
+              totalPages: 1,
+              currentPage: 1,
+            };
+          }
+
           set({
             error:
               error.response?.data?.message ||

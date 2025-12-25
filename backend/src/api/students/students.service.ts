@@ -303,9 +303,13 @@ export const updateStudent = async (
   }
 
   try {
+    // Prisma update does not accept explicit `null` for numeric foreign keys; remove them if present
+    const dataToUpdate: any = { ...updateData };
+    if (dataToUpdate.courseId === null) delete dataToUpdate.courseId;
+
     const updatedStudent = await prisma.student.update({
       where: { id },
-      data: updateData,
+      data: dataToUpdate,
       include: {
         parent: {
           select: {

@@ -7,27 +7,34 @@ const userApi = {
 
   // Get paginated users
   getAllUsers: async (options = {}) => {
-    return fetchClient.get("/users", { params: options });
+    const res = await fetchClient.get("/users", { params: options });
+    // Unwrap ApiResponse -> res.data.data
+    return { data: res.data.data };
   },
 
   createUser: async (userData) => {
-    return fetchClient.post("/users", userData);
+    const res = await fetchClient.post("/users", userData);
+    return { data: res.data.data };
   },
 
   updateUser: async (userId, userData) => {
-    return fetchClient.put(`/users/${userId}`, userData);
+    const res = await fetchClient.put(`/users/${userId}`, userData);
+    return { data: res.data.data };
   },
 
   deleteUser: async (userId) => {
-    return fetchClient.delete(`/users/${userId}`);
+    const res = await fetchClient.delete(`/users/${userId}`);
+    return { data: res.data.data };
   },
 
   getUserById: async (userId) => {
-    return fetchClient.get(`/users/${userId}`);
+    const res = await fetchClient.get(`/users/${userId}`);
+    return { data: res.data.data };
   },
 
   getUserStats: async () => {
-    return fetchClient.get("/users/stats");
+    const res = await fetchClient.get("/users/stats");
+    return { data: res.data.data };
   },
 
   // For now use the change-password route (self-service). Admin password reset is not implemented separately.

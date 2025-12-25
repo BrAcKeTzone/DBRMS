@@ -33,7 +33,9 @@ const generateToken = (userId: number): string => {
   } as jwt.SignOptions);
 };
 
-export const sendOtp = async (email: string): Promise<{ message: string }> => {
+export const sendOtp = async (
+  email: string
+): Promise<{ message: string; otp?: string }> => {
   console.log("🔐 Starting OTP process for email:", email);
 
   const user = await prisma.user.findUnique({ where: { email } });
@@ -103,7 +105,7 @@ export const sendOtp = async (email: string): Promise<{ message: string }> => {
 
 export const sendOtpForReset = async (
   email: string
-): Promise<{ message: string }> => {
+): Promise<{ message: string; otp?: string }> => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     throw new ApiError(404, "User with this email does not exist");
@@ -161,7 +163,7 @@ export const sendOtpForReset = async (
 export const sendOtpForChange = async (
   email: string,
   password: string
-): Promise<{ message: string }> => {
+): Promise<{ message: string; otp?: string }> => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
     throw new ApiError(404, "User with this email does not exist");

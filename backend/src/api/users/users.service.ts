@@ -96,7 +96,7 @@ export const createUser = async (
       firstName,
       middleName: middleName || null,
       lastName,
-      phone: phone || null,
+      phone: phone || "",
       role,
       isActive: true,
     },

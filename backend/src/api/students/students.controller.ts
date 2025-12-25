@@ -484,7 +484,7 @@ export const exportStudentsXlsx = asyncHandler(
     // (CSV export removed - XLSX export used exclusively)
 
     // Build XLSX workbook where birthDate cells are true Date types
-    const wsData = [headers];
+    const wsData: any[] = [headers];
     uniqueStudents.forEach((s) => {
       wsData.push([
         s.studentId,
@@ -616,7 +616,7 @@ export const bulkImportStudents = asyncHandler(
       const sheet = workbook.Sheets[sheetName];
       // ensure Excel date cells get formatted consistently as ISO-like strings
       // when possible (dateNF) while still letting unknown cells be parsed
-      const sheetRows = XLSX.utils.sheet_to_json(sheet, {
+      const sheetRows: any[] = XLSX.utils.sheet_to_json(sheet, {
         defval: "",
         raw: false,
         dateNF: "yyyy-mm-dd",

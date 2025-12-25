@@ -28,6 +28,7 @@ enum LinkStatus {
 enum StudentStatus {
   ACTIVE
   INACTIVE
+  GRADUATED
 }
 
 
@@ -58,6 +59,10 @@ model Student {
 
   parentId Int?
   parent   User? @relation(fields: [parentId], references: [id], onDelete: SetNull)
+
+  linkStatus LinkStatus @default(PENDING)
+  relationship String?
+  rejectionReason String?
 
   healthMetrics HealthMetric[]
   clinicVisits  ClinicVisit[]
@@ -95,6 +100,7 @@ model User {
   middleName String?
   lastName   String
   phone      String   @unique
+  profilePicture String?
   role       UserRole @default(PARENT_GUARDIAN)
   isActive   Boolean  @default(true)
 
