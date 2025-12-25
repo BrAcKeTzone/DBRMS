@@ -111,12 +111,26 @@ const AppRoutes = () => {
         }
       >
         <Route path="dashboard" element={<AdminDashboard />} />
-        <Route path="system-configuration" element={<SystemConfiguration />} />
+        <Route
+          path="system-configuration"
+          element={
+            <ProtectedRoute allowedRoles={["CLINIC_ADMIN"]}>
+              <SystemConfiguration />
+            </ProtectedRoute>
+          }
+        />
         <Route path="health-records" element={<HealthRecordManagement />} />
         <Route path="visit-logging" element={<ClinicVisitLogging />} />
         <Route path="students" element={<Students />} />
         <Route path="student-links" element={<StudentLinks />} />
-        <Route path="users" element={<Users />} />
+        <Route
+          path="users"
+          element={
+            <ProtectedRoute allowedRoles={["CLINIC_ADMIN"]}>
+              <Users />
+            </ProtectedRoute>
+          }
+        />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 

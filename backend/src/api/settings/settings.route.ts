@@ -1,6 +1,6 @@
 import { Router } from "express";
 import * as settingsController from "./settings.controller";
-import { authenticate } from "../../middlewares/auth.middleware";
+import { authenticate, authorize } from "../../middlewares/auth.middleware";
 import validate from "../../middlewares/validate.middleware";
 import {
   updateSettingsSchema,
@@ -21,7 +21,7 @@ router.use(authenticate);
  * @desc    Get all system settings
  * @access  Private (Admin only)
  */
-router.get("/", settingsController.getSettings);
+router.get("/", authorize("CLINIC_ADMIN"), settingsController.getSettings);
 
 /**
  * @route   PUT /api/settings
@@ -30,6 +30,7 @@ router.get("/", settingsController.getSettings);
  */
 router.put(
   "/",
+  authorize("CLINIC_ADMIN"),
   validate(updateSettingsSchema),
   settingsController.updateSettings
 );
@@ -39,14 +40,22 @@ router.put(
  * @desc    Initialize default settings (first-time setup)
  * @access  Private (Admin only)
  */
-router.post("/initialize", settingsController.initializeSettings);
+router.post(
+  "/initialize",
+  authorize("CLINIC_ADMIN"),
+  settingsController.initializeSettings
+);
 
 /**
  * @route   POST /api/settings/reset
  * @desc    Reset settings to defaults
  * @access  Private (Admin only)
  */
-router.post("/reset", settingsController.resetToDefaults);
+router.post(
+  "/reset",
+  authorize("CLINIC_ADMIN"),
+  settingsController.resetToDefaults
+);
 
 /**
  * @route   GET /api/settings/category/:category
@@ -55,6 +64,7 @@ router.post("/reset", settingsController.resetToDefaults);
  */
 router.get(
   "/category/:category",
+  authorize("CLINIC_ADMIN"),
   validate(getSettingsByCategorySchema, "params"),
   settingsController.getSettingsByCategory
 );
@@ -64,14 +74,22 @@ router.get(
  * @desc    Get document categories
  * @access  Private
  */
-router.get("/documents/categories", settingsController.getDocumentCategories);
+router.get(
+  "/documents/categories",
+  authorize("CLINIC_ADMIN"),
+  settingsController.getDocumentCategories
+);
 
 /**
  * @route   POST /api/settings/documents/categories
  * @desc    Add document category
  * @access  Private (Admin only)
  */
-router.post("/documents/categories", settingsController.addDocumentCategory);
+router.post(
+  "/documents/categories",
+  authorize("CLINIC_ADMIN"),
+  settingsController.addDocumentCategory
+);
 
 /**
  * @route   DELETE /api/settings/documents/categories/:category
@@ -80,6 +98,7 @@ router.post("/documents/categories", settingsController.addDocumentCategory);
  */
 router.delete(
   "/documents/categories/:category",
+  authorize("CLINIC_ADMIN"),
   settingsController.removeDocumentCategory
 );
 

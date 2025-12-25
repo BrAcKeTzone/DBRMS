@@ -6,6 +6,7 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { formatDate } from "../../utils/formatDate";
+import { useAuthStore } from "../../store/authStore";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -48,6 +49,8 @@ const AdminDashboard = () => {
 
   const recentStudents = (students || []).slice(0, 6);
 
+  const { user } = useAuthStore();
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 sm:mb-8">
@@ -69,13 +72,15 @@ const AdminDashboard = () => {
             Manage Students
           </Button>
 
-          <Button
-            onClick={() => navigate("/clinic/users")}
-            variant="outline"
-            className="w-full sm:w-auto whitespace-nowrap"
-          >
-            Manage Users
-          </Button>
+          {user?.role === "CLINIC_ADMIN" && (
+            <Button
+              onClick={() => navigate("/clinic/users")}
+              variant="outline"
+              className="w-full sm:w-auto whitespace-nowrap"
+            >
+              Manage Users
+            </Button>
+          )}
 
           <Button
             onClick={() => navigate("/clinic/students")}
