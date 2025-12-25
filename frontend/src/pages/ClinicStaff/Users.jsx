@@ -722,7 +722,7 @@ const UsersManagement = () => {
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 break-words">
+                          <h3 className="font-medium text-gray-900 wrap-break-word">
                             {user.firstName} {user.middleName} {user.lastName}
                           </h3>
                           <p className="text-sm text-gray-500 break-all">
