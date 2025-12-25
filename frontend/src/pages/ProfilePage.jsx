@@ -1019,10 +1019,11 @@ const ProfilePage = () => {
 
           {/* File Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="profile-image" className="block text-sm font-medium text-gray-700 mb-2">
               Select Image
             </label>
             <input
+              id="profile-image"
               type="file"
               accept="image/*"
               onChange={handleProfilePictureSelect}

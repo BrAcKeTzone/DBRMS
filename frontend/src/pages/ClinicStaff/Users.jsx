@@ -400,10 +400,11 @@ const UsersManagement = () => {
         <div className="space-y-4">
           {/* Search Input */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="users-search" className="block text-sm font-medium text-gray-700 mb-2">
               Search by Name, Email, or Phone
             </label>
             <Input
+              id="users-search"
               type="text"
               placeholder="e.g., John Doe, john@email.com, +63-123-456-7890"
               value={searchQuery}
@@ -448,10 +449,11 @@ const UsersManagement = () => {
 
             {/* Date From Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="joined-from" className="block text-sm font-medium text-gray-700 mb-2">
                 Joined From
               </label>
               <input
+                id="joined-from"
                 type="date"
                 value={filterDateFrom}
                 onChange={(e) => setFilterDateFrom(e.target.value)}
@@ -461,10 +463,11 @@ const UsersManagement = () => {
 
             {/* Date To Filter */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="joined-to" className="block text-sm font-medium text-gray-700 mb-2">
                 Joined To
               </label>
               <input
+                id="joined-to"
                 type="date"
                 value={filterDateTo}
                 onChange={(e) => setFilterDateTo(e.target.value)}

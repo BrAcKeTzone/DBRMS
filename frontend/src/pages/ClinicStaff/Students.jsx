@@ -856,10 +856,11 @@ const StudentsManagement = () => {
             <div className="space-y-4">
               {/* Search Input */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="students-search" className="block text-sm font-medium text-gray-700 mb-2">
                   Search by Name, Student ID, or Parent Email
                 </label>
                 <Input
+                  id="students-search"
                   type="text"
                   placeholder="e.g., John Doe, STU-001, parent@email.com"
                   value={searchQuery}
@@ -872,10 +873,11 @@ const StudentsManagement = () => {
               <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                 {/* Status Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="filter-status" className="block text-sm font-medium text-gray-700 mb-2">
                     Status
                   </label>
                   <select
+                    id="filter-status"
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -888,10 +890,11 @@ const StudentsManagement = () => {
 
                 {/* Year Enrolled Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="filter-year" className="block text-sm font-medium text-gray-700 mb-2">
                     Year Enrolled
                   </label>
                   <select
+                    id="filter-year"
                     value={filterYearEnrolled}
                     onChange={(e) => setFilterYearEnrolled(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -907,10 +910,11 @@ const StudentsManagement = () => {
 
                 {/* Link Status Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="filter-link-status" className="block text-sm font-medium text-gray-700 mb-2">
                     Parent Link Status
                   </label>
                   <select
+                    id="filter-link-status"
                     value={filterLinkStatus}
                     onChange={(e) => setFilterLinkStatus(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -923,10 +927,11 @@ const StudentsManagement = () => {
 
                 {/* Course Filter */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="filter-course" className="block text-sm font-medium text-gray-700 mb-2">
                     Course
                   </label>
                   <select
+                    id="filter-course"
                     value={filterCourse}
                     onChange={(e) => setFilterCourse(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
