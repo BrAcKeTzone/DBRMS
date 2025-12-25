@@ -57,12 +57,7 @@ export const useAuthStore = create(
               error: null,
             });
 
-            try {
-              localStorage.setItem("authToken", token);
-              localStorage.setItem("user", JSON.stringify(user));
-            } catch (e) {
-              console.debug(e);
-            }
+            // Persisted by zustand persist middleware
 
             return { user, token };
           } catch (apiError) {
@@ -81,12 +76,7 @@ export const useAuthStore = create(
                 loading: false,
                 error: null,
               });
-              try {
-                localStorage.setItem("authToken", token);
-                localStorage.setItem("user", JSON.stringify(user));
-              } catch (e) {
-                console.debug(e);
-              }
+              // Persisted by zustand persist middleware
               return { user, token };
             }
 
@@ -272,12 +262,7 @@ export const useAuthStore = create(
               signupData: { ...signupData, ...personalData },
             });
 
-            try {
-              localStorage.setItem("authToken", token);
-              localStorage.setItem("user", JSON.stringify(user));
-            } catch (e) {
-              console.debug(e);
-            }
+            // Persisted by zustand persist middleware
 
             return user;
           } catch (apiError) {
@@ -322,9 +307,8 @@ export const useAuthStore = create(
               });
 
               try {
+                // Persist users for demo mode
                 localStorage.setItem("users", JSON.stringify(users));
-                localStorage.setItem("authToken", `demo-token-${id}`);
-                localStorage.setItem("user", JSON.stringify(newUser));
               } catch (e) {
                 console.debug(e);
               }
@@ -561,8 +545,7 @@ export const useAuthStore = create(
             loading: false,
             error: null,
           });
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("user");
+          // Persisted state will update via zustand persist middleware
         }
       },
 
@@ -657,11 +640,7 @@ export const useAuthStore = create(
             error: null,
           });
 
-          try {
-            localStorage.setItem("user", JSON.stringify(updatedUser));
-          } catch (err) {
-            // ignore localStorage errors
-          }
+          // Updated user persisted by zustand persist middleware
 
           return { user: updatedUser };
         } catch (error) {
@@ -747,8 +726,8 @@ export const useAuthStore = create(
           });
 
           try {
+            // Persist updated users list for demo mode
             localStorage.setItem("users", JSON.stringify(users));
-            localStorage.setItem("user", JSON.stringify(users[idx]));
           } catch (e) {
             console.debug(e);
           }
@@ -795,8 +774,8 @@ export const useAuthStore = create(
           set({ users, user: users[idx], loading: false, error: null });
 
           try {
+            // Persist updated users list for demo mode
             localStorage.setItem("users", JSON.stringify(users));
-            localStorage.setItem("user", JSON.stringify(users[idx]));
           } catch (e) {
             console.debug(e);
           }
@@ -813,7 +792,7 @@ export const useAuthStore = create(
 
       verifyToken: async () => {
         try {
-          const token = localStorage.getItem("authToken");
+          const token = get().token;
           if (!token) {
             throw new Error("No token found");
           }
@@ -830,9 +809,7 @@ export const useAuthStore = create(
             const user = response.data;
 
             if (!user) {
-              // Clear invalid token and user data
-              localStorage.removeItem("authToken");
-              localStorage.removeItem("user");
+              // Invalid token - user not found
               throw new Error("Invalid token - user not found");
             }
 
@@ -892,8 +869,7 @@ export const useAuthStore = create(
             loading: false,
             error: null,
           });
-          localStorage.removeItem("authToken");
-          localStorage.removeItem("user");
+          // Persisted state will reflect cleared auth
           throw error;
         }
       },
@@ -902,7 +878,7 @@ export const useAuthStore = create(
         set({ error: null });
       },
 
-      // Initialize auth state from localStorage and seed users for demo
+      // Initialize auth state: seed users and verify any existing token in store
       initializeAuth: () => {
         try {
           const storedUsers = localStorage.getItem("users");
@@ -912,16 +888,56 @@ export const useAuthStore = create(
           set({ users: usersData });
         }
 
-        const token = localStorage.getItem("authToken");
-        const storedUser = localStorage.getItem("user");
-        if (token && storedUser) {
-          try {
-            const user = JSON.parse(storedUser);
-            set({ token, user, isAuthenticated: true });
-          } catch (e) {
-            localStorage.removeItem("authToken");
-            localStorage.removeItem("user");
+        // Migrate legacy localStorage auth keys to zustand persisted state if present
+        try {
+          const legacyToken = localStorage.getItem("authToken");
+          const legacyUserStr = localStorage.getItem("user");
+          if (legacyToken || legacyUserStr) {
+            let legacyUser = null;
+            try {
+              legacyUser = legacyUserStr ? JSON.parse(legacyUserStr) : null;
+            } catch (e) {
+              legacyUser = null;
+            }
+
+            set({
+              token: legacyToken || get().token,
+              user: legacyUser || get().user,
+              isAuthenticated: !!(legacyToken || legacyUser),
+            });
+
+            // Remove legacy keys to avoid duplication
+            try {
+              localStorage.removeItem("authToken");
+              localStorage.removeItem("user");
+            } catch (e) {
+              // ignore
+            }
+
+            // verify and refresh profile
+            const tokenToVerify = legacyToken || get().token;
+            if (tokenToVerify) {
+              get()
+                .verifyToken()
+                .catch(() => {
+                  /* verifyToken will clear state on failure */
+                });
+            }
+
+            return;
           }
+        } catch (e) {
+          // ignore and proceed
+        }
+
+        // If a token exists in the zustand state (rehydrated by persist), verify it
+        const token = get().token;
+        if (token) {
+          get()
+            .verifyToken()
+            .catch(() => {
+              // verification failed; verifyToken will clear the state on failure
+            });
         }
       },
 

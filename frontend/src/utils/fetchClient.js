@@ -21,10 +21,12 @@ const fileUploadClient = axios.create({
   headers: {},
 });
 
+import { useAuthStore } from "../store/authStore";
+
 // Request interceptor to add auth token
 fetchClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("authToken");
+    const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -60,8 +62,12 @@ fetchClient.interceptors.response.use(
 
       // Only redirect on 401 for non-auth endpoints (protected routes)
       if (!isAuthEndpoint) {
-        // Clear the token
-        localStorage.removeItem("authToken");
+        // Clear auth state via store logout
+        try {
+          useAuthStore.getState().logout();
+        } catch (e) {
+          console.debug("Error calling logout on 401:", e);
+        }
 
         // Prevent redirect loop by checking current location
         const currentPath = window.location.pathname;
@@ -95,7 +101,7 @@ fetchClient.interceptors.response.use(
 // Request interceptor for file upload client
 fileUploadClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("authToken");
+    const token = useAuthStore.getState().token;
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -121,7 +127,11 @@ fileUploadClient.interceptors.response.use(
       const isAuthEndpoint = error.config?.url?.includes("/auth/");
 
       if (!isAuthEndpoint) {
-        localStorage.removeItem("authToken");
+        try {
+          useAuthStore.getState().logout();
+        } catch (e) {
+          console.debug("Error calling logout on 401 (file upload client):", e);
+        }
         const currentPath = window.location.pathname;
         if (
           currentPath !== "/signin" &&

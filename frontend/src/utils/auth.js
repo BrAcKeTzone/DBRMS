@@ -1,17 +1,22 @@
-const AUTH_TOKEN_KEY = "authToken";
+import { useAuthStore } from "../store/authStore";
 
 export const saveAuthToken = (token) => {
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  useAuthStore.setState({ token, isAuthenticated: !!token });
 };
 
 export const getAuthToken = () => {
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+  return useAuthStore.getState().token;
 };
 
 export const removeAuthToken = () => {
-  localStorage.removeItem(AUTH_TOKEN_KEY);
+  try {
+    useAuthStore.getState().logout();
+  } catch (e) {
+    // fallback
+    useAuthStore.setState({ token: null, user: null, isAuthenticated: false });
+  }
 };
 
 export const isAuthenticated = () => {
-  return !!getAuthToken();
+  return !!useAuthStore.getState().token;
 };
