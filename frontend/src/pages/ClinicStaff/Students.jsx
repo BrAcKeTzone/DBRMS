@@ -327,8 +327,31 @@ const StudentsManagement = () => {
 
   const handleCreateStudent = async (e) => {
     e.preventDefault();
+
+    // Basic client-side validation to avoid roundtrips
+    const studentIdPattern = /^[0-9]{4}-[0-9]{5}$/;
+    const yearPattern = /^[0-9]{4}$/;
+    if (!newStudent.firstName || newStudent.firstName.length < 2) {
+      alert("First name must be at least 2 characters");
+      return;
+    }
+    if (!newStudent.lastName || newStudent.lastName.length < 2) {
+      alert("Last name must be at least 2 characters");
+      return;
+    }
+    if (!studentIdPattern.test(newStudent.studentId)) {
+      alert("Student ID must be in format YYYY-NNNNN (e.g., 2024-12345)");
+      return;
+    }
+    if (!yearPattern.test(String(newStudent.yearEnrolled))) {
+      alert("Year enrolled must be a 4-digit year (e.g., 2024)");
+      return;
+    }
+
     try {
-      await studentsApi.createStudent(newStudent);
+      setLoading(true);
+      const resp = await studentsApi.createStudent(newStudent);
+      // If API returns an error structure it will throw and be caught below
       setShowCreateModal(false);
       setNewStudent({
         firstName: "",
@@ -339,9 +362,15 @@ const StudentsManagement = () => {
         birthDate: "",
         courseCode: "",
       });
-      fetchStudents();
+      await fetchStudents();
+      alert("Student created successfully");
     } catch (error) {
       console.error("Error creating student:", error);
+      const msg =
+        error?.response?.data?.message || error?.message || "Failed to create student";
+      alert(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -1305,6 +1334,7 @@ const StudentsManagement = () => {
                       studentId: "",
                       yearEnrolled: "",
                       birthDate: "",
+                      courseCode: "",
                     });
                   }}
                   className="w-full sm:w-auto"

@@ -30,29 +30,6 @@ enum StudentStatus {
   INACTIVE
 }
 
-// AUTHENTICATION & USER MANAGEMENT
-model User {
-  id         Int      @id @default(autoincrement())
-  email      String   @unique
-  password   String
-  firstName  String
-  middleName String?
-  lastName   String
-  phone      String   @unique
-  role       UserRole @default(PARENT_GUARDIAN)
-  isActive   Boolean  @default(true)
-
-  students         Student[]
-  linkRequests     StudentLinkRequest[] @relation("ParentLinkRequests")
-  approvedRequests StudentLinkRequest[] @relation("ApprovedBy")
-  activityLogs     ActivityLog[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([email])
-  @@index([role])
-}
 
 model Otp {
   id        Int      @id @default(autoincrement())
@@ -96,12 +73,43 @@ model Student {
 
 model Course {
   id          Int       @id @default(autoincrement())
+  code        String    @unique
   name        String    @unique
   description String?
   students    Student[]
 
+  // Optional reference to the user who created this course
+  createdById Int?
+  createdBy   User?     @relation("CourseCreator", fields: [createdById], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+// Add back-reference from User to created courses
+model User {
+  id         Int      @id @default(autoincrement())
+  email      String   @unique
+  password   String
+  firstName  String
+  middleName String?
+  lastName   String
+  phone      String   @unique
+  role       UserRole @default(PARENT_GUARDIAN)
+  isActive   Boolean  @default(true)
+
+  students         Student[]
+  linkRequests     StudentLinkRequest[] @relation("ParentLinkRequests")
+  approvedRequests StudentLinkRequest[] @relation("ApprovedBy")
+  activityLogs     ActivityLog[]
+
+  createdCourses Course[] @relation("CourseCreator")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+  @@index([role])
 }
 
 model StudentLinkRequest {

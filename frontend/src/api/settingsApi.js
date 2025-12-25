@@ -8,14 +8,14 @@ export const settingsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getPenaltySettings();
     }
-    return await fetchClient.get("/api/settings/category/penalty");
+    return await fetchClient.get("/settings/category/penalty");
   },
 
   updatePenaltySettings: async (penaltyData) => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.updatePenaltySettings(penaltyData);
     }
-    return await fetchClient.put("/api/settings", penaltyData);
+    return await fetchClient.put("/settings", penaltyData);
   },
 
   // Payment basis settings
@@ -23,14 +23,14 @@ export const settingsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getPaymentBasisSettings();
     }
-    return await fetchClient.get("/api/settings/category/payment");
+    return await fetchClient.get("/settings/category/payment");
   },
 
   updatePaymentBasisSettings: async (paymentData) => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.updatePaymentBasisSettings(paymentData);
     }
-    return await fetchClient.put("/api/settings", paymentData);
+    return await fetchClient.put("/settings", paymentData);
   },
 
   // Contribution amount settings
@@ -38,7 +38,7 @@ export const settingsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getContributionSettings();
     }
-    return await fetchClient.get("/api/settings/category/contribution");
+    return await fetchClient.get("/settings/category/contribution");
   },
 
   updateContributionSettings: async (contributionData) => {
@@ -47,7 +47,7 @@ export const settingsApi = {
         contributionData
       );
     }
-    return await fetchClient.put("/api/settings", contributionData);
+    return await fetchClient.put("/settings", contributionData);
   },
 
   // Document category settings
@@ -55,14 +55,14 @@ export const settingsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getDocumentCategories();
     }
-    return await fetchClient.get("/api/settings/documents/categories");
+    return await fetchClient.get("/settings/documents/categories");
   },
 
   updateDocumentCategories: async (categories) => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.updateDocumentCategories(categories);
     }
-    return await fetchClient.put("/api/settings", categories);
+    return await fetchClient.put("/settings", categories);
   },
 
   addDocumentCategory: async (categoryData) => {
@@ -70,7 +70,7 @@ export const settingsApi = {
       return await dummyDataService.addDocumentCategory(categoryData);
     }
     return await fetchClient.post(
-      "/api/settings/documents/categories",
+      "/settings/documents/categories",
       categoryData
     );
   },
@@ -80,7 +80,7 @@ export const settingsApi = {
       return await dummyDataService.deleteDocumentCategory(categoryId);
     }
     return await fetchClient.delete(
-      `/api/settings/documents/categories/${categoryId}`
+      `/settings/documents/categories/${categoryId}`
     );
   },
 
@@ -89,14 +89,14 @@ export const settingsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getSystemSettings();
     }
-    return await fetchClient.get("/api/settings/category/system");
+    return await fetchClient.get("/settings/category/system");
   },
 
   updateSystemSettings: async (systemData) => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.updateSystemSettings(systemData);
     }
-    return await fetchClient.put("/api/settings", systemData);
+    return await fetchClient.put("/settings", systemData);
   },
 
   // School year settings
@@ -104,14 +104,14 @@ export const settingsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getSchoolYearSettings();
     }
-    return await fetchClient.get("/api/settings/category/academic");
+    return await fetchClient.get("/settings/category/academic");
   },
 
   updateSchoolYearSettings: async (schoolYearData) => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.updateSchoolYearSettings(schoolYearData);
     }
-    return await fetchClient.put("/api/settings", schoolYearData);
+    return await fetchClient.put("/settings", schoolYearData);
   },
 
   // Notification settings
@@ -119,7 +119,7 @@ export const settingsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getNotificationSettings();
     }
-    return await fetchClient.get("/api/settings/category/notification");
+    return await fetchClient.get("/settings/category/notification");
   },
 
   updateNotificationSettings: async (notificationData) => {
@@ -128,7 +128,7 @@ export const settingsApi = {
         notificationData
       );
     }
-    return await fetchClient.put("/api/settings", notificationData);
+    return await fetchClient.put("/settings", notificationData);
   },
 
   // All settings (for settings page)
@@ -136,7 +136,7 @@ export const settingsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getAllSettings();
     }
-    return await fetchClient.get("/api/settings");
+    return await fetchClient.get("/settings");
   },
 
   // Backup settings
@@ -145,7 +145,7 @@ export const settingsApi = {
       return await dummyDataService.backupSettings();
     }
     return await fetchClient.post(
-      "/api/settings/backup",
+      "/settings/backup",
       {},
       {
         responseType: "blob",
@@ -160,7 +160,7 @@ export const settingsApi = {
     const formData = new FormData();
     formData.append("backup", backupFile);
 
-    return await fetchClient.post("/api/settings/restore", formData, {
+    return await fetchClient.post("/settings/restore", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -172,6 +172,6 @@ export const settingsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.resetToDefaults(settingType);
     }
-    return await fetchClient.post("/api/settings/reset", { settingType });
+    return await fetchClient.post("/settings/reset", { settingType });
   },
 };

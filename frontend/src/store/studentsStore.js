@@ -17,7 +17,24 @@ export const useStudentsStore = create(
         try {
           set({ loading: true, error: null });
           const response = await studentsApi.getAllStudents(params);
-          set({ students: response.data || [], loading: false });
+
+          // Normalize different response shapes (axios ApiResponse or dummy service responses)
+          let studentsArray = [];
+          const respData = response?.data ?? response;
+
+          if (Array.isArray(respData)) {
+            studentsArray = respData;
+          } else if (Array.isArray(respData.data)) {
+            studentsArray = respData.data;
+          } else if (Array.isArray(respData.students)) {
+            studentsArray = respData.students;
+          } else if (Array.isArray(respData.data?.students)) {
+            studentsArray = respData.data.students;
+          } else {
+            studentsArray = [];
+          }
+
+          set({ students: studentsArray, loading: false });
         } catch (error) {
           set({
             error: error.response?.data?.message || "Failed to fetch students",
@@ -83,8 +100,11 @@ export const useStudentsStore = create(
         try {
           set({ loading: true, error: null });
           const response = await studentsApi.getStudentDetails(studentId);
-          set({ studentDetails: response.data, loading: false });
-          return response.data;
+          // normalize response shapes
+          const payload =
+            response?.data?.data ?? response?.data ?? response ?? null;
+          set({ studentDetails: payload, loading: false });
+          return payload;
         } catch (error) {
           set({
             error:
@@ -192,7 +212,21 @@ export const useStudentsStore = create(
         try {
           set({ loading: true, error: null });
           const response = await studentsApi.getMyChildren(params);
-          set({ myChildren: response.data || [], loading: false });
+
+          const respData = response?.data ?? response;
+          const myChildrenArray = Array.isArray(respData)
+            ? respData
+            : Array.isArray(respData.data)
+            ? respData.data
+            : Array.isArray(respData.data?.data)
+            ? respData.data.data
+            : Array.isArray(respData.data?.students)
+            ? respData.data.students
+            : Array.isArray(respData.students)
+            ? respData.students
+            : [];
+
+          set({ myChildren: myChildrenArray, loading: false });
         } catch (error) {
           set({
             error:
@@ -244,7 +278,9 @@ export const useStudentsStore = create(
           set({ loading: true, error: null });
           const response = await studentsApi.searchStudents(searchTerm, params);
           set({ loading: false });
-          return response.data || [];
+
+          const respData = response?.data ?? response;
+          return respData?.data ?? respData?.students ?? respData ?? [];
         } catch (error) {
           set({
             error: error.response?.data?.message || "Failed to search students",
@@ -314,27 +350,28 @@ export const useStudentsStore = create(
       // Statistics and analytics
       getStudentStatistics: () => {
         const { students } = get();
+        const studentsArr = Array.isArray(students) ? students : [];
 
         // Count by status
-        const statusCounts = students.reduce((acc, student) => {
+        const statusCounts = studentsArr.reduce((acc, student) => {
           acc[student.status] = (acc[student.status] || 0) + 1;
           return acc;
         }, {});
 
         // Count by grade level
-        const gradeLevelCounts = students.reduce((acc, student) => {
+        const gradeLevelCounts = studentsArr.reduce((acc, student) => {
           acc[student.gradeLevel] = (acc[student.gradeLevel] || 0) + 1;
           return acc;
         }, {});
 
         // Count by gender
-        const genderCounts = students.reduce((acc, student) => {
+        const genderCounts = studentsArr.reduce((acc, student) => {
           acc[student.gender] = (acc[student.gender] || 0) + 1;
           return acc;
         }, {});
 
         return {
-          total: students.length,
+          total: studentsArr.length,
           active: statusCounts.active || 0,
           inactive: statusCounts.inactive || 0,
           graduated: statusCounts.graduated || 0,
@@ -342,12 +379,12 @@ export const useStudentsStore = create(
           gradeLevelCounts,
           genderCounts,
           averageAge:
-            students.length > 0
+            studentsArr.length > 0
               ? Math.round(
-                  students.reduce(
+                  studentsArr.reduce(
                     (sum, student) => sum + (student.age || 0),
                     0
-                  ) / students.length
+                  ) / studentsArr.length
                 )
               : 0,
         };

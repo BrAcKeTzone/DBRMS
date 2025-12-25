@@ -8,21 +8,21 @@ export const studentsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.createStudent(studentData);
     }
-    return await fetchClient.post("/api/students", studentData);
+    return await fetchClient.post("/students", studentData);
   },
 
   updateStudent: async (studentId, studentData) => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.updateStudent(studentId, studentData);
     }
-    return await fetchClient.put(`/api/students/${studentId}`, studentData);
+    return await fetchClient.put(`/students/${studentId}`, studentData);
   },
 
   deleteStudent: async (studentId) => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.deleteStudent(studentId);
     }
-    return await fetchClient.delete(`/api/students/${studentId}`);
+    return await fetchClient.delete(`/students/${studentId}`);
   },
 
   getAllStudents: async (params = {}) => {
@@ -30,14 +30,14 @@ export const studentsApi = {
       return await dummyDataService.getAllStudents(params);
     }
     const queryString = new URLSearchParams(params).toString();
-    return await fetchClient.get(`/api/students?${queryString}`);
+    return await fetchClient.get(`/students?${queryString}`);
   },
 
   getStudent: async (studentId) => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getStudent(studentId);
     }
-    return await fetchClient.get(`/api/students/${studentId}`);
+    return await fetchClient.get(`/students/${studentId}`);
   },
 
   searchStudents: async (searchTerm) => {
@@ -45,7 +45,7 @@ export const studentsApi = {
       return await dummyDataService.searchStudents(searchTerm);
     }
     return await fetchClient.get(
-      `/api/students/search?q=${encodeURIComponent(searchTerm)}`
+      `/students/search?q=${encodeURIComponent(searchTerm)}`
     );
   },
 
@@ -54,7 +54,7 @@ export const studentsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.linkParentToStudent(parentId, studentId);
     }
-    return await fetchClient.post("/api/students/link-parent", {
+    return await fetchClient.post("/students/link-parent", {
       parentId,
       studentId,
     });
@@ -68,7 +68,7 @@ export const studentsApi = {
       );
     }
     return await fetchClient.delete(
-      `/api/students/unlink-parent/${parentId}/${studentId}`
+      `/students/unlink-parent/${parentId}/${studentId}`
     );
   },
 
@@ -78,7 +78,7 @@ export const studentsApi = {
     }
     const queryString = new URLSearchParams(params).toString();
     return await fetchClient.get(
-      `/api/students/pending-parent-links?${queryString}`
+      `/students/pending-parent-links?${queryString}`
     );
   },
 
@@ -86,14 +86,14 @@ export const studentsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.approveParentLink(linkId);
     }
-    return await fetchClient.patch(`/api/students/${linkId}/approve`);
+    return await fetchClient.patch(`/students/${linkId}/approve`);
   },
 
   rejectParentLink: async (linkId, reason = "") => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.rejectParentLink(linkId, reason);
     }
-    return await fetchClient.patch(`/api/students/${linkId}/reject`, {
+    return await fetchClient.patch(`/students/${linkId}/reject`, {
       rejectionReason: reason,
     });
   },
@@ -104,21 +104,21 @@ export const studentsApi = {
       return await dummyDataService.requestStudentLink(studentData);
     }
     // studentData should contain: { studentId, parentId }
-    return await fetchClient.post("/api/students/link", studentData);
+    return await fetchClient.post("/students/link", studentData);
   },
 
   getMyChildren: async () => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getMyChildren();
     }
-    return await fetchClient.get("/api/students/my-children");
+    return await fetchClient.get("/students/my-children");
   },
 
   getMyLinkRequests: async () => {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getMyLinkRequests();
     }
-    return await fetchClient.get("/api/students/my-link-requests");
+    return await fetchClient.get("/students/my-link-requests");
   },
 
   // Admin: Unlink a student (set linkStatus back to PENDING)
@@ -126,7 +126,7 @@ export const studentsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.unlinkStudent(studentId);
     }
-    return await fetchClient.patch(`/api/students/${studentId}/unlink`);
+    return await fetchClient.patch(`/students/${studentId}/unlink`);
   },
 
   // Utility functions
@@ -134,7 +134,7 @@ export const studentsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getStudentsByGradeLevel(gradeLevel);
     }
-    return await fetchClient.get(`/api/students/by-grade/${gradeLevel}`);
+    return await fetchClient.get(`/students/by-grade/${gradeLevel}`);
   },
 
   getStudentsBySection: async (section) => {
@@ -142,7 +142,7 @@ export const studentsApi = {
       return await dummyDataService.getStudentsBySection(section);
     }
     return await fetchClient.get(
-      `/api/students/by-section/${encodeURIComponent(section)}`
+      `/students/by-section/${encodeURIComponent(section)}`
     );
   },
 
@@ -150,7 +150,7 @@ export const studentsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getGradeLevels();
     }
-    return await fetchClient.get("/api/students/grade-levels");
+    return await fetchClient.get("/students/grade-levels");
   },
 
   getSections: async (gradeLevel = null) => {
@@ -158,7 +158,7 @@ export const studentsApi = {
       return await dummyDataService.getSections(gradeLevel);
     }
     const queryString = gradeLevel ? `?gradeLevel=${gradeLevel}` : "";
-    return await fetchClient.get(`/api/students/sections${queryString}`);
+    return await fetchClient.get(`/students/sections${queryString}`);
   },
 
   // Student statistics (Admin only)
@@ -166,7 +166,7 @@ export const studentsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.getStudentStatistics();
     }
-    return await fetchClient.get("/api/students/statistics");
+    return await fetchClient.get("/students/statistics");
   },
 
   // Bulk operations (Admin only)
@@ -177,7 +177,7 @@ export const studentsApi = {
     const formData = new FormData();
     formData.append("file", file);
 
-    return await fetchClient.post("/api/students/bulk-import", formData, {
+    return await fetchClient.post("/students/bulk-import", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -189,7 +189,7 @@ export const studentsApi = {
       return await dummyDataService.exportStudents(params);
     }
     const queryString = new URLSearchParams(params).toString();
-    return await fetchClient.get(`/api/students/export?${queryString}`, {
+    return await fetchClient.get(`/students/export?${queryString}`, {
       responseType: "blob",
     });
   },
@@ -198,7 +198,7 @@ export const studentsApi = {
     if (config.USE_DUMMY_DATA) {
       return await dummyDataService.exportStudents();
     }
-    return await fetchClient.get(`/api/students/template`, {
+    return await fetchClient.get(`/students/template`, {
       responseType: "blob",
     });
   },
@@ -207,6 +207,6 @@ export const studentsApi = {
     if (config.USE_DUMMY_DATA) {
       return { data: { data: { clearedCount: 0 } } };
     }
-    return await fetchClient.post(`/api/students/clear-rejected-links`);
+    return await fetchClient.post(`/students/clear-rejected-links`);
   },
 };

@@ -2,7 +2,7 @@ import { fetchClient } from "../utils/fetchClient";
 import config from "../config";
 import { dummyDataService } from "../services/dummyDataService";
 
-const API_BASE = "/api/courses";
+const API_BASE = "/courses";
 
 export const coursesApi = {
   getAllCourses: async () => {
