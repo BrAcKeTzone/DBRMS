@@ -106,6 +106,11 @@ const MyChildren = () => {
       return;
     }
 
+    if (!relationship || !relationship.trim()) {
+      alert("Please specify your relationship to the student");
+      return;
+    }
+
     try {
       await studentsApi.requestStudentLink({
         studentId: selectedStudent.studentId, // Use the string student ID, not the database ID
@@ -437,19 +442,48 @@ const MyChildren = () => {
 
           {/* Relationship Selection */}
           {selectedStudent && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Relationship to Student *
-              </label>
-              <select
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                value={relationship}
-                onChange={(e) => setRelationship(e.target.value)}
-              >
-                <option value="PARENT">Parent</option>
-                <option value="GUARDIAN">Guardian</option>
-                <option value="OTHER">Other</option>
-              </select>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Relationship to Student *
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  value={
+                    ["PARENT", "GUARDIAN"].includes(relationship)
+                      ? relationship
+                      : "OTHER"
+                  }
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "OTHER") {
+                      setRelationship("");
+                    } else {
+                      setRelationship(val);
+                    }
+                  }}
+                >
+                  <option value="PARENT">Parent</option>
+                  <option value="GUARDIAN">Guardian</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
+
+              {!["PARENT", "GUARDIAN"].includes(relationship) && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Specify Relationship *
+                  </label>
+                  <Input
+                    placeholder="Enter relationship (e.g. UNCLE, AUNT, etc.)"
+                    value={relationship}
+                    onChange={(e) =>
+                      setRelationship(e.target.value.toUpperCase())
+                    }
+                    autoFocus
+                  />
+                </div>
+              )}
             </div>
           )}
 
