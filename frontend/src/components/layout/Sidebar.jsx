@@ -498,12 +498,12 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-linear-to-b from-blue-50 to-blue-50 h-full shadow-lg border-r border-blue-200 transform transition-transform duration-300 ease-in-out lg:sticky lg:top-16 lg:z-10 lg:translate-x-0 lg:h-auto lg:overflow-y-auto ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-linear-to-b from-blue-50 to-blue-50 h-full shadow-lg border-r border-blue-200 transform transition-transform duration-300 ease-in-out overflow-y-auto lg:sticky lg:top-16 lg:z-10 lg:translate-x-0 lg:h-auto ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ maxHeight: "calc(100vh - 4rem)" }}
       >
-        <div className="p-6 border-b border-blue-200 bg-linear-to-r from-blue-100 to-blue-100">
+        <div className="p-6 border-b border-blue-200 bg-linear-to-r from-blue-100 to-blue-100 min-h-full">
           <div className="flex flex-col items-start mb-6">
             <div className="w-full mb-3">
               <img
