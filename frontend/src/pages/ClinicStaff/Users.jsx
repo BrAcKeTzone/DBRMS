@@ -758,22 +758,22 @@ const UsersManagement = () => {
                       key={user.id}
                       className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
                     >
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="flex justify-center items-start mb-4">
+                        <div className="flex flex-col items-center gap-3 flex-1 min-w-0">
                           {user.profilePicture ? (
                             <img
                               src={user.profilePicture}
                               alt={`${user.firstName} ${user.lastName}`}
-                              className="h-12 w-12 rounded-full object-cover cursor-pointer border border-gray-200"
+                              className="h-16 w-16 rounded-full object-cover cursor-pointer border-2 border-blue-100 shadow-sm"
                               onClick={() => {
                                 setViewerImageUrl(user.profilePicture);
                                 setShowImageViewer(true);
                               }}
                             />
                           ) : (
-                            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+                            <div className="h-16 w-16 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
                               <svg
-                                className="h-7 w-7 text-gray-400"
+                                className="h-8 w-8 text-gray-400"
                                 fill="none"
                                 viewBox="0 0 24 24"
                                 stroke="currentColor"
@@ -787,14 +787,14 @@ const UsersManagement = () => {
                               </svg>
                             </div>
                           )}
-                          <div className="min-w-0">
-                            <h3 className="font-medium text-gray-900 wrap-break-word">
+                          <div className="min-w-0 text-center">
+                            <h3 className="font-bold text-gray-900 text-lg break-words">
                               {user.firstName} {user.middleName} {user.lastName}
                             </h3>
                             <p className="text-sm text-gray-500 break-all">
                               {user.email}
                             </p>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center justify-center gap-2 mt-2">
                               <span className={getRoleBadgeClasses(user.role)}>
                                 {getRoleLabel(user.role)}
                               </span>
