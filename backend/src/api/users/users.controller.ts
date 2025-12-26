@@ -244,15 +244,16 @@ export const uploadProfilePicture = asyncHandler(
         .json(new ApiResponse(401, null, "Unauthorized - User ID not found"));
     }
 
-    const { profilePicture } = req.body;
+    const { image, profilePicture } = req.body;
+    const pictureData = image || profilePicture;
 
-    if (!profilePicture) {
+    if (!pictureData) {
       return res
         .status(400)
         .json(new ApiResponse(400, null, "Profile picture data is required"));
     }
 
-    const user = await userService.updateProfilePicture(userId, profilePicture);
+    const user = await userService.updateProfilePicture(userId, pictureData);
 
     res
       .status(200)

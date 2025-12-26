@@ -2,6 +2,7 @@ import prisma from "../../configs/prisma";
 import { User, UserRole } from "@prisma/client";
 import ApiError from "../../utils/ApiError";
 import bcrypt from "bcrypt";
+import cloudinary from "../../configs/cloudinary";
 
 interface CreateUserData {
   firstName: string;
@@ -50,6 +51,7 @@ interface UserSafeData {
   middleName: string | null;
   lastName: string;
   phone: string | null;
+  profilePicture: string | null;
   role: UserRole;
   isActive: boolean;
   createdAt: Date;
@@ -298,6 +300,7 @@ export const getAllUsers = async (filter: GetUsersFilter) => {
         lastName: true,
         middleName: true,
         phone: true,
+        profilePicture: true,
         role: true,
         isActive: true,
         createdAt: true,
@@ -648,7 +651,7 @@ export const getUserStats = async () => {
 // Update user profile picture
 export const updateProfilePicture = async (
   userId: number,
-  profilePicture: string
+  profilePictureData: string
 ): Promise<UserSafeData> => {
   // Validate user exists
   const user = await prisma.user.findUnique({
@@ -659,11 +662,30 @@ export const updateProfilePicture = async (
     throw new ApiError(404, "User not found");
   }
 
+  let profilePictureUrl = profilePictureData;
+
+  // If it's a base64 string, upload to Cloudinary
+  if (profilePictureData.startsWith("data:image")) {
+    try {
+      const uploadResponse = await cloudinary.uploader.upload(
+        profilePictureData,
+        {
+          folder: "clinic-record-ms/profile-picture",
+          resource_type: "image",
+        }
+      );
+      profilePictureUrl = uploadResponse.secure_url;
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      throw new ApiError(500, "Failed to upload profile picture to Cloudinary");
+    }
+  }
+
   // Update profile picture
   const updatedUser = await prisma.user.update({
     where: { id: userId },
     data: {
-      profilePicture,
+      profilePicture: profilePictureUrl,
     },
   });
 
