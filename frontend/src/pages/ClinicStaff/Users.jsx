@@ -47,6 +47,8 @@ const UsersManagement = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showImageViewer, setShowImageViewer] = useState(false);
+  const [viewerImageUrl, setViewerImageUrl] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [newUser, setNewUser] = useState({
     firstName: "",
@@ -245,6 +247,41 @@ const UsersManagement = () => {
   };
 
   const userColumns = [
+    {
+      key: "profilePicture",
+      header: "Photo",
+      render: (user) => (
+        <div className="flex items-center justify-center">
+          {user.profilePicture ? (
+            <img
+              src={user.profilePicture}
+              alt={`${user.firstName} ${user.lastName}`}
+              className="h-10 w-10 rounded-full object-cover cursor-pointer border border-gray-200 hover:opacity-80 transition-opacity"
+              onClick={() => {
+                setViewerImageUrl(user.profilePicture);
+                setShowImageViewer(true);
+              }}
+            />
+          ) : (
+            <div className="h-10 w-10 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+              <svg
+                className="h-6 w-6 text-gray-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                />
+              </svg>
+            </div>
+          )}
+        </div>
+      ),
+    },
     {
       key: "firstName",
       header: "User",
@@ -722,26 +759,55 @@ const UsersManagement = () => {
                       className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
                     >
                       <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 wrap-break-word">
-                            {user.firstName} {user.middleName} {user.lastName}
-                          </h3>
-                          <p className="text-sm text-gray-500 break-all">
-                            {user.email}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span className={getRoleBadgeClasses(user.role)}>
-                              {getRoleLabel(user.role)}
-                            </span>
-                            <span
-                              className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                user.isActive
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-red-100 text-red-800"
-                              }`}
-                            >
-                              {user.isActive ? "Active" : "Inactive"}
-                            </span>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {user.profilePicture ? (
+                            <img
+                              src={user.profilePicture}
+                              alt={`${user.firstName} ${user.lastName}`}
+                              className="h-12 w-12 rounded-full object-cover cursor-pointer border border-gray-200"
+                              onClick={() => {
+                                setViewerImageUrl(user.profilePicture);
+                                setShowImageViewer(true);
+                              }}
+                            />
+                          ) : (
+                            <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center border border-gray-200">
+                              <svg
+                                className="h-7 w-7 text-gray-400"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                                />
+                              </svg>
+                            </div>
+                          )}
+                          <div className="min-w-0">
+                            <h3 className="font-medium text-gray-900 wrap-break-word">
+                              {user.firstName} {user.middleName} {user.lastName}
+                            </h3>
+                            <p className="text-sm text-gray-500 break-all">
+                              {user.email}
+                            </p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className={getRoleBadgeClasses(user.role)}>
+                                {getRoleLabel(user.role)}
+                              </span>
+                              <span
+                                className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  user.isActive
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-red-100 text-red-800"
+                                }`}
+                              >
+                                {user.isActive ? "Active" : "Inactive"}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1072,6 +1138,39 @@ const UsersManagement = () => {
           </form>
         )}
       </Modal>
+
+      {/* Fullscreen Image Viewer Modal */}
+      {showImageViewer && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-90 p-4"
+          onClick={() => setShowImageViewer(false)}
+        >
+          <button
+            className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors"
+            onClick={() => setShowImageViewer(false)}
+          >
+            <svg
+              className="h-8 w-8"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+          <img
+            src={viewerImageUrl}
+            alt="User Profile"
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 };
