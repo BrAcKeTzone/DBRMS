@@ -15,10 +15,13 @@ const SignupForm = () => {
   const loading = useAuthStore((s) => s.loading);
   const error = useAuthStore((s) => s.error);
 
-  // Non-subscribing access for action functions to avoid selector churn
-  const { sendOtp, verifyOtp, completeRegistration, resetSignup, clearError } =
-    useAuthStore.getState();
-  const rawSignupData = useAuthStore.getState().signupData;
+  // Actions (stable selectors)
+  const sendOtp = useAuthStore((s) => s.sendOtp);
+  const verifyOtp = useAuthStore((s) => s.verifyOtp);
+  const completeRegistration = useAuthStore((s) => s.completeRegistration);
+  const resetSignup = useAuthStore((s) => s.resetSignup);
+  const clearError = useAuthStore((s) => s.clearError);
+  const rawSignupData = useAuthStore((s) => s.signupData);
 
   const [formData, setFormData] = useState({
     email: "",

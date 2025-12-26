@@ -12,15 +12,15 @@ const ProfilePage = () => {
   const loading = useAuthStore((s) => s.loading);
   const error = useAuthStore((s) => s.error);
 
-  // Actions (non-subscribing)
-  const {
-    updateProfile,
-    getProfile,
-    changePasswordWithOtp,
-    sendOtpForPasswordChange,
-    uploadProfilePicture,
-    clearError,
-  } = useAuthStore.getState();
+  // Actions (stable selectors)
+  const updateProfile = useAuthStore((s) => s.updateProfile);
+  const getProfile = useAuthStore((s) => s.getProfile);
+  const changePasswordWithOtp = useAuthStore((s) => s.changePasswordWithOtp);
+  const sendOtpForPasswordChange = useAuthStore(
+    (s) => s.sendOtpForPasswordChange
+  );
+  const uploadProfilePicture = useAuthStore((s) => s.uploadProfilePicture);
+  const clearError = useAuthStore((s) => s.clearError);
 
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -39,14 +39,14 @@ const ProfilePage = () => {
   const lastNameRef = useRef(null);
   const middleNameRef = useRef(null);
   const caretSelection = useRef({});
-  const editingValuesRef = useRef({});
 
   const handleFirstNameChange = React.useCallback((e) => {
+    const value = e.target.value;
     caretSelection.current.firstName = {
       start: e.target.selectionStart,
       end: e.target.selectionEnd,
     };
-    editingValuesRef.current.firstName = e.target.value;
+    setProfileData((prev) => ({ ...prev, firstName: value }));
     setValidationErrors((prev) => {
       if (prev.firstName) {
         const { firstName, ...rest } = prev;
@@ -57,11 +57,12 @@ const ProfilePage = () => {
   }, []);
 
   const handleLastNameChange = React.useCallback((e) => {
+    const value = e.target.value;
     caretSelection.current.lastName = {
       start: e.target.selectionStart,
       end: e.target.selectionEnd,
     };
-    editingValuesRef.current.lastName = e.target.value;
+    setProfileData((prev) => ({ ...prev, lastName: value }));
     setValidationErrors((prev) => {
       if (prev.lastName) {
         const { lastName, ...rest } = prev;
@@ -72,11 +73,12 @@ const ProfilePage = () => {
   }, []);
 
   const handleMiddleNameChange = React.useCallback((e) => {
+    const value = e.target.value;
     caretSelection.current.middleName = {
       start: e.target.selectionStart,
       end: e.target.selectionEnd,
     };
-    editingValuesRef.current.middleName = e.target.value;
+    setProfileData((prev) => ({ ...prev, middleName: value }));
   }, []);
 
   const [passwordData, setPasswordData] = useState({
@@ -95,9 +97,15 @@ const ProfilePage = () => {
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
   const [isPasswordLoading, setIsPasswordLoading] = useState(false);
 
+  // Use a ref to prevent infinite refresh loops
+  const hasInitialRefreshRun = useRef(false);
+
   useEffect(() => {
-    // Only fetch profile data on initial mount, not on every user change
+    // Only fetch profile data once when user is available
     const refreshProfile = async () => {
+      if (hasInitialRefreshRun.current) return;
+      hasInitialRefreshRun.current = true;
+
       try {
         await getProfile();
       } catch (error) {
@@ -108,18 +116,12 @@ const ProfilePage = () => {
           console.error(
             "Authentication failed, user will be redirected to login"
           );
-          // The fetchClient interceptor will handle the redirect to /signin
-          // We don't need to do anything else here
           return;
         }
-
-        // For other errors, just log them and continue
-        // The error will be displayed in the UI via the error state
       }
     };
 
-    // Only call refreshProfile once on mount if user exists
-    if (user && !profileData.firstName && !profileData.lastName) {
+    if (user) {
       refreshProfile();
     }
 
@@ -127,7 +129,7 @@ const ProfilePage = () => {
     return () => {
       clearError();
     };
-  }, [getProfile, clearError]); // Removed user dependency to prevent frequent calls
+  }, [user, getProfile, clearError]);
 
   // Sync profileData from user only when not currently editing.
   // This prevents user store updates (e.g. profile picture, other actions)
@@ -188,12 +190,14 @@ const ProfilePage = () => {
 
   const getRoleDisplayName = (role) => {
     switch (role) {
-      case "HR":
-        return "HR Manager";
-      case "APPLICANT":
-        return "Applicant";
+      case "CLINIC_ADMIN":
+        return "Clinic Administrator";
+      case "CLINIC_STAFF":
+        return "Clinic Staff";
+      case "PARENT_GUARDIAN":
+        return "Parent/Guardian";
       default:
-        return role;
+        return role?.replace("_", " ").toLowerCase();
     }
   };
 
@@ -288,21 +292,8 @@ const ProfilePage = () => {
     setValidationErrors({});
     clearError(); // Clear any existing errors
 
-    // Determine data source: if editing use editingValuesRef, else profileData
-    const formData = isEditing
-      ? {
-          ...profileData,
-          firstName:
-            editingValuesRef.current.firstName ?? profileData.firstName,
-          middleName:
-            editingValuesRef.current.middleName ?? profileData.middleName,
-          lastName: editingValuesRef.current.lastName ?? profileData.lastName,
-          email: editingValuesRef.current.email ?? profileData.email,
-        }
-      : profileData;
-
     // Validate form
-    const errors = validateProfileForm(formData);
+    const errors = validateProfileForm(profileData);
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
@@ -310,12 +301,8 @@ const ProfilePage = () => {
 
     setIsUpdatingProfile(true); // Set local loading state
     try {
-      await updateProfile(formData);
+      await updateProfile(profileData);
       setIsEditing(false);
-      // Update local state with new data
-      setProfileData(formData);
-      // Clear editing values
-      editingValuesRef.current = {};
       setProfileSuccess("Profile updated successfully!");
       setTimeout(() => setProfileSuccess(""), 3000);
     } catch (error) {
@@ -431,8 +418,6 @@ const ProfilePage = () => {
         lastName: user.lastName || "",
         email: user.email || "",
       });
-      // Clear editing values
-      editingValuesRef.current = {};
     }
   };
 
@@ -502,19 +487,8 @@ const ProfilePage = () => {
                   <Input
                     ref={firstNameRef}
                     label="First Name"
-                    {...(isEditing
-                      ? {
-                          defaultValue: profileData.firstName,
-                          onChange: handleFirstNameChange,
-                        }
-                      : {
-                          value: profileData.firstName,
-                          onChange: (e) =>
-                            setProfileData((prev) => ({
-                              ...prev,
-                              firstName: e.target.value,
-                            })),
-                        })}
+                    value={profileData.firstName}
+                    onChange={handleFirstNameChange}
                     disabled={!isEditing}
                     required
                     placeholder="Enter your first name"
@@ -530,19 +504,8 @@ const ProfilePage = () => {
                   <Input
                     ref={lastNameRef}
                     label="Last Name"
-                    {...(isEditing
-                      ? {
-                          defaultValue: profileData.lastName,
-                          onChange: handleLastNameChange,
-                        }
-                      : {
-                          value: profileData.lastName,
-                          onChange: (e) =>
-                            setProfileData((prev) => ({
-                              ...prev,
-                              lastName: e.target.value,
-                            })),
-                        })}
+                    value={profileData.lastName}
+                    onChange={handleLastNameChange}
                     disabled={!isEditing}
                     required
                     placeholder="Enter your last name"
@@ -559,19 +522,8 @@ const ProfilePage = () => {
                 <Input
                   ref={middleNameRef}
                   label="Middle Name (Optional)"
-                  {...(isEditing
-                    ? {
-                        defaultValue: profileData.middleName,
-                        onChange: handleMiddleNameChange,
-                      }
-                    : {
-                        value: profileData.middleName,
-                        onChange: (e) =>
-                          setProfileData((prev) => ({
-                            ...prev,
-                            middleName: e.target.value,
-                          })),
-                      })}
+                  value={profileData.middleName}
+                  onChange={handleMiddleNameChange}
                   disabled={!isEditing}
                   placeholder="Enter your middle name"
                 />
@@ -639,8 +591,6 @@ const ProfilePage = () => {
                   type="button"
                   variant="primary"
                   onClick={() => {
-                    // Initialize editing values from current profileData
-                    editingValuesRef.current = { ...profileData };
                     setIsEditing(true);
                     clearError(); // Clear any existing errors when starting to edit
                   }}

@@ -37,8 +37,18 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
   const loading = useAuthStore((s) => s.loading);
   const hasHydrated = useAuthStore((s) => s._hasHydrated);
 
-  // If we are loading or haven't hydrated yet, show spinner
-  if (loading || !hasHydrated) {
+  // If we haven't hydrated yet, show spinner
+  if (!hasHydrated) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Only show full-screen spinner if loading AND not authenticated
+  // This prevents unmounting the entire page when background actions (like getProfile) are running
+  if (loading && !isAuthenticated) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -80,8 +90,17 @@ const PublicRoute = ({ children }) => {
   const loading = useAuthStore((s) => s.loading);
   const hasHydrated = useAuthStore((s) => s._hasHydrated);
 
-  // If loading or not hydrated, show spinner to prevent flash of public content
-  if (loading || !hasHydrated) {
+  // If not hydrated, show spinner
+  if (!hasHydrated) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  // Only show full-screen spinner if loading AND not authenticated
+  if (loading && !isAuthenticated) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>

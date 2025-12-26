@@ -8,28 +8,20 @@ import LoadingSpinner from "../ui/LoadingSpinner";
 
 const ForgotPasswordForm = () => {
   const navigate = useNavigate();
-  const {
-    forgotPasswordPhase,
-    forgotPasswordData,
-    forgotPasswordOtp,
-    sendPasswordResetOtp,
-    verifyPasswordResetOtp,
-    resetPassword,
-    resetForgotPassword,
-    loading,
-    error,
-    clearError,
-  } = useAuthStore(
-    (s) => ({
-      sendPasswordResetOtp: s.sendPasswordResetOtp,
-      verifyPasswordResetOtp: s.verifyPasswordResetOtp,
-      resetPassword: s.resetPassword,
-      loading: s.loading,
-      error: s.error,
-      clearError: s.clearError,
-    }),
-    shallow
-  );
+
+  // State selectors
+  const forgotPasswordPhase = useAuthStore((s) => s.forgotPasswordPhase);
+  const forgotPasswordData = useAuthStore((s) => s.forgotPasswordData);
+  const forgotPasswordOtp = useAuthStore((s) => s.forgotPasswordOtp);
+  const loading = useAuthStore((s) => s.loading);
+  const error = useAuthStore((s) => s.error);
+
+  // Action selectors
+  const sendPasswordResetOtp = useAuthStore((s) => s.sendPasswordResetOtp);
+  const verifyPasswordResetOtp = useAuthStore((s) => s.verifyPasswordResetOtp);
+  const resetPassword = useAuthStore((s) => s.resetPassword);
+  const resetForgotPassword = useAuthStore((s) => s.resetForgotPassword);
+  const clearError = useAuthStore((s) => s.clearError);
 
   const [formData, setFormData] = useState({
     email: "",

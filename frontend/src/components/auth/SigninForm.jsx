@@ -11,8 +11,7 @@ const SigninForm = () => {
   const login = useAuthStore((s) => s.login);
   const loading = useAuthStore((s) => s.loading);
   const error = useAuthStore((s) => s.error);
-  // Access clearError as non-subscribing reference
-  const clearError = useAuthStore.getState().clearError;
+  const clearError = useAuthStore((s) => s.clearError);
 
   const [formData, setFormData] = useState({
     email: "",

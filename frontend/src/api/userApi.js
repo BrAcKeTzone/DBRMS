@@ -5,6 +5,18 @@ const userApi = {
     return fetchClient.get("/users/me");
   },
 
+  updateCurrentUser: async (userData) => {
+    const res = await fetchClient.put("/users/me", userData);
+    return { data: res.data.data };
+  },
+
+  uploadProfilePicture: async (base64Image) => {
+    const res = await fetchClient.post("/users/profile-picture", {
+      image: base64Image,
+    });
+    return { data: res.data.data };
+  },
+
   // Get paginated users
   getAllUsers: async (options = {}) => {
     const res = await fetchClient.get("/users", { params: options });
