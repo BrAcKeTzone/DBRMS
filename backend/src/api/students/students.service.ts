@@ -1,12 +1,19 @@
 import prisma from "../../configs/prisma";
 import ApiError from "../../utils/ApiError";
-import { Student, StudentStatus, LinkStatus, Prisma } from "@prisma/client";
+import {
+  Student,
+  StudentStatus,
+  LinkStatus,
+  Sex,
+  Prisma,
+} from "@prisma/client";
 
 export interface CreateStudentData {
   studentId: string;
   firstName: string;
   lastName: string;
   middleName?: string;
+  sex: Sex;
   birthDate?: string | Date;
   yearEnrolled: string;
   courseId?: number;
@@ -17,6 +24,7 @@ export interface UpdateStudentData {
   firstName?: string;
   lastName?: string;
   middleName?: string;
+  sex?: Sex;
   yearEnrolled?: string;
   courseId?: number | null;
   status?: StudentStatus;
@@ -75,6 +83,7 @@ export const createStudent = async (
       firstName: studentData.firstName,
       lastName: studentData.lastName,
       middleName: studentData.middleName,
+      sex: studentData.sex,
       birthDate: studentData.birthDate,
       yearEnrolled: studentData.yearEnrolled,
     };

@@ -27,6 +27,7 @@ const StudentsManagement = () => {
     studentId: "",
     yearEnrolled: "",
     birthDate: "",
+    sex: "",
     courseCode: "",
   });
   const [studentStats, setStudentStats] = useState({
@@ -348,6 +349,10 @@ const StudentsManagement = () => {
       alert("Year enrolled must be a 4-digit year (e.g., 2024)");
       return;
     }
+    if (!newStudent.sex) {
+      alert("Please select a sex");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -361,6 +366,7 @@ const StudentsManagement = () => {
         studentId: "",
         yearEnrolled: "",
         birthDate: "",
+        sex: "",
         courseCode: "",
       });
       await fetchStudents();
@@ -1252,6 +1258,7 @@ const StudentsManagement = () => {
                 studentId: "",
                 yearEnrolled: "",
                 birthDate: "",
+                sex: "",
                 courseCode: "",
               });
             }}
@@ -1291,6 +1298,24 @@ const StudentsManagement = () => {
                   setNewStudent({ ...newStudent, middleName: e.target.value })
                 }
               />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Sex <span className="text-red-500">*</span>
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                  value={newStudent.sex}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, sex: e.target.value })
+                  }
+                  required
+                >
+                  <option value="">Select Sex</option>
+                  <option value="MALE">MALE</option>
+                  <option value="FEMALE">FEMALE</option>
+                </select>
+              </div>
 
               <Input
                 label="Student ID"
@@ -1441,6 +1466,27 @@ const StudentsManagement = () => {
                     })
                   }
                 />
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Sex <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                    value={selectedStudent.sex || ""}
+                    onChange={(e) =>
+                      setSelectedStudent({
+                        ...selectedStudent,
+                        sex: e.target.value,
+                      })
+                    }
+                    required
+                  >
+                    <option value="">Select Sex</option>
+                    <option value="MALE">MALE</option>
+                    <option value="FEMALE">FEMALE</option>
+                  </select>
+                </div>
 
                 <Input
                   label="Student ID"

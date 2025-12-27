@@ -113,6 +113,7 @@ export const updateStudent = asyncHandler(
       firstName,
       lastName,
       middleName,
+      sex,
       birthDate,
       yearEnrolled,
       status,
@@ -141,6 +142,7 @@ export const updateStudent = asyncHandler(
       firstName,
       lastName,
       middleName,
+      sex,
       birthDate,
       yearEnrolled,
       status,
@@ -475,6 +477,7 @@ export const exportStudentsXlsx = asyncHandler(
       "firstName",
       "middleName",
       "lastName",
+      "sex",
       "birthDate",
       "yearEnrolled",
       "courseCode",
@@ -491,6 +494,7 @@ export const exportStudentsXlsx = asyncHandler(
         s.firstName,
         s.middleName || "",
         s.lastName,
+        s.sex || "",
         s.birthDate ? new Date(s.birthDate) : "",
         s.yearEnrolled || "",
         s.course?.code || "",
@@ -536,6 +540,7 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
       "firstName",
       "middleName",
       "lastName",
+      "sex",
       "birthDate",
       "yearEnrolled",
       "courseCode",
@@ -546,6 +551,7 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
       "Juan",
       "Santos",
       "Dela Cruz",
+      "MALE",
       "2002-06-08",
       "2024",
       "BSIT",
@@ -637,6 +643,7 @@ export const bulkImportStudents = asyncHandler(
       "studentId",
       "firstName",
       "lastName",
+      "sex",
       "yearEnrolled",
     ];
     for (const col of requiredColumns) {
@@ -659,12 +666,27 @@ export const bulkImportStudents = asyncHandler(
       if (!row.studentId) missingFields.push("studentId");
       if (!row.firstName) missingFields.push("firstName");
       if (!row.lastName) missingFields.push("lastName");
+      if (!row.sex) missingFields.push("sex");
       if (!row.yearEnrolled) missingFields.push("yearEnrolled");
       if (missingFields.length > 0) {
         const msg = `Missing required fields: ${missingFields.join(", ")}`;
         errors.push({ row: rowNum, error: msg });
         invalidRows.push({ row: rowNum, values: row, error: msg });
         continue;
+      }
+
+      // Validate sex
+      let sexVal = undefined;
+      if (row.sex) {
+        const normalized = (row.sex || "").toUpperCase();
+        if (["MALE", "FEMALE"].includes(normalized)) {
+          sexVal = normalized;
+        } else {
+          const msg = `Invalid sex value: ${row.sex}. Must be MALE or FEMALE.`;
+          errors.push({ row: rowNum, error: msg });
+          invalidRows.push({ row: rowNum, values: row, error: msg });
+          continue;
+        }
       }
 
       // Transform dates: normalize to JS Date for Prisma
@@ -733,6 +755,7 @@ export const bulkImportStudents = asyncHandler(
         firstName: row.firstName,
         middleName: row.middleName || null,
         lastName: row.lastName,
+        sex: sexVal,
         birthDate,
         yearEnrolled: String(row.yearEnrolled),
         courseId: courseId || undefined,

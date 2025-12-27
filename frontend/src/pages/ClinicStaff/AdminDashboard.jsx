@@ -81,19 +81,11 @@ const AdminDashboard = () => {
               Manage Users
             </Button>
           )}
-
-          <Button
-            onClick={() => navigate("/clinic/students")}
-            variant="primary"
-            className="w-full sm:w-auto whitespace-nowrap"
-          >
-            Manage Students
-          </Button>
         </div>
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
         <DashboardCard title="Total Students" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-blue-600">
             {stats ? stats.total : "—"}
@@ -104,26 +96,6 @@ const AdminDashboard = () => {
           </p>
         </DashboardCard>
 
-        <DashboardCard title="Grade Levels" className="text-center">
-          <div className="text-sm text-gray-700">
-            {stats &&
-            stats.gradeLevelCounts &&
-            Object.keys(stats.gradeLevelCounts).length > 0 ? (
-              <div className="space-y-1">
-                {Object.entries(stats.gradeLevelCounts)
-                  .slice(0, 3)
-                  .map(([g, cnt]) => (
-                    <div key={g} className="text-sm text-gray-800">
-                      {g}: <span className="font-semibold">{cnt}</span>
-                    </div>
-                  ))}
-              </div>
-            ) : (
-              <div className="text-gray-500">No data</div>
-            )}
-          </div>
-        </DashboardCard>
-
         <DashboardCard title="Users" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
             {userStats ? userStats.total : "—"}
@@ -132,12 +104,6 @@ const AdminDashboard = () => {
             Admins: {userStats?.adminCount ?? "—"} | Parents:{" "}
             {userStats?.parentCount ?? "—"}
           </p>
-        </DashboardCard>
-
-        <DashboardCard title="Recent Activity" className="text-center">
-          <div className="text-sm text-gray-700">
-            Recent student registrations and updates are shown below.
-          </div>
         </DashboardCard>
       </div>
 
