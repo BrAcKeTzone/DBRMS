@@ -110,13 +110,13 @@ const AdminDashboard = () => {
 
       {/* Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-        <DashboardCard title="Total Students" className="text-center">
+        <DashboardCard title="Students" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-blue-600">
             {stats ? stats.total : "—"}
           </div>
         </DashboardCard>
 
-        <DashboardCard title="Parent Guardians" className="text-center">
+        <DashboardCard title="Parents/Guardians" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
             {userStats?.parentCount ?? "—"}
           </div>
@@ -125,7 +125,7 @@ const AdminDashboard = () => {
 
       {/* Sex Distribution Chart */}
       <div className="max-w-md mx-auto">
-        <DashboardCard title="Students by Sex">
+        <DashboardCard title="Students by Sex" className="text-center">
           <div className="h-64">
             {loading || sexData.every((item) => item.value === 0) ? (
               <div className="flex items-center justify-center h-full text-gray-500">
@@ -239,15 +239,6 @@ const AdminDashboard = () => {
                           ? new Date(s.createdAt).toLocaleDateString()
                           : "N/A"}
                       </div>
-                    </div>
-                    <div className="flex-shrink-0">
-                      <Button
-                        variant="outline"
-                        className="w-full sm:w-auto"
-                        onClick={() => navigate(`/clinic/students`)}
-                      >
-                        View
-                      </Button>
                     </div>
                   </div>
                 </div>
