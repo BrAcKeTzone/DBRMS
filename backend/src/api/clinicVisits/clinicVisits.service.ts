@@ -9,10 +9,36 @@ export const createClinicVisit = async (data: any) => {
   });
 };
 
-export const getAllClinicVisits = async () => {
+export const getAllClinicVisits = async (search?: string) => {
+  const where: any = {};
+
+  if (search) {
+    where.OR = [
+      {
+        student: {
+          OR: [
+            { firstName: { contains: search } },
+            { lastName: { contains: search } },
+            { studentId: { contains: search } },
+          ],
+        },
+      },
+      { symptoms: { contains: search } },
+      { diagnosis: { contains: search } },
+    ];
+  }
+
   return await prisma.clinicVisit.findMany({
+    where,
     include: {
-      student: true,
+      student: {
+        select: {
+          firstName: true,
+          lastName: true,
+          studentId: true,
+        },
+      },
+      smsLog: true,
     },
     orderBy: {
       visitDateTime: "desc",

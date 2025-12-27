@@ -49,10 +49,10 @@ const ClinicVisitLogging = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (searchQuery) => {
     try {
       const [visitsResp, statsResp] = await Promise.all([
-        clinicVisitsApi.getAll(),
+        clinicVisitsApi.getAll({ search: searchQuery }),
         clinicVisitsApi.getStats(),
       ]);
 
@@ -183,7 +183,7 @@ const ClinicVisitLogging = () => {
 
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
-          <div>
+          <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Search
             </label>
@@ -194,29 +194,11 @@ const ClinicVisitLogging = () => {
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Student
-            </label>
-            <select
-              className="w-full p-2 border border-gray-300 rounded-md bg-white"
-              value={form.studentId}
-              onChange={(e) => setForm({ ...form, studentId: e.target.value })}
-            >
-              <option value="">All</option>
-              {(students || []).map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.firstName} {s.lastName} — {s.studentId}
-                </option>
-              ))}
-            </select>
-          </div>
-
           <div className="flex items-center gap-2">
             <Button
               onClick={() => {
                 setSearch("");
-                setForm({ ...form, studentId: "" });
+                loadData("");
               }}
               variant="outline"
               className="w-full sm:w-auto"
@@ -224,26 +206,23 @@ const ClinicVisitLogging = () => {
               Clear
             </Button>
             <Button
-              onClick={() => {
-                setSearch("");
-                loadVisits();
-              }}
+              onClick={() => loadData(search)}
               variant="primary"
               className="w-full sm:w-auto"
             >
-              Apply
+              Retrieve
             </Button>
           </div>
         </div>
       </div>
 
       {/* Visits list - responsive */}
-      <DashboardCard title={`Recent Visits (${filteredVisits.length})`}>
+      <DashboardCard title={`Recent Visits (${visits.length})`}>
         {loading ? (
           <div className="flex items-center justify-center h-40">
             <LoadingSpinner />
           </div>
-        ) : filteredVisits.length === 0 ? (
+        ) : visits.length === 0 ? (
           <div className="p-6 text-center text-gray-500">No visits logged</div>
         ) : (
           <>
@@ -260,22 +239,22 @@ const ClinicVisitLogging = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredVisits.map((v) => (
+                  {visits.map((v) => (
                     <tr key={v.id} className="border-t">
                       <td className="px-3 py-3 text-sm text-gray-900">
-                        {v.studentName || "Unknown"}
+                        {v.student.firstName} {v.student.lastName}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-600">
-                        {v.date ? formatDate(v.date) : "N/A"}
+                        {v.visitDateTime ? formatDate(v.visitDateTime) : "N/A"}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-600">
-                        {v.reason || "N/A"}
+                        {v.symptoms || "N/A"}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-600">
-                        {v.sentSms ? "Yes" : "No"}
+                        {v.smsLog ? "Yes" : "No"}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-600">
-                        {v.status || "N/A"}
+                        {v.isEmergency ? "Emergency" : "Routine"}
                       </td>
                     </tr>
                   ))}
@@ -285,7 +264,7 @@ const ClinicVisitLogging = () => {
 
             {/* Mobile cards */}
             <div className="lg:hidden space-y-3">
-              {filteredVisits.map((v) => (
+              {visits.map((v) => (
                 <div
                   key={v.id}
                   className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"

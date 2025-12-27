@@ -14,7 +14,8 @@ export const createClinicVisit = asyncHandler(
 
 export const getAllClinicVisits = asyncHandler(
   async (req: Request, res: Response) => {
-    const visits = await service.getAllClinicVisits();
+    const { search } = req.query;
+    const visits = await service.getAllClinicVisits(search as string);
     res
       .status(200)
       .json(
