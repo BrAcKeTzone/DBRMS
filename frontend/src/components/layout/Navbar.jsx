@@ -9,8 +9,10 @@ const Navbar = ({ onMenuClick }) => {
   const logout = useAuthStore((s) => s.logout);
 
   const handleLogout = () => {
-    logout();
-    navigate("/signin");
+    if (window.confirm("Are you sure you want to logout?")) {
+      logout();
+      navigate("/signin");
+    }
   };
 
   return (

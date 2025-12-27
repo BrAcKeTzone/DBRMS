@@ -490,7 +490,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     <>
       {/* Overlay for mobile */}
       <div
-        className={`fixed inset-0 z-30 bg-blue-900/20 backdrop-blur-sm transition-opacity lg:hidden ${
+        className={`fixed top-16 inset-x-0 bottom-0 z-30 bg-blue-900/20 backdrop-blur-sm transition-opacity lg:hidden ${
           isOpen ? "block" : "hidden"
         }`}
         onClick={() => setIsOpen(false)}
@@ -498,7 +498,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-linear-to-b from-blue-50 to-blue-50 h-full shadow-lg border-r border-blue-200 transform transition-transform duration-300 ease-in-out overflow-y-auto lg:sticky lg:top-16 lg:z-10 lg:translate-x-0 lg:h-auto ${
+        className={`fixed top-16 bottom-0 left-0 z-40 w-64 bg-linear-to-b from-blue-50 to-blue-50 shadow-lg border-r border-blue-200 transform transition-transform duration-300 ease-in-out overflow-y-auto lg:sticky lg:top-16 lg:z-10 lg:translate-x-0 lg:h-auto ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{ maxHeight: "calc(100vh - 4rem)" }}

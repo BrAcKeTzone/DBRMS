@@ -13,6 +13,7 @@ import StatusBadge from "../../components/ui/StatusBadge";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import { formatDate, formatDateOnly } from "../../utils/formatDate";
 import { getRoleLabel, getRoleBadgeClasses } from "../../utils/helpers";
+import { FaEdit, FaTrash, FaUserShield } from "react-icons/fa";
 
 const UsersManagement = () => {
   const currentUser = useAuthStore((s) => s.user);
@@ -317,17 +318,6 @@ const UsersManagement = () => {
       ),
     },
     {
-      key: "isActive",
-      header: "Status",
-      sortable: true,
-      render: (user) => (
-        <StatusBadge
-          status={user.isActive ? "Active" : "Inactive"}
-          variant={user.isActive ? "success" : "warning"}
-        />
-      ),
-    },
-    {
       key: "createdAt",
       header: "Joined",
       sortable: true,
@@ -339,17 +329,6 @@ const UsersManagement = () => {
           <div className="text-xs text-gray-500">
             Updated: {formatDateOnly(user.updatedAt)}
           </div>
-        </div>
-      ),
-    },
-    {
-      key: "_count",
-      header: "Activity",
-      render: (user) => (
-        <div className="text-xs text-gray-600">
-          <div>Students: {user._count?.students || 0}</div>
-          <div>Link Requests: {user._count?.linkRequests || 0}</div>
-          <div>Activity Logs: {user._count?.activityLogs || 0}</div>
         </div>
       ),
     },
@@ -367,16 +346,20 @@ const UsersManagement = () => {
                   setSelectedUser(user);
                   setShowEditModal(true);
                 }}
+                title="Edit User"
               >
-                Edit
+                <FaEdit className="hidden md:block" />
+                <span className="md:hidden">Edit</span>
               </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handleDeleteUser(user.id)}
                 className="text-red-600 hover:text-red-700"
+                title="Delete User"
               >
-                Delete
+                <FaTrash className="hidden md:block" />
+                <span className="md:hidden">Delete</span>
               </Button>
             </>
           )}
@@ -394,8 +377,10 @@ const UsersManagement = () => {
                 setPromoteError(null);
                 setShowPromoteModal(true);
               }}
+              title="Promote to Admin"
             >
-              Promote
+              <FaUserShield className="hidden md:block" />
+              <span className="md:hidden">Promote</span>
             </Button>
           )}
         </div>
@@ -843,7 +828,8 @@ const UsersManagement = () => {
                           variant="outline"
                           className="flex-1"
                         >
-                          Edit
+                          <FaEdit className="hidden md:block" />
+                          <span className="md:hidden">Edit</span>
                         </Button>
                         <Button
                           onClick={() => {
@@ -854,7 +840,8 @@ const UsersManagement = () => {
                           variant="outline"
                           className="flex-1 text-red-600 border-red-300 hover:bg-red-50"
                         >
-                          Delete
+                          <FaTrash className="hidden md:block" />
+                          <span className="md:hidden">Delete</span>
                         </Button>
                         {user.role === "CLINIC_STAFF" && (
                           <Button
@@ -867,7 +854,8 @@ const UsersManagement = () => {
                             variant="secondary"
                             className="flex-1"
                           >
-                            Promote
+                            <FaUserShield className="hidden md:block" />
+                            <span className="md:hidden">Promote</span>
                           </Button>
                         )}
                       </div>

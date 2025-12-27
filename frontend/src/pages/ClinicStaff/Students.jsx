@@ -10,6 +10,7 @@ import Input from "../../components/ui/Input";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import Pagination from "../../components/ui/Pagination";
 import { formatDate, formatDateOnly } from "../../utils/formatDate";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 const StudentsManagement = () => {
   const [students, setStudents] = useState([]);
@@ -524,16 +525,20 @@ const StudentsManagement = () => {
             }}
             variant="outline"
             size="sm"
+            title="Edit Student"
           >
-            Edit
+            <FaEdit className="hidden md:block" />
+            <span className="md:hidden">Edit</span>
           </Button>
           <Button
             onClick={() => handleDeleteStudent(row)}
             variant="outline"
             size="sm"
             className="text-red-600 border-red-300 hover:bg-red-50"
+            title="Delete Student"
           >
-            Delete
+            <FaTrash className="hidden md:block" />
+            <span className="md:hidden">Delete</span>
           </Button>
         </div>
       ),
@@ -562,16 +567,20 @@ const StudentsManagement = () => {
             variant="outline"
             size="sm"
             onClick={() => handleEditCourse(row)}
+            title="Edit Course"
           >
-            Edit
+            <FaEdit className="hidden md:block" />
+            <span className="md:hidden">Edit</span>
           </Button>
           <Button
             variant="outline"
             size="sm"
             className="text-red-600"
             onClick={() => handleDeleteCourse(row)}
+            title="Delete Course"
           >
-            Delete
+            <FaTrash className="hidden md:block" />
+            <span className="md:hidden">Delete</span>
           </Button>
         </div>
       ),
@@ -825,7 +834,8 @@ const StudentsManagement = () => {
                           size="sm"
                           onClick={() => handleEditCourse(course)}
                         >
-                          Edit
+                          <FaEdit className="hidden md:block" />
+                          <span className="md:hidden">Edit</span>
                         </Button>
                         <Button
                           variant="outline"
@@ -833,7 +843,8 @@ const StudentsManagement = () => {
                           className="text-red-600"
                           onClick={() => handleDeleteCourse(course)}
                         >
-                          Delete
+                          <FaTrash className="hidden md:block" />
+                          <span className="md:hidden">Delete</span>
                         </Button>
                       </div>
                     </div>
@@ -1190,7 +1201,8 @@ const StudentsManagement = () => {
                           }}
                           className="flex-1"
                         >
-                          Edit
+                          <FaEdit className="hidden md:block" />
+                          <span className="md:hidden">Edit</span>
                         </Button>
                         <Button
                           variant="outline"
@@ -1198,7 +1210,8 @@ const StudentsManagement = () => {
                           onClick={() => handleDeleteStudent(student)}
                           className="flex-1 text-red-600 border-red-300 hover:bg-red-50"
                         >
-                          Delete
+                          <FaTrash className="hidden md:block" />
+                          <span className="md:hidden">Delete</span>
                         </Button>
                       </div>
                     </div>
