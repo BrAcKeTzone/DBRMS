@@ -18,6 +18,7 @@ const ClinicVisitLogging = () => {
     emergencyVisits: 0,
   });
   const [search, setSearch] = useState("");
+  const [studentSearch, setStudentSearch] = useState("");
 
   const [showLogModal, setShowLogModal] = useState(false);
   const [form, setForm] = useState({
@@ -313,99 +314,166 @@ const ClinicVisitLogging = () => {
         isOpen={showLogModal}
         onClose={() => setShowLogModal(false)}
         title="Log New Visit"
-        size="md"
+        size="full"
       >
-        <form onSubmit={handleLogVisit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Student
-            </label>
-            <select
-              className="w-full p-2 border border-gray-300 rounded-md bg-white"
-              value={form.studentId}
-              onChange={(e) => setForm({ ...form, studentId: e.target.value })}
-              required
-            >
-              <option value="">Select a student</option>
-              {(students || []).map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.firstName} {s.lastName} — {s.studentId}
-                </option>
-              ))}
-            </select>
+        <div className="flex flex-col md:flex-row gap-6 h-[calc(100vh-200px)]">
+          {/* Left Side: Student Search & List */}
+          <div className="w-full md:w-1/3 flex flex-col border-r pr-4">
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Search Student
+              </label>
+              <Input
+                placeholder="Type name or ID..."
+                value={studentSearch}
+                onChange={(e) => setStudentSearch(e.target.value)}
+              />
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2">
+              {(students || [])
+                .filter((s) => {
+                  const q = studentSearch.toLowerCase();
+                  return (
+                    s.firstName.toLowerCase().includes(q) ||
+                    s.lastName.toLowerCase().includes(q) ||
+                    s.studentId.toLowerCase().includes(q)
+                  );
+                })
+                .sort((a, b) => a.lastName.localeCompare(b.lastName))
+                .map((s) => (
+                  <div
+                    key={s.id}
+                    onClick={() => setForm({ ...form, studentId: s.id })}
+                    className={`p-3 rounded cursor-pointer border transition-colors ${
+                      form.studentId == s.id
+                        ? "bg-blue-50 border-blue-500 ring-1 ring-blue-500"
+                        : "hover:bg-gray-50 border-gray-200"
+                    }`}
+                  >
+                    <div className="font-bold text-gray-900">
+                      {s.lastName}, {s.firstName}
+                    </div>
+                    <div className="text-xs text-gray-500 flex justify-between mt-1">
+                      <span>ID: {s.studentId}</span>
+                      <span>{s.course?.code}</span>
+                    </div>
+                  </div>
+                ))}
+              {(students || []).length === 0 && (
+                <div className="text-center text-gray-500 py-4">
+                  No students found
+                </div>
+              )}
+            </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Date & Time
-            </label>
-            <input
-              type="datetime-local"
-              value={form.date}
-              onChange={(e) => setForm({ ...form, date: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-md"
-            />
-          </div>
+          {/* Right Side: Form */}
+          <div className="w-full md:w-2/3 pl-0 md:pl-2 overflow-y-auto">
+            <form onSubmit={handleLogVisit} className="space-y-4">
+              {!form.studentId && (
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                  <div className="flex">
+                    <div className="ml-3">
+                      <p className="text-sm text-yellow-700">
+                        Please select a student from the list on the left to log
+                        a visit.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Reason
-            </label>
-            <Input
-              value={form.reason}
-              onChange={(e) => setForm({ ...form, reason: e.target.value })}
-              required
-            />
-          </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Date & Time
+                  </label>
+                  <input
+                    type="datetime-local"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
+                    className="w-full p-2 border border-gray-300 rounded-md"
+                    disabled={!form.studentId}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Reason / Symptoms
+                  </label>
+                  <Input
+                    value={form.reason}
+                    onChange={(e) =>
+                      setForm({ ...form, reason: e.target.value })
+                    }
+                    required
+                    disabled={!form.studentId}
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Notes
-            </label>
-            <textarea
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              rows={3}
-            ></textarea>
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Diagnosis / Notes
+                </label>
+                <textarea
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  rows={6}
+                  disabled={!form.studentId}
+                ></textarea>
+              </div>
 
-          <div className="flex items-center gap-4">
-            <label className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.isEmergency}
-                onChange={(e) =>
-                  setForm({ ...form, isEmergency: e.target.checked })
-                }
-              />{" "}
-              <span className="text-sm">Emergency</span>
-            </label>
-            <label className="inline-flex items-center gap-2">
-              <input
-                type="checkbox"
-                checked={form.sendSms}
-                onChange={(e) =>
-                  setForm({ ...form, sendSms: e.target.checked })
-                }
-              />{" "}
-              <span className="text-sm">Send SMS to parent</span>
-            </label>
-          </div>
+              <div className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <label className="inline-flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.isEmergency}
+                    onChange={(e) =>
+                      setForm({ ...form, isEmergency: e.target.checked })
+                    }
+                    className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                    disabled={!form.studentId}
+                  />
+                  <span className="text-sm font-medium text-gray-900">
+                    Mark as Emergency
+                  </span>
+                </label>
+                <label className="inline-flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.sendSms}
+                    onChange={(e) =>
+                      setForm({ ...form, sendSms: e.target.checked })
+                    }
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                    disabled={!form.studentId}
+                  />
+                  <span className="text-sm font-medium text-gray-900">
+                    Send SMS Notification to Parent
+                  </span>
+                </label>
+              </div>
 
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => setShowLogModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "Logging..." : "Log Visit"}
-            </Button>
+              <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setShowLogModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={submitting || !form.studentId}
+                  variant="primary"
+                >
+                  {submitting ? "Logging Visit..." : "Log Visit"}
+                </Button>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </Modal>
     </div>
   );

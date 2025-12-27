@@ -12,9 +12,6 @@
   },
   "author": "",
   "license": "ISC",
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
   "dependencies": {
     "@types/multer": "^2.0.0",
     "@types/qrcode": "^1.5.6",

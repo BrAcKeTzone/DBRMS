@@ -1,25 +1,4 @@
 -- CreateTable
-CREATE TABLE `User` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `email` VARCHAR(191) NOT NULL,
-    `password` VARCHAR(191) NOT NULL,
-    `firstName` VARCHAR(191) NOT NULL,
-    `middleName` VARCHAR(191) NULL,
-    `lastName` VARCHAR(191) NOT NULL,
-    `phone` VARCHAR(191) NOT NULL,
-    `role` ENUM('CLINIC_ADMIN', 'CLINIC_STAFF', 'PARENT_GUARDIAN') NOT NULL DEFAULT 'PARENT_GUARDIAN',
-    `isActive` BOOLEAN NOT NULL DEFAULT true,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
-    UNIQUE INDEX `User_email_key`(`email`),
-    UNIQUE INDEX `User_phone_key`(`phone`),
-    INDEX `User_email_idx`(`email`),
-    INDEX `User_role_idx`(`role`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
 CREATE TABLE `Otp` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `email` VARCHAR(191) NOT NULL,
@@ -39,11 +18,15 @@ CREATE TABLE `Student` (
     `firstName` VARCHAR(191) NOT NULL,
     `lastName` VARCHAR(191) NOT NULL,
     `middleName` VARCHAR(191) NULL,
+    `sex` ENUM('MALE', 'FEMALE') NOT NULL DEFAULT 'MALE',
     `birthDate` DATETIME(3) NOT NULL,
     `yearEnrolled` VARCHAR(191) NOT NULL,
-    `status` ENUM('ACTIVE', 'INACTIVE') NOT NULL DEFAULT 'ACTIVE',
+    `status` ENUM('ACTIVE', 'INACTIVE', 'GRADUATED') NOT NULL DEFAULT 'ACTIVE',
     `courseId` INTEGER NOT NULL,
     `parentId` INTEGER NULL,
+    `linkStatus` ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
+    `relationship` VARCHAR(191) NULL,
+    `rejectionReason` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -57,12 +40,37 @@ CREATE TABLE `Student` (
 -- CreateTable
 CREATE TABLE `Course` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `description` VARCHAR(191) NULL,
+    `createdById` INTEGER NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
+    UNIQUE INDEX `Course_code_key`(`code`),
     UNIQUE INDEX `Course_name_key`(`name`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `User` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `email` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NOT NULL,
+    `firstName` VARCHAR(191) NOT NULL,
+    `middleName` VARCHAR(191) NULL,
+    `lastName` VARCHAR(191) NOT NULL,
+    `phone` VARCHAR(191) NOT NULL,
+    `profilePicture` VARCHAR(191) NULL,
+    `role` ENUM('CLINIC_ADMIN', 'CLINIC_STAFF', 'PARENT_GUARDIAN') NOT NULL DEFAULT 'PARENT_GUARDIAN',
+    `isActive` BOOLEAN NOT NULL DEFAULT true,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `User_email_key`(`email`),
+    UNIQUE INDEX `User_phone_key`(`phone`),
+    INDEX `User_email_idx`(`email`),
+    INDEX `User_role_idx`(`role`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -168,6 +176,9 @@ ALTER TABLE `Student` ADD CONSTRAINT `Student_courseId_fkey` FOREIGN KEY (`cours
 
 -- AddForeignKey
 ALTER TABLE `Student` ADD CONSTRAINT `Student_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Course` ADD CONSTRAINT `Course_createdById_fkey` FOREIGN KEY (`createdById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `StudentLinkRequest` ADD CONSTRAINT `StudentLinkRequest_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
