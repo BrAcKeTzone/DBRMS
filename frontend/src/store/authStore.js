@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import usersData from "../data/users.json";
 import { authApi } from "../api/authAPI";
+
+// Empty array to replace dummy data - forces reliance on real API
+const usersData = [];
 
 export const useAuthStore = create(
   persist(

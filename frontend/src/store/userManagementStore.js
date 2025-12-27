@@ -1,7 +1,9 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import userApi from "../api/userApi";
-import defaultUsers from "../data/users.json";
+
+// Empty array to replace dummy data - forces reliance on real API
+const defaultUsers = [];
 
 export const useUserManagementStore = create(
   persist(

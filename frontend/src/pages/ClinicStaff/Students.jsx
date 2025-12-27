@@ -18,7 +18,6 @@ const StudentsManagement = () => {
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [newStudent, setNewStudent] = useState({
     firstName: "",
@@ -396,20 +395,18 @@ const StudentsManagement = () => {
     }
   };
 
-  const handleDeleteStudent = (student) => {
-    setSelectedStudent(student);
-    setShowDeleteModal(true);
-  };
-
-  const confirmDeleteStudent = async () => {
-    if (selectedStudent) {
+  const handleDeleteStudent = async (student) => {
+    const confirmed = window.confirm(
+      `Are you sure you want to delete the student ${student.firstName} ${student.lastName}? This action cannot be undone.`
+    );
+    
+    if (confirmed) {
       try {
-        await studentsApi.deleteStudent(selectedStudent.id);
-        setShowDeleteModal(false);
-        setSelectedStudent(null);
-        fetchStudents();
+        await studentsApi.deleteStudent(student.id);
+        await fetchStudents();
+        alert('Student deleted successfully');
       } catch (error) {
-        console.error("Error deleting student:", error);
+        console.error('Error deleting student:', error);
         alert(`Error deleting student: ${error.message || error}`);
       }
     }
@@ -1633,48 +1630,7 @@ const StudentsManagement = () => {
             )}
           </Modal>
 
-          {/* Delete Confirmation Modal */}
-          <Modal
-            isOpen={showDeleteModal}
-            onClose={() => {
-              setShowDeleteModal(false);
-              setSelectedStudent(null);
-            }}
-            title="Confirm Delete"
-          >
-            <div className="space-y-4">
-              <p className="text-gray-600">
-                Are you sure you want to delete the student{" "}
-                <strong>
-                  {selectedStudent?.firstName} {selectedStudent?.lastName}
-                </strong>
-                ? This action cannot be undone.
-              </p>
 
-              <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => {
-                    setShowDeleteModal(false);
-                    setSelectedStudent(null);
-                  }}
-                  className="w-full sm:w-auto"
-                >
-                  Cancel
-                </Button>
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={confirmDeleteStudent}
-                  disabled={loading}
-                  className="w-full sm:w-auto bg-red-600 hover:bg-red-700"
-                >
-                  {loading ? "Deleting..." : "Delete Student"}
-                </Button>
-              </div>
-            </div>
-          </Modal>
 
           {/* Import Errors Modal */}
           <Modal
