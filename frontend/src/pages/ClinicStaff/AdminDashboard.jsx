@@ -90,20 +90,12 @@ const AdminDashboard = () => {
           <div className="text-2xl sm:text-3xl font-bold text-blue-600">
             {stats ? stats.total : "—"}
           </div>
-          <p className="text-xs text-gray-500 mt-1">
-            Active: {stats ? stats.active : "—"} | Inactive:{" "}
-            {stats ? stats.inactive : "—"}
-          </p>
         </DashboardCard>
 
-        <DashboardCard title="Users" className="text-center">
+        <DashboardCard title="Parent Guardians" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
-            {userStats ? userStats.total : "—"}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">
-            Admins: {userStats?.adminCount ?? "—"} | Parents:{" "}
             {userStats?.parentCount ?? "—"}
-          </p>
+          </div>
         </DashboardCard>
       </div>
 
