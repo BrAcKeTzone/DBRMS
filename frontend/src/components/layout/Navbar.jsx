@@ -40,9 +40,14 @@ const Navbar = ({ onMenuClick }) => {
                 </svg>
               </button>
             )}
-            <Link to="/" className="flex items-center ml-2 lg:ml-0">
-              <span className="text-xl font-bold text-blue-600">BCFI</span>
-              <span className="hidden md:block ml-2 text-gray-500 text-sm font-medium">
+            <Link
+              to="/"
+              className="flex flex-col md:flex-row md:items-center ml-2 lg:ml-0"
+            >
+              <span className="text-xl font-bold text-blue-600 leading-none">
+                BCFI
+              </span>
+              <span className="text-gray-500 text-[10px] md:text-sm font-medium md:ml-2 leading-none">
                 Clinic Management
               </span>
             </Link>
