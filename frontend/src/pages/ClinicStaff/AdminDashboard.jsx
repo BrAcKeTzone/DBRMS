@@ -7,6 +7,14 @@ import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { formatDate } from "../../utils/formatDate";
 import { useAuthStore } from "../../store/authStore";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -22,6 +30,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [userStats, setUserStats] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [sexData, setSexData] = useState([]);
 
   useEffect(() => {
     const load = async () => {
@@ -31,6 +40,21 @@ const AdminDashboard = () => {
       // Local computed stats (from the store)
       const s = getStudentStatistics();
       setStats(s);
+
+      // Prepare sex distribution data for pie chart
+      const sexDistribution = [
+        {
+          name: "Male",
+          value: s?.sexCounts?.MALE || 0,
+          color: "#3B82F6",
+        },
+        {
+          name: "Female",
+          value: s?.sexCounts?.FEMALE || 0,
+          color: "#EC4899",
+        },
+      ];
+      setSexData(sexDistribution);
 
       // Fetch user stats (parents/admins)
       try {
@@ -85,7 +109,7 @@ const AdminDashboard = () => {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <DashboardCard title="Total Students" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-blue-600">
             {stats ? stats.total : "—"}
@@ -95,6 +119,45 @@ const AdminDashboard = () => {
         <DashboardCard title="Parent Guardians" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
             {userStats?.parentCount ?? "—"}
+          </div>
+        </DashboardCard>
+
+        <DashboardCard title="Students by Sex">
+          <div className="h-64">
+            {loading || sexData.every((item) => item.value === 0) ? (
+              <div className="flex items-center justify-center h-full text-gray-500">
+                {loading ? <LoadingSpinner /> : "No data available"}
+              </div>
+            ) : (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={sexData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={40}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {sexData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => [value, "Students"]}
+                    labelFormatter={(label) => `${label} Students`}
+                  />
+                  <Legend
+                    verticalAlign="bottom"
+                    height={36}
+                    formatter={(value, entry) =>
+                      `${value}: ${entry.payload.value}`
+                    }
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </DashboardCard>
       </div>

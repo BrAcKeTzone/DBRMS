@@ -364,9 +364,9 @@ export const useStudentsStore = create(
           return acc;
         }, {});
 
-        // Count by gender
-        const genderCounts = studentsArr.reduce((acc, student) => {
-          acc[student.gender] = (acc[student.gender] || 0) + 1;
+        // Count by sex
+        const sexCounts = studentsArr.reduce((acc, student) => {
+          acc[student.sex] = (acc[student.sex] || 0) + 1;
           return acc;
         }, {});
 
@@ -377,7 +377,7 @@ export const useStudentsStore = create(
           graduated: statusCounts.graduated || 0,
           transferred: statusCounts.transferred || 0,
           gradeLevelCounts,
-          genderCounts,
+          sexCounts,
           averageAge:
             studentsArr.length > 0
               ? Math.round(
