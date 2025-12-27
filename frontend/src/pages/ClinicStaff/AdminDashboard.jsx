@@ -125,7 +125,7 @@ const AdminDashboard = () => {
                     <th className="px-3 py-2">Student</th>
                     <th className="px-3 py-2">ID</th>
                     <th className="px-3 py-2">Course</th>
-                    <th className="px-3 py-2">Joined</th>
+                    <th className="px-3 py-2">Added</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -144,7 +144,9 @@ const AdminDashboard = () => {
                           : "N/A"}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-600">
-                        {s.createdAt ? formatDate(s.createdAt) : "N/A"}
+                        {s.createdAt
+                          ? new Date(s.createdAt).toLocaleDateString()
+                          : "N/A"}
                       </td>
                     </tr>
                   ))}
@@ -174,7 +176,10 @@ const AdminDashboard = () => {
                           : "No course"}
                       </div>
                       <div className="text-xs text-gray-500 mt-1">
-                        Joined: {s.createdAt ? formatDate(s.createdAt) : "N/A"}
+                        Added:{" "}
+                        {s.createdAt
+                          ? new Date(s.createdAt).toLocaleDateString()
+                          : "N/A"}
                       </div>
                     </div>
                     <div className="flex-shrink-0">
