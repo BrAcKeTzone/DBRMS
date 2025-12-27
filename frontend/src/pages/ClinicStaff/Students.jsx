@@ -399,14 +399,14 @@ const StudentsManagement = () => {
     const confirmed = window.confirm(
       `Are you sure you want to delete the student ${student.firstName} ${student.lastName}? This action cannot be undone.`
     );
-    
+
     if (confirmed) {
       try {
         await studentsApi.deleteStudent(student.id);
         await fetchStudents();
-        alert('Student deleted successfully');
+        alert("Student deleted successfully");
       } catch (error) {
-        console.error('Error deleting student:', error);
+        console.error("Error deleting student:", error);
         alert(`Error deleting student: ${error.message || error}`);
       }
     }
@@ -1629,8 +1629,6 @@ const StudentsManagement = () => {
               </form>
             )}
           </Modal>
-
-
 
           {/* Import Errors Modal */}
           <Modal
