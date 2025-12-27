@@ -161,6 +161,11 @@ export const getStudents = async (
         },
       },
       {
+        middleName: {
+          contains: filters.search,
+        },
+      },
+      {
         lastName: {
           contains: filters.search,
         },
