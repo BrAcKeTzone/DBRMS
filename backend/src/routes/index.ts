@@ -7,10 +7,12 @@ import studentRouter from "../api/students/students.route";
 import coursesRouter from "../api/courses/courses.route";
 
 import settingsRouter from "../api/settings/settings.route";
+import clinicVisitsRouter from "../api/clinicVisits/clinicVisits.route";
 
 router.use("/auth", authRouter);
 router.use("/users", userRouter);
 router.use("/students", studentRouter);
+router.use("/clinic-visits", clinicVisitsRouter);
 
 router.use("/settings", settingsRouter);
 router.use("/courses", coursesRouter);

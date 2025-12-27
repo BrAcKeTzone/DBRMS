@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { studentsApi } from "../../api/studentsApi";
+import { clinicVisitsApi } from "../../api/clinicVisitsApi";
 import { useStudentsStore } from "../../store/studentsStore";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import Button from "../../components/ui/Button";
@@ -12,6 +12,11 @@ const ClinicVisitLogging = () => {
   const { students, fetchAllStudents } = useStudentsStore();
   const [loading, setLoading] = useState(true);
   const [visits, setVisits] = useState([]);
+  const [stats, setStats] = useState({
+    totalVisits: 0,
+    visitsToday: 0,
+    emergencyVisits: 0,
+  });
   const [search, setSearch] = useState("");
 
   const [showLogModal, setShowLogModal] = useState(false);
@@ -29,23 +34,31 @@ const ClinicVisitLogging = () => {
     const load = async () => {
       setLoading(true);
       await fetchAllStudents({ page: 1, limit: 100 });
-      await loadVisits();
+      await loadData();
       setLoading(false);
     };
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadVisits = async () => {
+  const loadData = async () => {
     try {
-      const resp = await studentsApi.getMeetings({});
-      // resp from dummy service is createResponse({ meetings: [] }) - adapt
-      const data =
-        resp?.data || resp?.success ? resp.data || resp : { meetings: [] };
-      setVisits(data.meetings || []);
+      const [visitsResp, statsResp] = await Promise.all([
+        clinicVisitsApi.getAll(),
+        clinicVisitsApi.getStats(),
+      ]);
+
+      const visitsData = visitsResp?.data?.data || visitsResp?.data || [];
+      setVisits(Array.isArray(visitsData) ? visitsData : []);
+
+      const statsData = statsResp?.data?.data || statsResp?.data || {};
+      setStats({
+        totalVisits: statsData.totalVisits || 0,
+        visitsToday: statsData.visitsToday || 0,
+        emergencyVisits: statsData.emergencyVisits || 0,
+      });
     } catch (err) {
-      console.error("Failed to load visits", err);
-      setVisits([]);
+      console.error("Failed to load clinic data", err);
     }
   };
 
@@ -53,21 +66,17 @@ const ClinicVisitLogging = () => {
     e && e.preventDefault();
     setSubmitting(true);
     try {
-      // This demo doesn't post to backend, simulate adding to local list
-      const newVisit = {
-        id: `v_${Date.now()}`,
-        studentId: form.studentId,
-        studentName:
-          (students || []).find((s) => s.id === form.studentId)?.firstName ||
-          "Unknown",
-        date: form.date || new Date().toISOString(),
-        reason: form.reason,
-        notes: form.notes,
+      const payload = {
+        studentId: parseInt(form.studentId),
+        visitDateTime: form.date ? new Date(form.date) : new Date(),
+        symptoms: form.reason, // Mapping reason to symptoms as per schema
+        diagnosis: form.notes, // Mapping notes to diagnosis
         isEmergency: !!form.isEmergency,
-        sentSms: !!form.sendSms,
-        status: "COMPLETED",
+        // Add other fields as needed by schema or form
       };
-      setVisits((prev) => [newVisit, ...prev]);
+
+      await clinicVisitsApi.create(payload);
+      await loadData(); // Refresh data
       setShowLogModal(false);
       setForm({
         studentId: "",
@@ -79,6 +88,7 @@ const ClinicVisitLogging = () => {
       });
     } catch (err) {
       console.error(err);
+      alert("Failed to log visit");
     }
     setSubmitting(false);
   };
@@ -86,9 +96,13 @@ const ClinicVisitLogging = () => {
   const filteredVisits = visits.filter((v) => {
     const q = search.trim().toLowerCase();
     if (!q) return true;
+    const studentName = v.student
+      ? `${v.student.firstName} ${v.student.lastName}`
+      : "Unknown";
     return (
-      (v.studentName || "").toLowerCase().includes(q) ||
-      (v.reason || "").toLowerCase().includes(q)
+      studentName.toLowerCase().includes(q) ||
+      (v.symptoms || "").toLowerCase().includes(q) ||
+      (v.diagnosis || "").toLowerCase().includes(q)
     );
   });
 
@@ -113,7 +127,7 @@ const ClinicVisitLogging = () => {
             Log New Visit
           </Button>
           <Button
-            onClick={() => loadVisits()}
+            onClick={() => loadData()}
             variant="outline"
             className="w-full sm:w-auto"
           >
@@ -122,32 +136,28 @@ const ClinicVisitLogging = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-        <DashboardCard title="Total Visits" className="text-center">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+        <DashboardCard title="Visits Today" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-            {visits.length}
+            {stats.visitsToday}
           </div>
-          <p className="text-xs text-gray-500 mt-1">Recent logged visits</p>
+          <p className="text-xs text-gray-500 mt-1">Logged today</p>
+        </DashboardCard>
+
+        <DashboardCard title="Total Visits" className="text-center">
+          <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
+            {stats.totalVisits}
+          </div>
+          <p className="text-xs text-gray-500 mt-1">All time</p>
         </DashboardCard>
 
         <DashboardCard title="Emergencies" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-red-600">
-            {visits.filter((v) => v.isEmergency).length}
+            {stats.emergencyVisits}
           </div>
-          <p className="text-xs text-gray-500 mt-1">Flagged emergencies</p>
-        </DashboardCard>
-
-        <DashboardCard title="SMS Sent" className="text-center">
-          <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
-            {visits.filter((v) => v.sentSms).length}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Notifications sent</p>
-        </DashboardCard>
-
-        <DashboardCard title="Pending Actions" className="text-center">
-          <div className="text-sm text-gray-700">
-            Manage follow-ups and referrals
-          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Total flagged emergencies
+          </p>
         </DashboardCard>
       </div>
 
