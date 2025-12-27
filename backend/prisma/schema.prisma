@@ -164,20 +164,19 @@ model HealthMetric {
 // CLINIC VISIT & NOTIFICATIONS
 model ClinicVisit {
   id                Int       @id @default(autoincrement())
-  studentId         Int
-  visitDateTime     DateTime  @default(now())
-  symptoms          String    @db.Text
-  bloodPressure     String?
-  temperatureCelsius Float?
-  pulseRate         Int?
-  diagnosis         String?   @db.Text
-  treatment         String?   @db.Text
-  isEmergency       Boolean   @default(false)
-  isReferredToHospital Boolean @default(false)
-  hospitalName      String?
-
-  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  smsLog  SmsLog?
+  visitDateTime        DateTime  @default(now())
+  symptoms             String    @db.Text
+  bloodPressure        String?
+  temperature          String?
+  pulseRate            String?
+  diagnosis            String?   @db.Text
+  treatment            String?   @db.Text
+  isEmergency          Boolean   @default(false)
+  isReferredToHospital Boolean   @default(false)
+  hospitalName         String?
+  studentId            Int
+  student   Student   @relation(fields: [studentId], references: [id])
+  smsLog    SmsLog?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

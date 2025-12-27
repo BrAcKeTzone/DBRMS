@@ -21,13 +21,20 @@ const ClinicVisitLogging = () => {
   const [studentSearch, setStudentSearch] = useState("");
 
   const [showLogModal, setShowLogModal] = useState(false);
+  const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     studentId: "",
-    date: "",
+    date: new Date().toISOString().slice(0, 16),
     reason: "",
     notes: "",
     isEmergency: false,
     sendSms: true,
+    isReferredToHospital: false,
+    hospitalName: "",
+    bloodPressure: "",
+    temperature: "",
+    pulseRate: "",
+    treatment: "",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -70,22 +77,34 @@ const ClinicVisitLogging = () => {
       const payload = {
         studentId: parseInt(form.studentId),
         visitDateTime: form.date ? new Date(form.date) : new Date(),
-        symptoms: form.reason, // Mapping reason to symptoms as per schema
-        diagnosis: form.notes, // Mapping notes to diagnosis
+        symptoms: form.reason,
+        diagnosis: form.notes,
         isEmergency: !!form.isEmergency,
-        // Add other fields as needed by schema or form
+        isReferredToHospital: !!form.isReferredToHospital,
+        hospitalName: form.hospitalName,
+        bloodPressure: form.bloodPressure,
+        temperature: form.temperature,
+        pulseRate: form.pulseRate,
+        treatment: form.treatment,
       };
 
       await clinicVisitsApi.create(payload);
       await loadData(); // Refresh data
       setShowLogModal(false);
+      setStep(1);
       setForm({
         studentId: "",
-        date: "",
+        date: new Date().toISOString().slice(0, 16),
         reason: "",
         notes: "",
         isEmergency: false,
         sendSms: true,
+        isReferredToHospital: false,
+        hospitalName: "",
+        bloodPressure: "",
+        temperature: "",
+        pulseRate: "",
+        treatment: "",
       });
     } catch (err) {
       console.error(err);
@@ -314,25 +333,35 @@ const ClinicVisitLogging = () => {
         isOpen={showLogModal}
         onClose={() => {
           setShowLogModal(false);
+          setStep(1);
           setForm({
             studentId: "",
-            date: "",
+            date: new Date().toISOString().slice(0, 16),
             reason: "",
             notes: "",
             isEmergency: false,
             sendSms: true,
+            isReferredToHospital: false,
+            hospitalName: "",
+            bloodPressure: "",
+            temperature: "",
+            pulseRate: "",
+            treatment: "",
           });
         }}
-        title={form.studentId ? "Log New Visit" : "Select a Student"}
+        title={
+          step === 1
+            ? "Select a Student"
+            : `Log Visit for ${
+                students.find((s) => s.id === form.studentId)?.firstName || ""
+              } ${
+                students.find((s) => s.id === form.studentId)?.lastName || ""
+              }`
+        }
         size="full"
       >
-        <div className="flex flex-col md:flex-row gap-6 h-[calc(100vh-200px)]">
-          {/* Left Side: Student Search & List */}
-          <div
-            className={`w-full ${
-              form.studentId ? "md:w-1/3" : "md:w-full"
-            } flex flex-col md:border-r pr-4 transition-all duration-300`}
-          >
+        {step === 1 ? (
+          <div className="flex flex-col h-[calc(100vh-200px)]">
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Search Student
@@ -398,108 +427,180 @@ const ClinicVisitLogging = () => {
                 </div>
               )}
             </div>
+            <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+              <Button
+                variant="outline"
+                type="button"
+                onClick={() => {
+                  setShowLogModal(false);
+                  setStep(1);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="button"
+                disabled={!form.studentId}
+                onClick={() => setStep(2)}
+                variant="primary"
+              >
+                Confirm
+              </Button>
+            </div>
           </div>
-
-          {/* Right Side: Form */}
-          {form.studentId && (
-            <div className="w-full md:w-2/3 pl-0 md:pl-2 overflow-y-auto">
-              <form onSubmit={handleLogVisit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Date & Time
-                    </label>
-                    <input
-                      type="datetime-local"
-                      value={form.date}
-                      onChange={(e) =>
-                        setForm({ ...form, date: e.target.value })
-                      }
-                      className="w-full p-2 border border-gray-300 rounded-md"
-                      disabled={!form.studentId}
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Reason / Symptoms
-                    </label>
-                    <Input
-                      value={form.reason}
-                      onChange={(e) =>
-                        setForm({ ...form, reason: e.target.value })
-                      }
-                      required
-                      disabled={!form.studentId}
-                    />
-                  </div>
-                </div>
-
+        ) : (
+          <div className="w-full overflow-y-auto">
+            <form onSubmit={handleLogVisit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Diagnosis / Notes
+                    Date & Time
                   </label>
-                  <textarea
-                    value={form.notes}
-                    onChange={(e) =>
-                      setForm({ ...form, notes: e.target.value })
-                    }
+                  <input
+                    type="datetime-local"
+                    value={form.date}
+                    onChange={(e) => setForm({ ...form, date: e.target.value })}
                     className="w-full p-2 border border-gray-300 rounded-md"
-                    rows={6}
-                    disabled={!form.studentId}
-                  ></textarea>
+                  />
                 </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
-                  <label className="inline-flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.isEmergency}
-                      onChange={(e) =>
-                        setForm({ ...form, isEmergency: e.target.checked })
-                      }
-                      className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
-                      disabled={!form.studentId}
-                    />
-                    <span className="text-sm font-medium text-gray-900">
-                      Mark as Emergency
-                    </span>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Reason / Symptoms
                   </label>
-                  <label className="inline-flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={form.sendSms}
-                      onChange={(e) =>
-                        setForm({ ...form, sendSms: e.target.checked })
-                      }
-                      className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                      disabled={!form.studentId}
-                    />
-                    <span className="text-sm font-medium text-gray-900">
-                      Send SMS Notification to Parent
-                    </span>
-                  </label>
+                  <Input
+                    value={form.reason}
+                    onChange={(e) =>
+                      setForm({ ...form, reason: e.target.value })
+                    }
+                    required
+                  />
                 </div>
+              </div>
 
-                <div className="flex justify-end gap-3 pt-4 border-t mt-6">
-                  <Button
-                    variant="outline"
-                    type="button"
-                    onClick={() => setShowLogModal(false)}
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={submitting || !form.studentId}
-                    variant="primary"
-                  >
-                    {submitting ? "Logging Visit..." : "Log Visit"}
-                  </Button>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Blood Pressure (mmHg)
+                  </label>
+                  <Input
+                    value={form.bloodPressure}
+                    onChange={(e) =>
+                      setForm({ ...form, bloodPressure: e.target.value })
+                    }
+                  />
                 </div>
-              </form>
-            </div>
-          )}
-        </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Temperature (°C)
+                  </label>
+                  <Input
+                    value={form.temperature}
+                    onChange={(e) =>
+                      setForm({ ...form, temperature: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Pulse Rate (bpm)
+                  </label>
+                  <Input
+                    value={form.pulseRate}
+                    onChange={(e) =>
+                      setForm({ ...form, pulseRate: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Treatment
+                </label>
+                <textarea
+                  value={form.treatment}
+                  onChange={(e) =>
+                    setForm({ ...form, treatment: e.target.value })
+                  }
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  rows={3}
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Diagnosis / Notes
+                </label>
+                <textarea
+                  value={form.notes}
+                  onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                  className="w-full p-2 border border-gray-300 rounded-md"
+                  rows={4}
+                ></textarea>
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <label className="inline-flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.isEmergency}
+                    onChange={(e) =>
+                      setForm({ ...form, isEmergency: e.target.checked })
+                    }
+                    className="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                  />
+                  <span className="text-sm font-medium text-gray-900">
+                    Mark as Emergency
+                  </span>
+                </label>
+                <label className="inline-flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={form.isReferredToHospital}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        isReferredToHospital: e.target.checked,
+                      })
+                    }
+                    className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-900">
+                    Referred to Hospital
+                  </span>
+                </label>
+              </div>
+
+              {form.isReferredToHospital && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Hospital Name
+                  </label>
+                  <Input
+                    value={form.hospitalName}
+                    onChange={(e) =>
+                      setForm({ ...form, hospitalName: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-4 border-t mt-6">
+                <Button
+                  variant="outline"
+                  type="button"
+                  onClick={() => setStep(1)}
+                >
+                  Back
+                </Button>
+                <Button type="submit" disabled={submitting} variant="primary">
+                  {submitting ? "Logging Visit..." : "Log Visit"}
+                </Button>
+              </div>
+            </form>
+          </div>
+        )}
       </Modal>
     </div>
   );

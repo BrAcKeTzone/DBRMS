@@ -33,7 +33,7 @@ const Modal = ({
       : size === "xl"
       ? "max-w-5xl"
       : size === "full"
-      ? "max-w-full h-full m-4"
+      ? "max-w-full h-[90vh] m-4"
       : "max-w-xl";
 
   return (
@@ -44,10 +44,10 @@ const Modal = ({
       onClick={onClose}
     >
       <div
-        className={`bg-white p-6 rounded shadow-lg w-full ${sizeClass}`}
+        className={`bg-white p-6 rounded shadow-lg w-full flex flex-col ${sizeClass}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-start mb-4 flex-shrink-0">
           {title && <h3 className="text-lg font-semibold">{title}</h3>}
           <button
             onClick={onClose}
@@ -58,7 +58,7 @@ const Modal = ({
           </button>
         </div>
 
-        <div>{children}</div>
+        <div className="overflow-y-auto flex-grow">{children}</div>
       </div>
     </div>
   );
