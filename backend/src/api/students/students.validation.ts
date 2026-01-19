@@ -19,6 +19,11 @@ export const createStudent = Joi.object().keys({
       "Year enrolled must follow format: YYYY (e.g., 2024)",
   }),
   parentId: Joi.number().integer().positive().optional(),
+  courseCode: Joi.string().optional().allow("", null),
+  bloodType: Joi.string().optional().allow("", null),
+  allergies: Joi.string().optional().allow("", null),
+  height: Joi.number().optional().allow(null),
+  weight: Joi.number().optional().allow(null),
 });
 
 export const updateStudent = Joi.object()
@@ -40,6 +45,10 @@ export const updateStudent = Joi.object()
     linkStatus: Joi.string()
       .valid(...Object.values(LinkStatus))
       .optional(),
+    bloodType: Joi.string().optional().allow("", null),
+    allergies: Joi.string().optional().allow("", null),
+    height: Joi.number().optional().allow(null),
+    weight: Joi.number().optional().allow(null),
   })
   .unknown(true); // Allow unknown fields (like id, studentId, etc.) - they will be stripped
 

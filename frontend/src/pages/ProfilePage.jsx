@@ -6,6 +6,7 @@ import Input from "../components/ui/Input";
 import PasswordInput from "../components/ui/PasswordInput";
 import Modal from "../components/ui/Modal";
 import { formatDate } from "../utils/formatDate";
+import { capitalizeWords } from "../utils/helpers";
 
 const ProfilePage = () => {
   const user = useAuthStore((s) => s.user);
@@ -17,7 +18,7 @@ const ProfilePage = () => {
   const getProfile = useAuthStore((s) => s.getProfile);
   const changePasswordWithOtp = useAuthStore((s) => s.changePasswordWithOtp);
   const sendOtpForPasswordChange = useAuthStore(
-    (s) => s.sendOtpForPasswordChange
+    (s) => s.sendOtpForPasswordChange,
   );
   const uploadProfilePicture = useAuthStore((s) => s.uploadProfilePicture);
   const clearError = useAuthStore((s) => s.clearError);
@@ -41,7 +42,7 @@ const ProfilePage = () => {
   const caretSelection = useRef({});
 
   const handleFirstNameChange = React.useCallback((e) => {
-    const value = e.target.value;
+    const value = capitalizeWords(e.target.value);
     caretSelection.current.firstName = {
       start: e.target.selectionStart,
       end: e.target.selectionEnd,
@@ -57,7 +58,7 @@ const ProfilePage = () => {
   }, []);
 
   const handleLastNameChange = React.useCallback((e) => {
-    const value = e.target.value;
+    const value = capitalizeWords(e.target.value);
     caretSelection.current.lastName = {
       start: e.target.selectionStart,
       end: e.target.selectionEnd,
@@ -73,7 +74,7 @@ const ProfilePage = () => {
   }, []);
 
   const handleMiddleNameChange = React.useCallback((e) => {
-    const value = e.target.value;
+    const value = capitalizeWords(e.target.value);
     caretSelection.current.middleName = {
       start: e.target.selectionStart,
       end: e.target.selectionEnd,
@@ -114,7 +115,7 @@ const ProfilePage = () => {
         // Check if it's a 401 error (authentication failure)
         if (error.response?.status === 401) {
           console.error(
-            "Authentication failed, user will be redirected to login"
+            "Authentication failed, user will be redirected to login",
           );
           return;
         }
@@ -374,7 +375,7 @@ const ProfilePage = () => {
       await changePasswordWithOtp(
         passwordData.currentPassword,
         passwordData.newPassword,
-        passwordData.otp
+        passwordData.otp,
       );
       setPasswordSuccess("Password changed successfully!");
       setTimeout(() => {

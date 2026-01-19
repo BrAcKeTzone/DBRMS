@@ -6,7 +6,7 @@
  */
 export const generateRandomString = (
   length = 10,
-  charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+  charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
 ) => {
   let result = "";
   for (let i = 0; i < length; i++) {
@@ -128,7 +128,7 @@ export const toTitleCase = (str) => {
   if (!str) return "";
   return str.replace(
     /\w\S*/g,
-    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase()
+    (txt) => txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase(),
   );
 };
 
@@ -319,4 +319,17 @@ export const downloadFile = (blob, filename) => {
   link.click();
   document.body.removeChild(link);
   window.URL.revokeObjectURL(url);
+};
+
+/**
+ * Capitalize the first letter of every word in a string
+ * @param {string} str - String to capitalize
+ * @returns {string} Capitalized string
+ */
+export const capitalizeWords = (str) => {
+  if (!str) return str;
+  return str
+    .split(" ")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 };

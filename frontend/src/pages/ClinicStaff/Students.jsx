@@ -10,6 +10,7 @@ import Input from "../../components/ui/Input";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import Pagination from "../../components/ui/Pagination";
 import { formatDate, formatDateOnly } from "../../utils/formatDate";
+import { capitalizeWords } from "../../utils/helpers";
 import { FaEdit, FaTrash } from "react-icons/fa";
 
 const StudentsManagement = () => {
@@ -30,6 +31,8 @@ const StudentsManagement = () => {
     courseCode: "",
     bloodType: "",
     allergies: "",
+    height: "",
+    weight: "",
   });
   const [studentStats, setStudentStats] = useState({
     total: 0,
@@ -369,6 +372,10 @@ const StudentsManagement = () => {
         birthDate: "",
         sex: "",
         courseCode: "",
+        bloodType: "",
+        allergies: "",
+        height: "",
+        weight: "",
       });
       await fetchStudents();
       alert("Student created successfully");
@@ -1304,7 +1311,10 @@ const StudentsManagement = () => {
                   placeholder="e.g., Juan"
                   value={newStudent.firstName}
                   onChange={(e) =>
-                    setNewStudent({ ...newStudent, firstName: e.target.value })
+                    setNewStudent({
+                      ...newStudent,
+                      firstName: capitalizeWords(e.target.value),
+                    })
                   }
                   required
                 />
@@ -1313,7 +1323,10 @@ const StudentsManagement = () => {
                   placeholder="e.g., Dela Cruz"
                   value={newStudent.lastName}
                   onChange={(e) =>
-                    setNewStudent({ ...newStudent, lastName: e.target.value })
+                    setNewStudent({
+                      ...newStudent,
+                      lastName: capitalizeWords(e.target.value),
+                    })
                   }
                   required
                 />
@@ -1324,7 +1337,10 @@ const StudentsManagement = () => {
                 placeholder="e.g., Santos (Optional)"
                 value={newStudent.middleName}
                 onChange={(e) =>
-                  setNewStudent({ ...newStudent, middleName: e.target.value })
+                  setNewStudent({
+                    ...newStudent,
+                    middleName: capitalizeWords(e.target.value),
+                  })
                 }
               />
 
@@ -1451,6 +1467,29 @@ const StudentsManagement = () => {
                 ></textarea>
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <Input
+                  label="Height (cm)"
+                  type="number"
+                  step="0.01"
+                  placeholder="e.g., 170.5"
+                  value={newStudent.height}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, height: e.target.value })
+                  }
+                />
+                <Input
+                  label="Weight (kg)"
+                  type="number"
+                  step="0.01"
+                  placeholder="e.g., 65.2"
+                  value={newStudent.weight}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, weight: e.target.value })
+                  }
+                />
+              </div>
+
               <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200">
                 <Button
                   type="button"
@@ -1465,6 +1504,10 @@ const StudentsManagement = () => {
                       yearEnrolled: "",
                       birthDate: "",
                       courseCode: "",
+                      bloodType: "",
+                      allergies: "",
+                      height: "",
+                      weight: "",
                     });
                   }}
                   className="w-full sm:w-auto"
@@ -1506,7 +1549,7 @@ const StudentsManagement = () => {
                     onChange={(e) =>
                       setSelectedStudent({
                         ...selectedStudent,
-                        firstName: e.target.value,
+                        firstName: capitalizeWords(e.target.value),
                       })
                     }
                     required
@@ -1518,7 +1561,7 @@ const StudentsManagement = () => {
                     onChange={(e) =>
                       setSelectedStudent({
                         ...selectedStudent,
-                        lastName: e.target.value,
+                        lastName: capitalizeWords(e.target.value),
                       })
                     }
                     required
@@ -1532,7 +1575,7 @@ const StudentsManagement = () => {
                   onChange={(e) =>
                     setSelectedStudent({
                       ...selectedStudent,
-                      middleName: e.target.value,
+                      middleName: capitalizeWords(e.target.value),
                     })
                   }
                 />
@@ -1681,6 +1724,35 @@ const StudentsManagement = () => {
                       )
                     }
                   ></textarea>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    label="Height (cm)"
+                    type="number"
+                    step="0.01"
+                    placeholder="e.g., 170.5"
+                    value={selectedStudent.height || ""}
+                    onChange={(e) =>
+                      setSelectedStudent({
+                        ...selectedStudent,
+                        height: e.target.value,
+                      })
+                    }
+                  />
+                  <Input
+                    label="Weight (kg)"
+                    type="number"
+                    step="0.01"
+                    placeholder="e.g., 65.2"
+                    value={selectedStudent.weight || ""}
+                    onChange={(e) =>
+                      setSelectedStudent({
+                        ...selectedStudent,
+                        weight: e.target.value,
+                      })
+                    }
+                  />
                 </div>
 
                 <div>

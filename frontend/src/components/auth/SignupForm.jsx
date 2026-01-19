@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { capitalizeWords } from "../../utils/helpers";
 import Input from "../ui/Input";
 import PasswordInput from "../ui/PasswordInput";
 import Button from "../ui/Button";
@@ -37,7 +38,13 @@ const SignupForm = () => {
   const [validationErrors, setValidationErrors] = useState({});
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+
+    // Capitalize name fields in real-time
+    if (["firstName", "lastName", "middleName"].includes(name)) {
+      value = capitalizeWords(value);
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,

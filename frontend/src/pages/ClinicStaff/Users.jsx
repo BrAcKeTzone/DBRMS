@@ -12,7 +12,11 @@ import Pagination from "../../components/ui/Pagination";
 import StatusBadge from "../../components/ui/StatusBadge";
 import DashboardCard from "../../components/dashboard/DashboardCard";
 import { formatDate, formatDateOnly } from "../../utils/formatDate";
-import { getRoleLabel, getRoleBadgeClasses } from "../../utils/helpers";
+import {
+  getRoleLabel,
+  getRoleBadgeClasses,
+  capitalizeWords,
+} from "../../utils/helpers";
 import { FaEdit, FaTrash, FaUserShield } from "react-icons/fa";
 
 const UsersManagement = () => {
@@ -205,7 +209,7 @@ const UsersManagement = () => {
       if (filterRole === "CLINIC_STAFF") {
         // include both clinic admin and staff under Clinic Staff umbrella
         result = result.filter((user) =>
-          ["CLINIC_ADMIN", "CLINIC_STAFF"].includes(user.role)
+          ["CLINIC_ADMIN", "CLINIC_STAFF"].includes(user.role),
         );
       } else {
         result = result.filter((user) => user.role === filterRole);
@@ -540,7 +544,7 @@ const UsersManagement = () => {
                   if (demotedIds.includes(currentUser?.id)) {
                     // Inform user and sign out
                     alert(
-                      "You have been demoted to Clinic Staff. You will be signed out."
+                      "You have been demoted to Clinic Staff. You will be signed out.",
                     );
                     await logout();
                     navigate("/signin");
@@ -549,7 +553,7 @@ const UsersManagement = () => {
 
                   // Success feedback
                   alert(
-                    `${promoteTarget.firstName} ${promoteTarget.lastName} was promoted to Clinic Admin.`
+                    `${promoteTarget.firstName} ${promoteTarget.lastName} was promoted to Clinic Admin.`,
                   );
                   fetchData();
                 } catch (err) {
@@ -557,7 +561,7 @@ const UsersManagement = () => {
                   setPromoteError(
                     err?.response?.data?.message ||
                       err.message ||
-                      "Promotion failed"
+                      "Promotion failed",
                   );
                 } finally {
                   setPromoteLoading(false);
@@ -917,7 +921,10 @@ const UsersManagement = () => {
               label="First Name"
               value={newUser.firstName}
               onChange={(e) =>
-                setNewUser({ ...newUser, firstName: e.target.value })
+                setNewUser({
+                  ...newUser,
+                  firstName: capitalizeWords(e.target.value),
+                })
               }
               required
             />
@@ -925,14 +932,20 @@ const UsersManagement = () => {
               label="Middle Name"
               value={newUser.middleName}
               onChange={(e) =>
-                setNewUser({ ...newUser, middleName: e.target.value })
+                setNewUser({
+                  ...newUser,
+                  middleName: capitalizeWords(e.target.value),
+                })
               }
             />
             <Input
               label="Last Name"
               value={newUser.lastName}
               onChange={(e) =>
-                setNewUser({ ...newUser, lastName: e.target.value })
+                setNewUser({
+                  ...newUser,
+                  lastName: capitalizeWords(e.target.value),
+                })
               }
               required
             />
@@ -1025,7 +1038,7 @@ const UsersManagement = () => {
                 onChange={(e) =>
                   setSelectedUser({
                     ...selectedUser,
-                    firstName: e.target.value,
+                    firstName: capitalizeWords(e.target.value),
                   })
                 }
                 required
@@ -1037,7 +1050,7 @@ const UsersManagement = () => {
                 onChange={(e) =>
                   setSelectedUser({
                     ...selectedUser,
-                    lastName: e.target.value,
+                    lastName: capitalizeWords(e.target.value),
                   })
                 }
                 required
@@ -1049,7 +1062,7 @@ const UsersManagement = () => {
                 onChange={(e) =>
                   setSelectedUser({
                     ...selectedUser,
-                    middleName: e.target.value,
+                    middleName: capitalizeWords(e.target.value),
                   })
                 }
               />

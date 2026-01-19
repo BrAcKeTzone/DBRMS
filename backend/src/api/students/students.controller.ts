@@ -11,7 +11,7 @@ import normalizeDateToIso from "../../utils/normalizeDate";
 // Create a new student
 export const createStudent = asyncHandler(
   async (req: Request, res: Response) => {
-    const { courseCode, ...studentData } = req.body;
+    const { courseCode, height, weight, ...studentData } = req.body;
 
     // If courseCode is provided, resolve it to courseId
     let courseId = undefined;
@@ -28,6 +28,10 @@ export const createStudent = asyncHandler(
 
     const student = await studentService.createStudent({
       ...studentData,
+      height:
+        height !== undefined && height !== "" ? parseFloat(height) : undefined,
+      weight:
+        weight !== undefined && weight !== "" ? parseFloat(weight) : undefined,
       courseId,
     });
     res
@@ -153,8 +157,18 @@ export const updateStudent = asyncHandler(
       linkStatus,
       bloodType,
       allergies,
-      height: height !== undefined ? parseFloat(height) : undefined,
-      weight: weight !== undefined ? parseFloat(weight) : undefined,
+      height:
+        height !== undefined && height !== "" && height !== null
+          ? parseFloat(height)
+          : height === "" || height === null
+            ? null
+            : undefined,
+      weight:
+        weight !== undefined && weight !== "" && weight !== null
+          ? parseFloat(weight)
+          : weight === "" || weight === null
+            ? null
+            : undefined,
     };
 
     if (courseId !== undefined) {
