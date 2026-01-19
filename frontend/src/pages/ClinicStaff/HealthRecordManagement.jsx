@@ -7,6 +7,7 @@ import Input from "../../components/ui/Input";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Modal from "../../components/ui/Modal";
 import ChildHealthModal from "../../components/health/ChildHealthModal";
+import EditHealthRecordModal from "../../components/health/EditHealthRecordModal";
 import { formatDate } from "../../utils/formatDate";
 
 const HealthRecordManagement = () => {
@@ -27,12 +28,6 @@ const HealthRecordManagement = () => {
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [editData, setEditData] = useState({
-    bloodType: "",
-    allergies: "",
-    height: "",
-    weight: "",
-  });
 
   useEffect(() => {
     const load = async () => {
@@ -78,53 +73,15 @@ const HealthRecordManagement = () => {
 
   const openEdit = (student) => {
     setSelectedStudent(student);
-    setEditData({
-      bloodType: student.bloodType || "",
-      allergies: student.allergies || "",
-      height: student.height || "",
-      weight: student.weight || "",
-    });
     setShowEditModal(true);
   };
 
-  const handleAllergiesInputChange = (value, setter, state) => {
-    const previousValue = state.allergies || "";
-
-    // If it's a deletion, don't auto-add commas to allow user to edit
-    if (value.length < previousValue.length) {
-      setter({ ...state, allergies: value });
-      return;
-    }
-
-    const lines = value.split("\n");
-    if (lines.length > 1) {
-      const processedLines = lines.map((line, index) => {
-        // Don't modify the very last line (it's the one being currently typed)
-        if (index === lines.length - 1) return line;
-
-        const trimmed = line.trim();
-        // If line is not empty and doesn't end with a comma, add it
-        if (trimmed && !trimmed.endsWith(",")) {
-          return line + ",";
-        }
-        return line;
-      });
-      setter({ ...state, allergies: processedLines.join("\n") });
-    } else {
-      setter({ ...state, allergies: value });
-    }
-  };
-
-  const handleSaveEdit = async (e) => {
-    e.preventDefault();
+  const handleSaveEdit = async (data) => {
     if (!selectedStudent) return;
     try {
       await updateStudent(selectedStudent.id, {
         ...selectedStudent,
-        bloodType: editData.bloodType,
-        allergies: editData.allergies,
-        height: editData.height,
-        weight: editData.weight,
+        ...data,
       });
       // refresh list
       await fetchAllStudents({ page: 1, limit: 100 });
@@ -412,73 +369,15 @@ const HealthRecordManagement = () => {
       />
 
       {/* Edit Modal */}
-      <Modal
+      <EditHealthRecordModal
         isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        title="Edit Health Record"
-        size="lg"
-      >
-        {selectedStudent ? (
-          <form onSubmit={handleSaveEdit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <Input
-                label="Blood Type"
-                value={editData.bloodType}
-                onChange={(e) =>
-                  setEditData({ ...editData, bloodType: e.target.value })
-                }
-              />
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Allergies
-                </label>
-                <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-                  rows="3"
-                  placeholder="List any allergies"
-                  value={editData.allergies}
-                  onChange={(e) =>
-                    handleAllergiesInputChange(
-                      e.target.value,
-                      setEditData,
-                      editData,
-                    )
-                  }
-                ></textarea>
-              </div>
-              <Input
-                label="Height (cm)"
-                value={editData.height}
-                onChange={(e) =>
-                  setEditData({ ...editData, height: e.target.value })
-                }
-              />
-              <Input
-                label="Weight (kg)"
-                value={editData.weight}
-                onChange={(e) =>
-                  setEditData({ ...editData, weight: e.target.value })
-                }
-              />
-            </div>
-
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                type="button"
-                onClick={() => setShowEditModal(false)}
-              >
-                Cancel
-              </Button>
-              <Button type="submit">Save</Button>
-            </div>
-          </form>
-        ) : (
-          <div className="p-6 text-center text-gray-500">
-            No student selected
-          </div>
-        )}
-      </Modal>
+        onClose={() => {
+          setShowEditModal(false);
+          setSelectedStudent(null);
+        }}
+        student={selectedStudent}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 };
