@@ -271,14 +271,17 @@ const ClinicVisitLogging = () => {
                     <th className="px-3 py-2">Student</th>
                     <th className="px-3 py-2">Date</th>
                     <th className="px-3 py-2">Reason</th>
-                    <th className="px-3 py-2">SMS</th>
-                    <th className="px-3 py-2">Status</th>
+                    <th className="px-3 py-2">Hospital Referred</th>
                   </tr>
                 </thead>
                 <tbody>
                   {visits.map((v) => (
                     <tr key={v.id} className="border-t">
-                      <td className="px-3 py-3 text-sm text-gray-900">
+                      <td className="px-3 py-3 text-sm text-gray-900 flex items-center">
+                        <span
+                          className={`inline-block w-2 h-2 rounded-full mr-2 ${v.isEmergency ? 'bg-red-600' : 'bg-blue-600'}`}
+                          aria-hidden="true"
+                        ></span>
                         {v.student.firstName} {v.student.lastName}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-600">
@@ -288,10 +291,7 @@ const ClinicVisitLogging = () => {
                         {v.symptoms || "N/A"}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-600">
-                        {v.smsLog ? "Yes" : "No"}
-                      </td>
-                      <td className="px-3 py-3 text-sm text-gray-600">
-                        {v.isEmergency ? "Emergency" : "Routine"}
+                        {v.isReferredToHospital ? (v.hospitalName ? v.hospitalName : "Referred") : "No"}
                       </td>
                     </tr>
                   ))}
@@ -308,7 +308,11 @@ const ClinicVisitLogging = () => {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">
+                      <div className="font-medium text-gray-900 flex items-center">
+                        <span
+                          className={`inline-block w-2 h-2 rounded-full mr-2 ${v.isEmergency ? 'bg-red-600' : 'bg-blue-600'}`}
+                          aria-hidden="true"
+                        ></span>
                         {v.student
                           ? `${v.student.firstName} ${v.student.lastName}`
                           : "Unknown"}
@@ -321,12 +325,11 @@ const ClinicVisitLogging = () => {
                       <div className="text-sm text-gray-700 mt-1">
                         {v.symptoms || "N/A"}
                       </div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        {v.isReferredToHospital ? `Hospital: ${v.hospitalName ? v.hospitalName : "Referred"}` : "Hospital: No"}
+                      </div>
                     </div>
-                    {v.isEmergency && (
-                      <span className="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full">
-                        EMERGENCY
-                      </span>
-                    )}
+
                   </div>
                 </div>
               ))}
