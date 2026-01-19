@@ -33,7 +33,7 @@ export const createStudent = asyncHandler(
     res
       .status(201)
       .json(new ApiResponse(201, student, "Student created successfully"));
-  }
+  },
 );
 
 // Get all students with filtering and pagination
@@ -84,7 +84,7 @@ export const getStudentById = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, student, "Student retrieved successfully"));
-  }
+  },
 );
 
 // Get student by student ID
@@ -95,7 +95,7 @@ export const getStudentByStudentId = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, student, "Student retrieved successfully"));
-  }
+  },
 );
 
 // Update student
@@ -119,6 +119,8 @@ export const updateStudent = asyncHandler(
       status,
       linkStatus,
       courseCode,
+      bloodType,
+      allergies,
     } = req.body;
 
     let courseId: number | null | undefined = undefined;
@@ -147,6 +149,8 @@ export const updateStudent = asyncHandler(
       yearEnrolled,
       status,
       linkStatus,
+      bloodType,
+      allergies,
     };
 
     if (courseId !== undefined) {
@@ -157,7 +161,7 @@ export const updateStudent = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, student, "Student updated successfully"));
-  }
+  },
 );
 
 // Delete student
@@ -174,7 +178,7 @@ export const deleteStudent = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, result, "Student deleted successfully"));
-  }
+  },
 );
 
 // Approve student linking
@@ -191,9 +195,9 @@ export const approveStudentLink = asyncHandler(
     res
       .status(200)
       .json(
-        new ApiResponse(200, student, "Student link approved successfully")
+        new ApiResponse(200, student, "Student link approved successfully"),
       );
-  }
+  },
 );
 
 // Reject student linking
@@ -209,14 +213,14 @@ export const rejectStudentLink = asyncHandler(
 
     const student = await studentService.rejectStudentLink(
       studentId,
-      rejectionReason
+      rejectionReason,
     );
     res
       .status(200)
       .json(
-        new ApiResponse(200, student, "Student link rejected successfully")
+        new ApiResponse(200, student, "Student link rejected successfully"),
       );
-  }
+  },
 );
 
 // Get students by parent ID
@@ -233,7 +237,7 @@ export const getStudentsByParentId = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, students, "Students retrieved successfully"));
-  }
+  },
 );
 
 // Get enrollment statistics
@@ -246,10 +250,10 @@ export const getEnrollmentStats = asyncHandler(
         new ApiResponse(
           200,
           stats,
-          "Enrollment statistics retrieved successfully"
-        )
+          "Enrollment statistics retrieved successfully",
+        ),
       );
-  }
+  },
 );
 
 // Bulk update student status
@@ -267,7 +271,7 @@ export const bulkUpdateStudentStatus = asyncHandler(
 
     // Update each student individually to ensure proper validation
     const updatePromises = studentIds.map((id: number) =>
-      studentService.updateStudent(id, { status })
+      studentService.updateStudent(id, { status }),
     );
 
     try {
@@ -278,13 +282,13 @@ export const bulkUpdateStudentStatus = asyncHandler(
           new ApiResponse(
             200,
             updatedStudents,
-            "Students status updated successfully"
-          )
+            "Students status updated successfully",
+          ),
         );
     } catch (error) {
       throw new ApiError(500, "Failed to update some students");
     }
-  }
+  },
 );
 
 // Get students pending approval
@@ -307,9 +311,9 @@ export const getPendingStudents = asyncHandler(
     res
       .status(200)
       .json(
-        new ApiResponse(200, result, "Pending students retrieved successfully")
+        new ApiResponse(200, result, "Pending students retrieved successfully"),
       );
-  }
+  },
 );
 
 // Request to link a student (by parent)
@@ -325,14 +329,14 @@ export const requestLinkStudent = asyncHandler(
     const student = await studentService.requestLinkStudent(
       studentId,
       parentId,
-      relationship
+      relationship,
     );
     res
       .status(200)
       .json(
-        new ApiResponse(200, student, "Link request submitted successfully")
+        new ApiResponse(200, student, "Link request submitted successfully"),
       );
-  }
+  },
 );
 
 // Unlink a student from parent
@@ -356,12 +360,12 @@ export const unlinkStudent = asyncHandler(
     const result = await studentService.unlinkStudent(
       studentId,
       userId,
-      userRole
+      userRole,
     );
     res
       .status(200)
       .json(new ApiResponse(200, result, "Student unlinked successfully"));
-  }
+  },
 );
 
 // Get pending link requests for a parent
@@ -374,19 +378,18 @@ export const getPendingLinksByParentId = asyncHandler(
       throw new ApiError(400, "Invalid parent ID");
     }
 
-    const students = await studentService.getPendingLinksByParentId(
-      parentIdNum
-    );
+    const students =
+      await studentService.getPendingLinksByParentId(parentIdNum);
     res
       .status(200)
       .json(
         new ApiResponse(
           200,
           students,
-          "Pending link requests retrieved successfully"
-        )
+          "Pending link requests retrieved successfully",
+        ),
       );
-  }
+  },
 );
 
 // Get approved (linked) students for a parent
@@ -399,15 +402,18 @@ export const getApprovedStudentsByParentId = asyncHandler(
       throw new ApiError(400, "Invalid parent ID");
     }
 
-    const students = await studentService.getApprovedStudentsByParentId(
-      parentIdNum
-    );
+    const students =
+      await studentService.getApprovedStudentsByParentId(parentIdNum);
     res
       .status(200)
       .json(
-        new ApiResponse(200, students, "Linked students retrieved successfully")
+        new ApiResponse(
+          200,
+          students,
+          "Linked students retrieved successfully",
+        ),
       );
-  }
+  },
 );
 
 // Get authenticated user's children
@@ -419,9 +425,9 @@ export const getMyChildren = asyncHandler(
     res
       .status(200)
       .json(
-        new ApiResponse(200, students, "My children retrieved successfully")
+        new ApiResponse(200, students, "My children retrieved successfully"),
       );
-  }
+  },
 );
 
 // Get authenticated user's pending link requests
@@ -433,9 +439,9 @@ export const getMyLinkRequests = asyncHandler(
     res
       .status(200)
       .json(
-        new ApiResponse(200, requests, "Link requests retrieved successfully")
+        new ApiResponse(200, requests, "Link requests retrieved successfully"),
       );
-  }
+  },
 );
 
 // Export students as XLSX (Admin only)
@@ -520,16 +526,16 @@ export const exportStudentsXlsx = asyncHandler(
     });
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
     res.setHeader(
       "Content-Disposition",
       `attachment; filename="students_export_${new Date()
         .toISOString()
-        .slice(0, 10)}.xlsx"`
+        .slice(0, 10)}.xlsx"`,
     );
     return res.status(200).send(buf);
-  }
+  },
 );
 
 // Download a template XLSX for student imports
@@ -581,14 +587,14 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
     });
     res.setHeader(
       "Content-Type",
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="students_template.xlsx"`
+      `attachment; filename="students_template.xlsx"`,
     );
     res.status(200).send(buf);
-  }
+  },
 );
 
 // Bulk import students from uploaded Excel (Admin only)
@@ -605,7 +611,7 @@ export const bulkImportStudents = asyncHandler(
     if (!allowed.includes(file.mimetype)) {
       throw new ApiError(
         400,
-        "Only Excel (.xls/.xlsx) files are supported for import"
+        "Only Excel (.xls/.xlsx) files are supported for import",
       );
     }
 
@@ -630,7 +636,7 @@ export const bulkImportStudents = asyncHandler(
       if (!sheetRows || sheetRows.length === 0) {
         throw new ApiError(
           400,
-          "Excel file must contain a header and at least one row"
+          "Excel file must contain a header and at least one row",
         );
       }
       header = Object.keys(sheetRows[0]);
@@ -776,14 +782,14 @@ export const bulkImportStudents = asyncHandler(
 
     // Deduplicate rows within the import file by studentId, and skip ones that already exist in DB
     const studentIdsInFile = Array.from(
-      new Set(toCreate.map((t) => t.studentId))
+      new Set(toCreate.map((t) => t.studentId)),
     );
     const existingStudents = await prisma.student.findMany({
       where: { studentId: { in: studentIdsInFile } },
       select: { studentId: true },
     });
     const existingStudentSet = new Set(
-      existingStudents.map((s) => s.studentId)
+      existingStudents.map((s) => s.studentId),
     );
 
     const seenIds = new Set();
@@ -825,10 +831,10 @@ export const bulkImportStudents = asyncHandler(
         new ApiResponse(
           200,
           { created: createdCount, skipped, errors, invalidRows },
-          "Students imported successfully"
-        )
+          "Students imported successfully",
+        ),
       );
-  }
+  },
 );
 
 // Search students by query
@@ -857,7 +863,7 @@ export const searchStudents = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, result, "Students found successfully"));
-  }
+  },
 );
 
 // Get all pending parent-student link requests (Admin only)
@@ -888,9 +894,9 @@ export const getPendingParentLinks = asyncHandler(
     res
       .status(200)
       .json(
-        new ApiResponse(200, result, "Link requests retrieved successfully")
+        new ApiResponse(200, result, "Link requests retrieved successfully"),
       );
-  }
+  },
 );
 
 // Clear old rejected parent links (older than 3 days)
@@ -903,8 +909,8 @@ export const clearOldRejectedLinks = asyncHandler(
         new ApiResponse(
           200,
           { clearedCount },
-          `${clearedCount} old rejected links cleared successfully`
-        )
+          `${clearedCount} old rejected links cleared successfully`,
+        ),
       );
-  }
+  },
 );

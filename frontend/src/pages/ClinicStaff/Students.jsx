@@ -28,6 +28,8 @@ const StudentsManagement = () => {
     birthDate: "",
     sex: "",
     courseCode: "",
+    bloodType: "",
+    allergies: "",
   });
   const [studentStats, setStudentStats] = useState({
     total: 0,
@@ -409,6 +411,34 @@ const StudentsManagement = () => {
         console.error("Error deleting student:", error);
         alert(`Error deleting student: ${error.message || error}`);
       }
+    }
+  };
+
+  const handleAllergiesInputChange = (value, setter, state) => {
+    const previousValue = state.allergies || "";
+
+    // If it's a deletion, don't auto-add commas to allow user to edit
+    if (value.length < previousValue.length) {
+      setter({ ...state, allergies: value });
+      return;
+    }
+
+    const lines = value.split("\n");
+    if (lines.length > 1) {
+      const processedLines = lines.map((line, index) => {
+        // Don't modify the very last line (it's the one being currently typed)
+        if (index === lines.length - 1) return line;
+
+        const trimmed = line.trim();
+        // If line is not empty and doesn't end with a comma, add it
+        if (trimmed && !trimmed.endsWith(",")) {
+          return line + ",";
+        }
+        return line;
+      });
+      setter({ ...state, allergies: processedLines.join("\n") });
+    } else {
+      setter({ ...state, allergies: value });
     }
   };
 
@@ -824,7 +854,7 @@ const StudentsManagement = () => {
                       className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
                     >
                       <div className="mb-3">
-                        <div className="font-medium text-gray-900 break-words">
+                        <div className="font-medium text-gray-900 wrap-break-words">
                           {course.name}
                         </div>
                         <div className="text-sm text-gray-600">
@@ -1257,6 +1287,8 @@ const StudentsManagement = () => {
                 birthDate: "",
                 sex: "",
                 courseCode: "",
+                bloodType: "",
+                allergies: "",
               });
             }}
             title="Add New Student"
@@ -1377,6 +1409,47 @@ const StudentsManagement = () => {
                   setNewStudent({ ...newStudent, birthDate: e.target.value })
                 }
               />
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Blood Type
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                  value={newStudent.bloodType}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, bloodType: e.target.value })
+                  }
+                >
+                  <option value="">Select Blood Type</option>
+                  {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(
+                    (type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ),
+                  )}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Allergies
+                </label>
+                <textarea
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                  rows="3"
+                  placeholder="List any allergies (e.g., Peanuts, Penicillin)"
+                  value={newStudent.allergies}
+                  onChange={(e) =>
+                    handleAllergiesInputChange(
+                      e.target.value,
+                      setNewStudent,
+                      newStudent,
+                    )
+                  }
+                ></textarea>
+              </div>
 
               <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200">
                 <Button
@@ -1568,6 +1641,50 @@ const StudentsManagement = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Blood Type
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                    value={selectedStudent.bloodType || ""}
+                    onChange={(e) =>
+                      setSelectedStudent({
+                        ...selectedStudent,
+                        bloodType: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Select Blood Type</option>
+                    {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map(
+                      (type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ),
+                    )}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Allergies
+                  </label>
+                  <textarea
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                    rows="3"
+                    placeholder="List any allergies"
+                    value={selectedStudent.allergies || ""}
+                    onChange={(e) =>
+                      handleAllergiesInputChange(
+                        e.target.value,
+                        setSelectedStudent,
+                        selectedStudent,
+                      )
+                    }
+                  ></textarea>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Student Status
                   </label>
                   <div className="flex items-center space-x-3">
@@ -1583,7 +1700,7 @@ const StudentsManagement = () => {
                         }
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                       <span className="ml-3 text-sm font-medium text-gray-700">
                         {selectedStudent.status === "ACTIVE"
                           ? "Active"

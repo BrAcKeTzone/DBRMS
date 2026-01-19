@@ -18,6 +18,8 @@ export interface CreateStudentData {
   yearEnrolled: string;
   courseId?: number;
   parentId?: number;
+  bloodType?: string;
+  allergies?: string;
 }
 
 export interface UpdateStudentData {
@@ -29,6 +31,8 @@ export interface UpdateStudentData {
   courseId?: number | null;
   status?: StudentStatus;
   linkStatus?: LinkStatus;
+  bloodType?: string;
+  allergies?: string;
 }
 
 export interface StudentSearchFilters {
@@ -86,6 +90,8 @@ export const createStudent = async (
       sex: studentData.sex,
       birthDate: studentData.birthDate,
       yearEnrolled: studentData.yearEnrolled,
+      bloodType: studentData.bloodType,
+      allergies: studentData.allergies,
     };
 
     // Only include parentId if it's provided

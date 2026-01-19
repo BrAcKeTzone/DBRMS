@@ -62,13 +62,13 @@ const HealthRecordManagement = () => {
           (s.studentId || "").toLowerCase().includes(q) ||
           (s.course?.code || "").toLowerCase().includes(q)
         );
-      })
+      }),
     );
   }, [searchQuery, students]);
 
   const studentsToShow = useMemo(
     () => (searchQuery ? filtered : students || []),
-    [searchQuery, filtered, students]
+    [searchQuery, filtered, students],
   );
 
   const openView = (student) => {
@@ -85,6 +85,34 @@ const HealthRecordManagement = () => {
       weight: student.weight || "",
     });
     setShowEditModal(true);
+  };
+
+  const handleAllergiesInputChange = (value, setter, state) => {
+    const previousValue = state.allergies || "";
+
+    // If it's a deletion, don't auto-add commas to allow user to edit
+    if (value.length < previousValue.length) {
+      setter({ ...state, allergies: value });
+      return;
+    }
+
+    const lines = value.split("\n");
+    if (lines.length > 1) {
+      const processedLines = lines.map((line, index) => {
+        // Don't modify the very last line (it's the one being currently typed)
+        if (index === lines.length - 1) return line;
+
+        const trimmed = line.trim();
+        // If line is not empty and doesn't end with a comma, add it
+        if (trimmed && !trimmed.endsWith(",")) {
+          return line + ",";
+        }
+        return line;
+      });
+      setter({ ...state, allergies: processedLines.join("\n") });
+    } else {
+      setter({ ...state, allergies: value });
+    }
   };
 
   const handleSaveEdit = async (e) => {
@@ -200,7 +228,7 @@ const HealthRecordManagement = () => {
               onChange={(e) => {
                 const v = e.target.value;
                 setFiltered(
-                  (students || []).filter((s) => !v || s.gradeLevel === v)
+                  (students || []).filter((s) => !v || s.gradeLevel === v),
                 );
               }}
             >
@@ -301,7 +329,7 @@ const HealthRecordManagement = () => {
                             size="sm"
                             onClick={() =>
                               navigate(
-                                `/clinic/visit-logging?studentId=${s.id}`
+                                `/clinic/visit-logging?studentId=${s.id}`,
                               )
                             }
                           >
@@ -400,13 +428,24 @@ const HealthRecordManagement = () => {
                   setEditData({ ...editData, bloodType: e.target.value })
                 }
               />
-              <Input
-                label="Allergies"
-                value={editData.allergies}
-                onChange={(e) =>
-                  setEditData({ ...editData, allergies: e.target.value })
-                }
-              />
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Allergies
+                </label>
+                <textarea
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                  rows="3"
+                  placeholder="List any allergies"
+                  value={editData.allergies}
+                  onChange={(e) =>
+                    handleAllergiesInputChange(
+                      e.target.value,
+                      setEditData,
+                      editData,
+                    )
+                  }
+                ></textarea>
+              </div>
               <Input
                 label="Height (cm)"
                 value={editData.height}

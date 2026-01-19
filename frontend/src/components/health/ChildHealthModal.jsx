@@ -52,7 +52,9 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
               Blood Type
             </div>
             <div className="font-medium text-gray-900">
-              {selectedChild.healthMetrics?.[0]?.bloodType || "N/A"}
+              {selectedChild.bloodType ||
+                selectedChild.healthMetrics?.[0]?.bloodType ||
+                "N/A"}
             </div>
           </div>
           <div>
@@ -60,7 +62,9 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
               Allergies
             </div>
             <div className="font-medium text-gray-900">
-              {selectedChild.healthMetrics?.[0]?.allergies || "None"}
+              {selectedChild.allergies ||
+                selectedChild.healthMetrics?.[0]?.allergies ||
+                "None"}
             </div>
           </div>
         </div>

@@ -59,6 +59,8 @@ model Student {
   birthDate  DateTime
   yearEnrolled String
   status     StudentStatus @default(ACTIVE)
+  bloodType  String?       @db.VarChar(5)
+  allergies  String?       @db.Text
 
   courseId Int
   course   Course @relation(fields: [courseId], references: [id])
