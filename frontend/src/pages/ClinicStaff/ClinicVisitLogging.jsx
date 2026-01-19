@@ -38,6 +38,18 @@ const ClinicVisitLogging = () => {
   });
   const [submitting, setSubmitting] = useState(false);
 
+  const handleNumericInputChange = (e, fieldName) => {
+    const value = e.target.value;
+    // Allow only numbers and a single decimal point
+    let sanitizedValue = value.replace(/[^0-9.]/g, "");
+    // Ensure only one decimal point is present
+    const parts = sanitizedValue.split(".");
+    if (parts.length > 2) {
+      sanitizedValue = parts[0] + "." + parts.slice(1).join("");
+    }
+    setForm({ ...form, [fieldName]: sanitizedValue });
+  };
+
   useEffect(() => {
     const load = async () => {
       setLoading(true);
@@ -464,7 +476,7 @@ const ClinicVisitLogging = () => {
                   <Input
                     value={form.bloodPressure}
                     onChange={(e) =>
-                      setForm({ ...form, bloodPressure: e.target.value })
+                      handleNumericInputChange(e, "bloodPressure")
                     }
                   />
                 </div>
@@ -474,9 +486,7 @@ const ClinicVisitLogging = () => {
                   </label>
                   <Input
                     value={form.temperature}
-                    onChange={(e) =>
-                      setForm({ ...form, temperature: e.target.value })
-                    }
+                    onChange={(e) => handleNumericInputChange(e, "temperature")}
                   />
                 </div>
                 <div>
@@ -485,9 +495,7 @@ const ClinicVisitLogging = () => {
                   </label>
                   <Input
                     value={form.pulseRate}
-                    onChange={(e) =>
-                      setForm({ ...form, pulseRate: e.target.value })
-                    }
+                    onChange={(e) => handleNumericInputChange(e, "pulseRate")}
                   />
                 </div>
               </div>
