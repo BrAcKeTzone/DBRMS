@@ -30,7 +30,7 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
       size="full"
     >
       <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
           <div>
             <div className="text-xs font-semibold text-gray-500 uppercase">
               Name
@@ -65,6 +65,34 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
               {selectedChild.allergies ||
                 selectedChild.healthMetrics?.[0]?.allergies ||
                 "None"}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-gray-500 uppercase">
+              Height
+            </div>
+            <div className="font-medium text-gray-900">
+              {selectedChild.height ||
+                selectedChild.healthMetrics?.[0]?.heightCm ||
+                "N/A"}{" "}
+              {selectedChild.height ||
+              selectedChild.healthMetrics?.[0]?.heightCm
+                ? "cm"
+                : ""}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-gray-500 uppercase">
+              Weight
+            </div>
+            <div className="font-medium text-gray-900">
+              {selectedChild.weight ||
+                selectedChild.healthMetrics?.[0]?.weightKg ||
+                "N/A"}{" "}
+              {selectedChild.weight ||
+              selectedChild.healthMetrics?.[0]?.weightKg
+                ? "kg"
+                : ""}
             </div>
           </div>
         </div>

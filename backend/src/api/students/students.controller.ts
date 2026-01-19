@@ -121,6 +121,8 @@ export const updateStudent = asyncHandler(
       courseCode,
       bloodType,
       allergies,
+      height,
+      weight,
     } = req.body;
 
     let courseId: number | null | undefined = undefined;
@@ -151,6 +153,8 @@ export const updateStudent = asyncHandler(
       linkStatus,
       bloodType,
       allergies,
+      height: height !== undefined ? parseFloat(height) : undefined,
+      weight: weight !== undefined ? parseFloat(weight) : undefined,
     };
 
     if (courseId !== undefined) {

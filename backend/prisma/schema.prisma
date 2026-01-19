@@ -61,6 +61,8 @@ model Student {
   status     StudentStatus @default(ACTIVE)
   bloodType  String?       @db.VarChar(5)
   allergies  String?       @db.Text
+  height     Float?
+  weight     Float?
 
   courseId Int
   course   Course @relation(fields: [courseId], references: [id])
