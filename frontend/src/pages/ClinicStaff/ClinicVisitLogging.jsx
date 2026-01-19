@@ -20,11 +20,17 @@ const ClinicVisitLogging = () => {
   const [search, setSearch] = useState("");
   const [studentSearch, setStudentSearch] = useState("");
 
+  const getLocalDateTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+    return now.toISOString().slice(0, 16);
+  };
+
   const [showLogModal, setShowLogModal] = useState(false);
   const [step, setStep] = useState(1);
   const [form, setForm] = useState({
     studentId: "",
-    date: new Date().toISOString().slice(0, 16),
+    date: getLocalDateTime(),
     reason: "",
     notes: "",
     isEmergency: false,
@@ -38,6 +44,18 @@ const ClinicVisitLogging = () => {
   });
   const [submitting, setSubmitting] = useState(false);
 
+  const handleBloodPressureChange = (e) => {
+    const value = e.target.value;
+    // Allow only numbers and a single slash
+    let sanitizedValue = value.replace(/[^0-9/]/g, "");
+    // Ensure only one slash is present
+    const parts = sanitizedValue.split("/");
+    if (parts.length > 2) {
+      sanitizedValue = parts[0] + "/" + parts.slice(1).join("");
+    }
+    setForm({ ...form, bloodPressure: sanitizedValue });
+  };
+
   const handleNumericInputChange = (e, fieldName) => {
     const value = e.target.value;
     // Allow only numbers and a single decimal point
@@ -47,6 +65,13 @@ const ClinicVisitLogging = () => {
     if (parts.length > 2) {
       sanitizedValue = parts[0] + "." + parts.slice(1).join("");
     }
+    setForm({ ...form, [fieldName]: sanitizedValue });
+  };
+
+  const handleIntegerInputChange = (e, fieldName) => {
+    const value = e.target.value;
+    // Allow only numbers
+    const sanitizedValue = value.replace(/[^0-9]/g, "");
     setForm({ ...form, [fieldName]: sanitizedValue });
   };
 
@@ -106,7 +131,7 @@ const ClinicVisitLogging = () => {
       setStep(1);
       setForm({
         studentId: "",
-        date: new Date().toISOString().slice(0, 16),
+        date: getLocalDateTime(),
         reason: "",
         notes: "",
         isEmergency: false,
@@ -318,7 +343,7 @@ const ClinicVisitLogging = () => {
           setStep(1);
           setForm({
             studentId: "",
-            date: new Date().toISOString().slice(0, 16),
+            date: getLocalDateTime(),
             reason: "",
             notes: "",
             isEmergency: false,
@@ -466,9 +491,7 @@ const ClinicVisitLogging = () => {
                   </label>
                   <Input
                     value={form.bloodPressure}
-                    onChange={(e) =>
-                      handleNumericInputChange(e, "bloodPressure")
-                    }
+                    onChange={handleBloodPressureChange}
                   />
                 </div>
                 <div>
@@ -486,7 +509,7 @@ const ClinicVisitLogging = () => {
                   </label>
                   <Input
                     value={form.pulseRate}
-                    onChange={(e) => handleNumericInputChange(e, "pulseRate")}
+                    onChange={(e) => handleIntegerInputChange(e, "pulseRate")}
                   />
                 </div>
               </div>
