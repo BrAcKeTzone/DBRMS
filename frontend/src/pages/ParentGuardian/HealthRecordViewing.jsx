@@ -5,6 +5,7 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import Button from "../../components/ui/Button";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Modal from "../../components/ui/Modal";
+import ChildHealthModal from "../../components/health/ChildHealthModal";
 import { formatDate } from "../../utils/formatDate";
 
 const HealthRecordViewing = () => {
@@ -106,7 +107,7 @@ const HealthRecordViewing = () => {
                     Grade: {c.gradeLevel || "N/A"} • {c.status || "N/A"}
                   </div>
                 </div>
-                <div className="flex-shrink-0 w-full sm:w-auto">
+                <div className="shrink-0 w-full sm:w-auto">
                   <Button
                     className="w-full sm:w-auto"
                     onClick={() => openView(c)}
@@ -121,76 +122,11 @@ const HealthRecordViewing = () => {
         )}
       </DashboardCard>
 
-      <Modal
+      <ChildHealthModal
         isOpen={showViewModal}
         onClose={() => setShowViewModal(false)}
-        title="Child Health Details"
-        size="lg"
-      >
-        {selectedChild ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <div className="text-sm text-gray-600">Name</div>
-                <div className="font-medium text-gray-900">
-                  {selectedChild.firstName} {selectedChild.lastName}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Student ID</div>
-                <div className="font-medium text-gray-900">
-                  {selectedChild.studentId || "N/A"}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Blood Type</div>
-                <div className="font-medium text-gray-900">
-                  {selectedChild.bloodType || "N/A"}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Allergies</div>
-                <div className="font-medium text-gray-900">
-                  {selectedChild.allergies || "None"}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-sm font-semibold">Recent Visits</h4>
-              <div className="mt-2 space-y-2">
-                {(selectedChild.visits || []).length === 0 ? (
-                  <div className="text-sm text-gray-500">
-                    No visits recorded
-                  </div>
-                ) : (
-                  (selectedChild.visits || []).slice(0, 5).map((v) => (
-                    <div key={v.id} className="p-3 border rounded bg-gray-50">
-                      <div className="text-sm text-gray-800 font-medium">
-                        {v.reason || "Visit"}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {v.date ? formatDate(v.date) : "N/A"}
-                      </div>
-                      <div className="text-sm text-gray-700">
-                        {v.notes || ""}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={() => setShowViewModal(false)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="p-6 text-center text-gray-500">No data</div>
-        )}
-      </Modal>
+        selectedChild={selectedChild}
+      />
     </div>
   );
 };

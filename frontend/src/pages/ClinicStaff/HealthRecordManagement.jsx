@@ -6,6 +6,7 @@ import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Modal from "../../components/ui/Modal";
+import ChildHealthModal from "../../components/health/ChildHealthModal";
 import { formatDate } from "../../utils/formatDate";
 
 const HealthRecordManagement = () => {
@@ -376,76 +377,11 @@ const HealthRecordManagement = () => {
       </DashboardCard>
 
       {/* View Modal */}
-      <Modal
+      <ChildHealthModal
         isOpen={showViewModal}
         onClose={() => setShowViewModal(false)}
-        title="View Health Record"
-        size="lg"
-      >
-        {selectedStudent ? (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <div className="text-sm text-gray-600">Name</div>
-                <div className="font-medium text-gray-900">
-                  {selectedStudent.firstName} {selectedStudent.lastName}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Student ID</div>
-                <div className="font-medium text-gray-900">
-                  {selectedStudent.studentId || "N/A"}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Blood Type</div>
-                <div className="font-medium text-gray-900">
-                  {selectedStudent.bloodType || "N/A"}
-                </div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Allergies</div>
-                <div className="font-medium text-gray-900">
-                  {selectedStudent.allergies || "None"}
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="text-sm font-semibold">Recent Visits</h4>
-              <div className="mt-2 space-y-2">
-                {(selectedStudent.visits || []).length === 0 ? (
-                  <div className="text-sm text-gray-500">
-                    No visits recorded
-                  </div>
-                ) : (
-                  (selectedStudent.visits || []).slice(0, 5).map((v) => (
-                    <div key={v.id} className="p-3 border rounded bg-gray-50">
-                      <div className="text-sm text-gray-800 font-medium">
-                        {v.reason || "Visit"}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {v.date ? formatDate(v.date) : "N/A"}
-                      </div>
-                      <div className="text-sm text-gray-700">
-                        {v.notes || ""}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end">
-              <Button variant="outline" onClick={() => setShowViewModal(false)}>
-                Close
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="p-6 text-center text-gray-500">No data</div>
-        )}
-      </Modal>
+        selectedChild={selectedStudent}
+      />
 
       {/* Edit Modal */}
       <Modal

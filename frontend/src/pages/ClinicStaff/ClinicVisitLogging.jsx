@@ -5,6 +5,7 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import Modal from "../../components/ui/Modal";
+import ChildHealthModal from "../../components/health/ChildHealthModal";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { formatDate } from "../../utils/formatDate";
 
@@ -43,6 +44,9 @@ const ClinicVisitLogging = () => {
     treatment: "",
   });
   const [submitting, setSubmitting] = useState(false);
+
+  const [showHealthModal, setShowHealthModal] = useState(false);
+  const [selectedStudentForHealth, setSelectedStudentForHealth] = useState(null);
 
   const handleBloodPressureChange = (e) => {
     const value = e.target.value;
@@ -276,7 +280,14 @@ const ClinicVisitLogging = () => {
                 </thead>
                 <tbody>
                   {visits.map((v) => (
-                    <tr key={v.id} className="border-t">
+                    <tr
+                      key={v.id}
+                      className="border-t hover:bg-gray-50 cursor-pointer transition-colors"
+                      onClick={() => {
+                        setSelectedStudentForHealth(v.student);
+                        setShowHealthModal(true);
+                      }}
+                    >
                       <td className="px-3 py-3 text-sm text-gray-900 flex items-center">
                         <span
                           className={`inline-block w-2 h-2 rounded-full mr-2 ${v.isEmergency ? 'bg-red-600' : 'bg-blue-600'}`}
@@ -304,7 +315,11 @@ const ClinicVisitLogging = () => {
               {filteredVisits.map((v) => (
                 <div
                   key={v.id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
+                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm hover:border-blue-300 cursor-pointer transition-colors"
+                  onClick={() => {
+                    setSelectedStudentForHealth(v.student);
+                    setShowHealthModal(true);
+                  }}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
@@ -606,6 +621,12 @@ const ClinicVisitLogging = () => {
           </div>
         )}
       </Modal>
+
+      <ChildHealthModal
+        isOpen={showHealthModal}
+        onClose={() => setShowHealthModal(false)}
+        selectedChild={selectedStudentForHealth}
+      />
     </div>
   );
 };

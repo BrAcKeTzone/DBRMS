@@ -12,30 +12,63 @@ export const createClinicVisit = async (data: any) => {
 export const getAllClinicVisits = async (search?: string) => {
   const where: any = {};
 
+  // Current month filter
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const endOfMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() + 1,
+    0,
+    23,
+    59,
+    59,
+    999,
+  );
+
+  where.visitDateTime = {
+    gte: startOfMonth,
+    lte: endOfMonth,
+  };
+
   if (search) {
-    where.OR = [
+    where.AND = [
+      { visitDateTime: where.visitDateTime },
       {
-        student: {
-          OR: [
-            { firstName: { contains: search } },
-            { lastName: { contains: search } },
-            { studentId: { contains: search } },
-          ],
-        },
+        OR: [
+          {
+            student: {
+              OR: [
+                { firstName: { contains: search } },
+                { lastName: { contains: search } },
+                { studentId: { contains: search } },
+              ],
+            },
+          },
+          { symptoms: { contains: search } },
+          { diagnosis: { contains: search } },
+        ],
       },
-      { symptoms: { contains: search } },
-      { diagnosis: { contains: search } },
     ];
+    // Remove the top level visitDateTime if we use AND
+    delete where.visitDateTime;
   }
 
   return await prisma.clinicVisit.findMany({
     where,
     include: {
       student: {
-        select: {
-          firstName: true,
-          lastName: true,
-          studentId: true,
+        include: {
+          clinicVisits: {
+            orderBy: {
+              visitDateTime: "desc",
+            },
+          },
+          healthMetrics: {
+            orderBy: {
+              year: "desc",
+            },
+            take: 1,
+          },
         },
       },
       smsLog: true,
@@ -52,7 +85,7 @@ export const getClinicVisitStats = async () => {
   const endOfDay = new Date(
     now.getFullYear(),
     now.getMonth(),
-    now.getDate() + 1
+    now.getDate() + 1,
   );
 
   const totalVisits = await prisma.clinicVisit.count();

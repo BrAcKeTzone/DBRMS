@@ -158,7 +158,7 @@ const StudentsManagement = () => {
       alert(
         error?.response?.data?.message ||
           error.message ||
-          "Failed to create course"
+          "Failed to create course",
       );
     }
   };
@@ -221,14 +221,14 @@ const StudentsManagement = () => {
     // Apply status filter
     if (filterStatus) {
       result = result.filter(
-        (student) => student.status === filterStatus.toUpperCase()
+        (student) => student.status === filterStatus.toUpperCase(),
       );
     }
 
     // Apply year enrolled filter
     if (filterYearEnrolled) {
       result = result.filter(
-        (student) => String(student.yearEnrolled) === filterYearEnrolled
+        (student) => String(student.yearEnrolled) === filterYearEnrolled,
       );
     }
 
@@ -236,7 +236,7 @@ const StudentsManagement = () => {
     if (filterCourse) {
       result = result.filter(
         (student) =>
-          student.course && student.course.id === parseInt(filterCourse)
+          student.course && student.course.id === parseInt(filterCourse),
       );
     }
 
@@ -247,8 +247,8 @@ const StudentsManagement = () => {
       } else if (filterLinkStatus === "NO_LINK") {
         result = result.filter((student) =>
           ["PENDING", "REJECTED"].includes(
-            String(student.linkStatus).toUpperCase()
-          )
+            String(student.linkStatus).toUpperCase(),
+          ),
         );
       }
     }
@@ -287,7 +287,7 @@ const StudentsManagement = () => {
       alert(
         error?.response?.data?.message ||
           error.message ||
-          "Failed to update course"
+          "Failed to update course",
       );
     }
   };
@@ -303,7 +303,7 @@ const StudentsManagement = () => {
       alert(
         error?.response?.data?.message ||
           error.message ||
-          "Failed to delete course"
+          "Failed to delete course",
       );
     }
   };
@@ -312,7 +312,7 @@ const StudentsManagement = () => {
     const total = studentsArray.length;
     const active = studentsArray.filter((s) => s.status === "ACTIVE").length;
     const inactive = studentsArray.filter(
-      (s) => s.status === "INACTIVE"
+      (s) => s.status === "INACTIVE",
     ).length;
     setStudentStats({ total, active, inactive });
   };
@@ -397,7 +397,7 @@ const StudentsManagement = () => {
 
   const handleDeleteStudent = async (student) => {
     const confirmed = window.confirm(
-      `Are you sure you want to delete the student ${student.firstName} ${student.lastName}? This action cannot be undone.`
+      `Are you sure you want to delete the student ${student.firstName} ${student.lastName}? This action cannot be undone.`,
     );
 
     if (confirmed) {
@@ -480,7 +480,7 @@ const StudentsManagement = () => {
           {/* If the student's linkStatus is PENDING or REJECTED, display as no parent linked */}
           {row.linkStatus &&
           ["PENDING", "REJECTED"].includes(
-            String(row.linkStatus).toUpperCase()
+            String(row.linkStatus).toUpperCase(),
           ) ? (
             <span className="text-gray-500">No parent linked</span>
           ) : row.parent ? (
@@ -1039,13 +1039,13 @@ const StudentsManagement = () => {
                 {hasAppliedFilters
                   ? filteredStudents.filter((s) =>
                       ["PENDING", "REJECTED"].includes(
-                        String(s.linkStatus).toUpperCase()
-                      )
+                        String(s.linkStatus).toUpperCase(),
+                      ),
                     ).length
                   : students.filter((s) =>
                       ["PENDING", "REJECTED"].includes(
-                        String(s.linkStatus).toUpperCase()
-                      )
+                        String(s.linkStatus).toUpperCase(),
+                      ),
                     ).length}
               </div>
             </DashboardCard>
@@ -1125,13 +1125,13 @@ const StudentsManagement = () => {
                     <div
                       key={index}
                       className={`bg-white border border-gray-200 rounded-lg p-4 shadow-sm ${getStatusLeftBorderClass(
-                        student.status
+                        student.status,
                       )}`}
                       role="article"
                     >
                       <div className="flex justify-between items-start mb-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-medium text-gray-900 break-words">
+                          <h3 className="font-medium text-gray-900 wrap-break-words">
                             {student.firstName} {student.lastName}
                           </h3>
                           <p className="text-sm text-gray-500 break-all">
@@ -1150,7 +1150,7 @@ const StudentsManagement = () => {
                         <div className="flex flex-col items-end space-y-1">
                           <span
                             className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(
-                              student.status
+                              student.status,
                             )}`}
                             aria-hidden
                           >
@@ -1260,7 +1260,7 @@ const StudentsManagement = () => {
               });
             }}
             title="Add New Student"
-            size="large"
+            size="full"
           >
             <form
               onSubmit={handleCreateStudent}
@@ -1418,7 +1418,7 @@ const StudentsManagement = () => {
               setSelectedStudent(null);
             }}
             title="Edit Student"
-            size="large"
+            size="full"
           >
             {selectedStudent && (
               <form
@@ -1592,7 +1592,7 @@ const StudentsManagement = () => {
                     </label>
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(
-                        selectedStudent.status
+                        selectedStudent.status,
                       )}`}
                     >
                       {selectedStudent.status}

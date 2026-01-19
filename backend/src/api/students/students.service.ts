@@ -43,7 +43,7 @@ export interface StudentSearchFilters {
 
 // Create a new student
 export const createStudent = async (
-  studentData: CreateStudentData
+  studentData: CreateStudentData,
 ): Promise<Student> => {
   try {
     // Check if student ID already exists
@@ -136,7 +136,7 @@ export const createStudent = async (
 export const getStudents = async (
   filters: StudentSearchFilters = {},
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<{
   students: Student[];
   totalCount: number;
@@ -220,6 +220,17 @@ export const getStudents = async (
             name: true,
           },
         },
+        clinicVisits: {
+          orderBy: {
+            visitDateTime: "desc",
+          },
+        },
+        healthMetrics: {
+          orderBy: {
+            year: "desc",
+          },
+          take: 1,
+        },
       },
       orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
       skip,
@@ -258,6 +269,17 @@ export const getStudentById = async (id: number): Promise<Student> => {
           name: true,
         },
       },
+      clinicVisits: {
+        orderBy: {
+          visitDateTime: "desc",
+        },
+      },
+      healthMetrics: {
+        orderBy: {
+          year: "desc",
+        },
+        take: 1,
+      },
     },
   });
 
@@ -270,7 +292,7 @@ export const getStudentById = async (id: number): Promise<Student> => {
 
 // Get student by student ID
 export const getStudentByStudentId = async (
-  studentId: string
+  studentId: string,
 ): Promise<Student> => {
   const student = await prisma.student.findUnique({
     where: { studentId },
@@ -292,6 +314,17 @@ export const getStudentByStudentId = async (
           name: true,
         },
       },
+      clinicVisits: {
+        orderBy: {
+          visitDateTime: "desc",
+        },
+      },
+      healthMetrics: {
+        orderBy: {
+          year: "desc",
+        },
+        take: 1,
+      },
     },
   });
 
@@ -305,7 +338,7 @@ export const getStudentByStudentId = async (
 // Update student
 export const updateStudent = async (
   id: number,
-  updateData: UpdateStudentData
+  updateData: UpdateStudentData,
 ): Promise<Student> => {
   // Check if student exists
   const existingStudent = await prisma.student.findUnique({
@@ -353,7 +386,7 @@ export const updateStudent = async (
 
 // Delete student
 export const deleteStudent = async (
-  id: number
+  id: number,
 ): Promise<{ message: string }> => {
   const student = await prisma.student.findUnique({
     where: { id },
@@ -414,7 +447,7 @@ export const approveStudentLink = async (id: number): Promise<Student> => {
 // Reject student linking
 export const rejectStudentLink = async (
   id: number,
-  rejectionReason?: string
+  rejectionReason?: string,
 ): Promise<Student> => {
   const student = await prisma.student.findUnique({
     where: { id },
@@ -460,7 +493,7 @@ export const rejectStudentLink = async (
 
 // Get students by parent ID
 export const getStudentsByParentId = async (
-  parentId: number
+  parentId: number,
 ): Promise<Student[]> => {
   const students = await prisma.student.findMany({
     where: {
@@ -484,6 +517,17 @@ export const getStudentsByParentId = async (
           code: true,
           name: true,
         },
+      },
+      clinicVisits: {
+        orderBy: {
+          visitDateTime: "desc",
+        },
+      },
+      healthMetrics: {
+        orderBy: {
+          year: "desc",
+        },
+        take: 1,
       },
     },
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }],
@@ -537,7 +581,7 @@ export const getEnrollmentStats = async (): Promise<{
 export const requestLinkStudent = async (
   studentId: string,
   parentId: number,
-  relationship?: string
+  relationship?: string,
 ): Promise<Student> => {
   // Verify parent exists
   const parent = await prisma.user.findUnique({
@@ -576,7 +620,7 @@ export const requestLinkStudent = async (
   ) {
     throw new ApiError(
       400,
-      "Student is already linked to another parent. A student can only have one parent account."
+      "Student is already linked to another parent. A student can only have one parent account.",
     );
   }
 
@@ -624,7 +668,7 @@ export const requestLinkStudent = async (
 export const unlinkStudent = async (
   studentId: number,
   requestingUserId: number,
-  requestingUserRole: string
+  requestingUserRole: string,
 ): Promise<{ message: string }> => {
   const student = await prisma.student.findUnique({
     where: { id: studentId },
@@ -665,7 +709,7 @@ export const unlinkStudent = async (
 
 // Get pending link requests for a specific parent
 export const getPendingLinksByParentId = async (
-  parentId: number
+  parentId: number,
 ): Promise<Student[]> => {
   const students = await prisma.student.findMany({
     where: {
@@ -699,7 +743,7 @@ export const getPendingLinksByParentId = async (
 
 // Get all link requests (PENDING and REJECTED) for a specific parent
 export const getAllLinkRequestsByParentId = async (
-  parentId: number
+  parentId: number,
 ): Promise<Student[]> => {
   const students = await prisma.student.findMany({
     where: {
@@ -735,7 +779,7 @@ export const getAllLinkRequestsByParentId = async (
 
 // Get approved (linked) students for a specific parent
 export const getApprovedStudentsByParentId = async (
-  parentId: number
+  parentId: number,
 ): Promise<Student[]> => {
   const students = await prisma.student.findMany({
     where: {
