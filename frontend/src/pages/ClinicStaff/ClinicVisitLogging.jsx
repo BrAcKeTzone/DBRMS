@@ -276,7 +276,7 @@ const ClinicVisitLogging = () => {
 
             {/* Mobile cards */}
             <div className="lg:hidden space-y-3">
-              {visits.map((v) => (
+              {filteredVisits.map((v) => (
                 <div
                   key={v.id}
                   className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm"
@@ -284,33 +284,24 @@ const ClinicVisitLogging = () => {
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1">
                       <div className="font-medium text-gray-900">
-                        {v.studentName || "Unknown"}
+                        {v.student
+                          ? `${v.student.firstName} ${v.student.lastName}`
+                          : "Unknown"}
                       </div>
                       <div className="text-xs text-gray-500">
-                        {v.date ? formatDate(v.date) : "N/A"}
+                        {v.visitDateTime
+                          ? formatDate(v.visitDateTime)
+                          : "N/A"}
                       </div>
                       <div className="text-sm text-gray-700 mt-1">
-                        {v.reason}
+                        {v.symptoms || "N/A"}
                       </div>
                     </div>
-                  </div>
-
-                  <div className="mt-3 grid grid-cols-1 gap-2">
-                    <Button
-                      className="w-full"
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedVisit && setSelectedVisit(v);
-                      }}
-                    >
-                      View
-                    </Button>
-                    <Button
-                      className="w-full"
-                      variant={v.isEmergency ? "danger" : "outline"}
-                    >
-                      {v.isEmergency ? "Emergency" : "Mark Follow-up"}
-                    </Button>
+                    {v.isEmergency && (
+                      <span className="text-xs font-bold text-red-600 bg-red-100 px-2 py-1 rounded-full">
+                        EMERGENCY
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}
