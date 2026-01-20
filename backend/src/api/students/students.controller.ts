@@ -105,80 +105,31 @@ export const getStudentByStudentId = asyncHandler(
 // Update student
 export const updateStudent = asyncHandler(
   async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const studentId = parseInt(id, 10);
+    const studentId = parseInt(req.params.id, 10);
+    const studentData = req.body;
 
-    if (isNaN(studentId)) {
-      throw new ApiError(400, "Invalid student ID");
+    // Ensure numeric fields are handled correctly
+    if (studentData.height === "" || studentData.height === undefined) {
+      studentData.height = null;
+    } else {
+      studentData.height = parseFloat(studentData.height);
     }
 
-    // Extract only the allowed update fields from req.body
-    const {
-      firstName,
-      lastName,
-      middleName,
-      sex,
-      birthDate,
-      yearEnrolled,
-      status,
-      linkStatus,
-      courseCode,
-      bloodType,
-      allergies,
-      height,
-      weight,
-    } = req.body;
-
-    let courseId: number | null | undefined = undefined;
-    if (courseCode !== undefined) {
-      // allow clearing by passing empty string or null
-      if (courseCode === "" || courseCode === null) {
-        courseId = null;
-      } else {
-        const course = await prisma.course.findUnique({
-          where: { code: String(courseCode).trim() },
-          select: { id: true },
-        });
-        if (!course) {
-          throw new ApiError(400, `Course not found with code: ${courseCode}`);
-        }
-        courseId = course.id;
-      }
+    if (studentData.weight === "" || studentData.weight === undefined) {
+      studentData.weight = null;
+    } else {
+      studentData.weight = parseFloat(studentData.weight);
     }
 
-    const updateData: any = {
-      firstName,
-      lastName,
-      middleName,
-      sex,
-      birthDate,
-      yearEnrolled,
-      status,
-      linkStatus,
-      bloodType,
-      allergies,
-      height:
-        height !== undefined && height !== "" && height !== null
-          ? parseFloat(height)
-          : height === "" || height === null
-            ? null
-            : undefined,
-      weight:
-        weight !== undefined && weight !== "" && weight !== null
-          ? parseFloat(weight)
-          : weight === "" || weight === null
-            ? null
-            : undefined,
-    };
-
-    if (courseId !== undefined) {
-      updateData.courseId = courseId;
-    }
-
-    const student = await studentService.updateStudent(studentId, updateData);
+    const updatedStudent = await studentService.updateStudent(
+      studentId,
+      studentData,
+    );
     res
       .status(200)
-      .json(new ApiResponse(200, student, "Student updated successfully"));
+      .json(
+        new ApiResponse(200, updatedStudent, "Student updated successfully"),
+      );
   },
 );
 

@@ -8,6 +8,7 @@ import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Modal from "../../components/ui/Modal";
 import ChildHealthModal from "../../components/health/ChildHealthModal";
 import EditHealthRecordModal from "../../components/health/EditHealthRecordModal";
+import LogVisitModal from "../../components/clinic/LogVisitModal";
 import { formatDate } from "../../utils/formatDate";
 
 const HealthRecordManagement = () => {
@@ -27,6 +28,7 @@ const HealthRecordManagement = () => {
 
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showLogVisitModal, setShowLogVisitModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
 
   useEffect(() => {
@@ -76,13 +78,15 @@ const HealthRecordManagement = () => {
     setShowEditModal(true);
   };
 
+  const openLogVisit = (student) => {
+    setSelectedStudent(student);
+    setShowLogVisitModal(true);
+  };
+
   const handleSaveEdit = async (data) => {
     if (!selectedStudent) return;
     try {
-      await updateStudent(selectedStudent.id, {
-        ...selectedStudent,
-        ...data,
-      });
+      await updateStudent(selectedStudent.id, data);
       // refresh list
       await fetchAllStudents({ page: 1, limit: 100 });
       setShowEditModal(false);
@@ -284,11 +288,7 @@ const HealthRecordManagement = () => {
                           <Button
                             variant="primary"
                             size="sm"
-                            onClick={() =>
-                              navigate(
-                                `/clinic/visit-logging?studentId=${s.id}`,
-                              )
-                            }
+                            onClick={() => openLogVisit(s)}
                           >
                             Log Visit
                           </Button>
@@ -347,9 +347,7 @@ const HealthRecordManagement = () => {
                     <Button
                       className="w-full"
                       variant="primary"
-                      onClick={() =>
-                        navigate(`/clinic/visit-logging?studentId=${s.id}`)
-                      }
+                      onClick={() => openLogVisit(s)}
                     >
                       Log Visit
                     </Button>
@@ -377,6 +375,22 @@ const HealthRecordManagement = () => {
         }}
         student={selectedStudent}
         onSave={handleSaveEdit}
+      />
+
+      {/* Log Visit Modal */}
+      <LogVisitModal
+        isOpen={showLogVisitModal}
+        onClose={() => {
+          setShowLogVisitModal(false);
+          setSelectedStudent(null);
+        }}
+        students={students}
+        initialStudent={selectedStudent}
+        onSuccess={async () => {
+          setShowLogVisitModal(false);
+          setSelectedStudent(null);
+          await fetchAllStudents({ page: 1, limit: 100 });
+        }}
       />
     </div>
   );
