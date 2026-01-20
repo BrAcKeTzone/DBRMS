@@ -9,6 +9,7 @@ const Modal = ({
   title,
   size = "md",
   children,
+  headerAction,
 }) => {
   const openState = isOpen ?? show ?? open ?? visible;
 
@@ -48,7 +49,10 @@ const Modal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-start mb-4 flex-shrink-0">
-          {title && <h3 className="text-lg font-semibold">{title}</h3>}
+          <div className="flex items-center gap-2">
+            {title && <h3 className="text-lg font-semibold">{title}</h3>}
+            {headerAction && <div>{headerAction}</div>}
+          </div>
           <button
             onClick={onClose}
             aria-label="Close"

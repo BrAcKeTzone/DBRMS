@@ -4,6 +4,133 @@ import Button from "../ui/Button";
 import { formatDate } from "../../utils/formatDate";
 
 const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
+  const handlePrint = () => {
+    const printWindow = window.open("", "_blank");
+    const sortedVisits = [...(selectedChild.clinicVisits || [])].sort(
+      (a, b) =>
+        new Date(b.visitDateTime || b.date) -
+        new Date(a.visitDateTime || a.date),
+    );
+
+    const visitsHTML = sortedVisits
+      .map(
+        (v) => `
+        <tr>
+          <td style="border: 1px solid #ddd; padding: 8px;">${formatDate(v.visitDateTime || v.date)}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${v.symptoms || "N/A"}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${v.bloodPressure || "N/A"}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${v.temperature ? `${v.temperature}°C` : "N/A"}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${v.pulseRate ? `${v.pulseRate} bpm` : "N/A"}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${v.diagnosis || "N/A"}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${v.treatment || "N/A"}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${v.isEmergency ? "Yes" : "No"}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${v.isReferredToHospital ? "Yes" : "No"}</td>
+          <td style="border: 1px solid #ddd; padding: 8px;">${v.hospitalName || "N/A"}</td>
+        </tr>
+      `,
+      )
+      .join("");
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Health Record - ${selectedChild.firstName} ${selectedChild.lastName}</title>
+          <style>
+            body { font-family: Arial, sans-serif; margin: 20px; }
+            h1 { color: #333; }
+            h2 { color: #555; margin-top: 20px; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+            th { background-color: #f5f5f5; border: 1px solid #ddd; padding: 10px; text-align: left; font-weight: bold; }
+            td { border: 1px solid #ddd; padding: 8px; }
+            .info-section { margin: 20px 0; }
+            .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 15px 0; }
+            .info-box { border: 1px solid #ddd; padding: 10px; border-radius: 5px; }
+            .info-label { font-size: 12px; color: #666; font-weight: bold; text-transform: uppercase; }
+            .info-value { font-size: 14px; color: #333; font-weight: 500; margin-top: 5px; }
+            @media print {
+              body { margin: 0; }
+              button { display: none; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Child Health Details</h1>
+          <div class="info-section">
+            <h2>Personal Information</h2>
+            <div class="info-grid">
+              <div class="info-box">
+                <div class="info-label">Name</div>
+                <div class="info-value">${selectedChild.firstName} ${selectedChild.middleName ? selectedChild.middleName + " " : ""}${selectedChild.lastName}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Student ID</div>
+                <div class="info-value">${selectedChild.studentId || "N/A"}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Birth Date</div>
+                <div class="info-value">${selectedChild.birthDate ? formatDate(selectedChild.birthDate) : "N/A"}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h2>Health Information</h2>
+            <div class="info-grid">
+              <div class="info-box">
+                <div class="info-label">Blood Type</div>
+                <div class="info-value">${selectedChild.bloodType || selectedChild.healthMetrics?.[0]?.bloodType || "N/A"}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Allergies</div>
+                <div class="info-value">${selectedChild.allergies || selectedChild.healthMetrics?.[0]?.allergies || "None"}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Height</div>
+                <div class="info-value">${selectedChild.height || selectedChild.healthMetrics?.[0]?.heightCm || "N/A"} ${selectedChild.height || selectedChild.healthMetrics?.[0]?.heightCm ? "cm" : ""}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Weight</div>
+                <div class="info-value">${selectedChild.weight || selectedChild.healthMetrics?.[0]?.weightKg || "N/A"} ${selectedChild.weight || selectedChild.healthMetrics?.[0]?.weightKg ? "kg" : ""}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <h2>Clinic Visit History</h2>
+            <table>
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Symptoms</th>
+                  <th>Blood Pressure</th>
+                  <th>Temp</th>
+                  <th>Pulse</th>
+                  <th>Diagnosis</th>
+                  <th>Treatment</th>
+                  <th>Emergency</th>
+                  <th>Referred</th>
+                  <th>Hospital</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${sortedVisits.length === 0 ? '<tr><td colspan="10" style="text-align: center; padding: 20px;">No visits recorded</td></tr>' : visitsHTML}
+              </tbody>
+            </table>
+          </div>
+
+          <p style="margin-top: 40px; font-size: 12px; color: #999;">
+            Printed on ${new Date().toLocaleString()}
+          </p>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   if (!selectedChild) {
     return (
       <Modal
@@ -28,6 +155,16 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
       onClose={onClose}
       title="Child Health Details"
       size="full"
+      headerAction={
+        <Button
+          onClick={handlePrint}
+          variant="outline"
+          className="ml-2"
+          size="sm"
+        >
+          🖨️ Print
+        </Button>
+      }
     >
       <div className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
