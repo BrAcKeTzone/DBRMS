@@ -109,14 +109,22 @@ export const updateStudent = asyncHandler(
     const studentData = req.body;
 
     // Ensure numeric fields are handled correctly
-    if (studentData.height === "" || studentData.height === undefined) {
-      studentData.height = null;
+    if (
+      studentData.height === "" ||
+      studentData.height === undefined ||
+      studentData.height === null
+    ) {
+      studentData.height = 0;
     } else {
       studentData.height = parseFloat(studentData.height);
     }
 
-    if (studentData.weight === "" || studentData.weight === undefined) {
-      studentData.weight = null;
+    if (
+      studentData.weight === "" ||
+      studentData.weight === undefined ||
+      studentData.weight === null
+    ) {
+      studentData.weight = 0;
     } else {
       studentData.weight = parseFloat(studentData.weight);
     }

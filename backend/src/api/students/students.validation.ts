@@ -22,8 +22,14 @@ export const createStudent = Joi.object().keys({
   courseCode: Joi.string().optional().allow("", null),
   bloodType: Joi.string().optional().allow("", null),
   allergies: Joi.string().optional().allow("", null),
-  height: Joi.number().optional().allow(null),
-  weight: Joi.number().optional().allow(null),
+  height: Joi.alternatives()
+    .try(Joi.number(), Joi.string().allow(""))
+    .optional()
+    .allow(null),
+  weight: Joi.alternatives()
+    .try(Joi.number(), Joi.string().allow(""))
+    .optional()
+    .allow(null),
 });
 
 export const updateStudent = Joi.object()
@@ -47,8 +53,14 @@ export const updateStudent = Joi.object()
       .optional(),
     bloodType: Joi.string().optional().allow("", null),
     allergies: Joi.string().optional().allow("", null),
-    height: Joi.number().optional().allow(null),
-    weight: Joi.number().optional().allow(null),
+    height: Joi.alternatives()
+      .try(Joi.number(), Joi.string().allow(""))
+      .optional()
+      .allow(null),
+    weight: Joi.alternatives()
+      .try(Joi.number(), Joi.string().allow(""))
+      .optional()
+      .allow(null),
   })
   .unknown(true); // Allow unknown fields (like id, studentId, etc.) - they will be stripped
 
