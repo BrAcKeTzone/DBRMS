@@ -12,45 +12,20 @@ export const createClinicVisit = async (data: any) => {
 export const getAllClinicVisits = async (search?: string) => {
   const where: any = {};
 
-  // Current month filter
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const endOfMonth = new Date(
-    now.getFullYear(),
-    now.getMonth() + 1,
-    0,
-    23,
-    59,
-    59,
-    999,
-  );
-
-  where.visitDateTime = {
-    gte: startOfMonth,
-    lte: endOfMonth,
-  };
-
   if (search) {
-    where.AND = [
-      { visitDateTime: where.visitDateTime },
+    where.OR = [
       {
-        OR: [
-          {
-            student: {
-              OR: [
-                { firstName: { contains: search } },
-                { lastName: { contains: search } },
-                { studentId: { contains: search } },
-              ],
-            },
-          },
-          { symptoms: { contains: search } },
-          { diagnosis: { contains: search } },
-        ],
+        student: {
+          OR: [
+            { firstName: { contains: search } },
+            { lastName: { contains: search } },
+            { studentId: { contains: search } },
+          ],
+        },
       },
+      { symptoms: { contains: search } },
+      { diagnosis: { contains: search } },
     ];
-    // Remove the top level visitDateTime if we use AND
-    delete where.visitDateTime;
   }
 
   return await prisma.clinicVisit.findMany({
@@ -76,6 +51,7 @@ export const getAllClinicVisits = async (search?: string) => {
     orderBy: {
       visitDateTime: "desc",
     },
+    take: search ? undefined : 5,
   });
 };
 

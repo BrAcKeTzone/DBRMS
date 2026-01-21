@@ -357,7 +357,7 @@ const HealthRecordManagement = () => {
                       variant="primary"
                       onClick={() => openLogVisit(s)}
                     >
-                      Log Visit
+                      Log
                     </Button>
                   </div>
                 </div>

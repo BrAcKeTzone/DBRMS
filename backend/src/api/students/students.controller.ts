@@ -69,9 +69,25 @@ export const getStudents = asyncHandler(async (req: Request, res: Response) => {
   if (parentId) filters.parentId = parseInt(parentId as string, 10);
 
   const result = await studentService.getStudents(filters, pageNum, limitNum);
+
+  // Enhance students with lastVisit
+  const studentsWithLastVisit = result.students.map((student: any) => ({
+    ...student,
+    lastVisit:
+      student.clinicVisits && student.clinicVisits.length > 0
+        ? student.clinicVisits[0].visitDateTime
+        : null,
+  }));
+
   res
     .status(200)
-    .json(new ApiResponse(200, result, "Students retrieved successfully"));
+    .json(
+      new ApiResponse(
+        200,
+        { ...result, students: studentsWithLastVisit },
+        "Students retrieved successfully",
+      ),
+    );
 });
 
 // Get student by ID
