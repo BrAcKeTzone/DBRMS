@@ -19,6 +19,7 @@ const HealthRecordManagement = () => {
     loading: studentsLoading,
     updateStudent,
     getStudentStatistics,
+    error,
   } = useStudentsStore();
 
   const [loading, setLoading] = useState(true);
@@ -133,7 +134,7 @@ const HealthRecordManagement = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <DashboardCard title="Total Students" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-blue-600">
             {stats ? stats.total : "—"}
@@ -141,13 +142,6 @@ const HealthRecordManagement = () => {
           <p className="text-xs text-gray-500 mt-1">
             Active: {stats ? stats.active : "—"}
           </p>
-        </DashboardCard>
-
-        <DashboardCard title="Average Age" className="text-center">
-          <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
-            {stats ? stats.averageAge : "—"}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Overall average</p>
         </DashboardCard>
 
         <DashboardCard title="With Allergies" className="text-center">
@@ -160,9 +154,12 @@ const HealthRecordManagement = () => {
         </DashboardCard>
 
         <DashboardCard title="Recent Visits" className="text-center">
-          <div className="text-sm text-gray-700">
-            View recent clinic visits in visit logs
+          <div className="text-2xl sm:text-3xl font-bold text-orange-600">
+            {stats ? stats.currentMonthVisits : 0}
           </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Visits in {new Date().toLocaleString("default", { month: "long" })}
+          </p>
         </DashboardCard>
       </div>
 
@@ -232,6 +229,17 @@ const HealthRecordManagement = () => {
         {loading || studentsLoading ? (
           <div className="flex items-center justify-center h-40">
             <LoadingSpinner />
+          </div>
+        ) : error ? (
+          <div className="p-6 text-center">
+            <div className="text-red-500 mb-2">Error: {error}</div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchAllStudents({ page: 1, limit: 100 })}
+            >
+              Try Again
+            </Button>
           </div>
         ) : studentsToShow.length === 0 ? (
           <div className="p-6 text-center text-gray-500">No records found</div>

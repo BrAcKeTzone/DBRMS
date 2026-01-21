@@ -30,12 +30,12 @@ const Modal = ({
     size === "sm"
       ? "max-w-md"
       : size === "lg" || size === "large"
-      ? "max-w-3xl"
-      : size === "xl"
-      ? "max-w-5xl"
-      : size === "full"
-      ? "max-w-full h-[90vh] m-4"
-      : "max-w-xl";
+        ? "max-w-3xl"
+        : size === "xl"
+          ? "max-w-5xl"
+          : size === "full"
+            ? "max-w-full h-[90vh] m-4"
+            : "max-w-xl";
 
   return (
     <div

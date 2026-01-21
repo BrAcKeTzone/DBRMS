@@ -165,8 +165,8 @@ export const useStudentsStore = create(
               params.format === "pdf"
                 ? "application/pdf"
                 : params.format === "csv"
-                ? "text/csv"
-                : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                  ? "text/csv"
+                  : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
           });
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement("a");
@@ -217,14 +217,14 @@ export const useStudentsStore = create(
           const myChildrenArray = Array.isArray(respData)
             ? respData
             : Array.isArray(respData.data)
-            ? respData.data
-            : Array.isArray(respData.data?.data)
-            ? respData.data.data
-            : Array.isArray(respData.data?.students)
-            ? respData.data.students
-            : Array.isArray(respData.students)
-            ? respData.students
-            : [];
+              ? respData.data
+              : Array.isArray(respData.data?.data)
+                ? respData.data.data
+                : Array.isArray(respData.data?.students)
+                  ? respData.data.students
+                  : Array.isArray(respData.students)
+                    ? respData.students
+                    : [];
 
           set({ myChildren: myChildrenArray, loading: false });
         } catch (error) {
@@ -303,7 +303,7 @@ export const useStudentsStore = create(
             return students.filter((student) => student.status === "graduated");
           case "transferred":
             return students.filter(
-              (student) => student.status === "transferred"
+              (student) => student.status === "transferred",
             );
           case "all":
           default:
@@ -313,7 +313,7 @@ export const useStudentsStore = create(
 
       getStudentsByGradeLevel: (gradeLevel) => {
         return get().students.filter(
-          (student) => student.gradeLevel === gradeLevel
+          (student) => student.gradeLevel === gradeLevel,
         );
       },
 
@@ -370,6 +370,24 @@ export const useStudentsStore = create(
           return acc;
         }, {});
 
+        // Count visits current month
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth();
+
+        const currentMonthVisits = studentsArr.reduce((total, student) => {
+          const visits = student.clinicVisits || [];
+          return (
+            total +
+            visits.filter((v) => {
+              const d = new Date(v.visitDateTime);
+              return (
+                d.getFullYear() === currentYear && d.getMonth() === currentMonth
+              );
+            }).length
+          );
+        }, 0);
+
         return {
           total: studentsArr.length,
           active: statusCounts.active || 0,
@@ -378,13 +396,14 @@ export const useStudentsStore = create(
           transferred: statusCounts.transferred || 0,
           gradeLevelCounts,
           sexCounts,
+          currentMonthVisits,
           averageAge:
             studentsArr.length > 0
               ? Math.round(
                   studentsArr.reduce(
                     (sum, student) => sum + (student.age || 0),
-                    0
-                  ) / studentsArr.length
+                    0,
+                  ) / studentsArr.length,
                 )
               : 0,
         };
@@ -458,9 +477,7 @@ export const useStudentsStore = create(
     }),
     {
       name: "students-storage",
-      partialize: (state) => ({
-        // Don't persist any student data for privacy/security
-      }),
-    }
-  )
+      partialize: (state) => ({}), // Don't persist any student data for privacy/security
+    },
+  ),
 );
