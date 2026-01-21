@@ -87,11 +87,11 @@ const AdminDashboard = () => {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+        <div className="flex flex-col gap-2 w-full md:w-auto">
           <Button
             onClick={() => navigate("/clinic/students")}
             variant="outline"
-            className="w-full sm:w-auto whitespace-nowrap"
+            className="w-full"
           >
             Manage Students
           </Button>
@@ -100,7 +100,7 @@ const AdminDashboard = () => {
             <Button
               onClick={() => navigate("/clinic/users")}
               variant="outline"
-              className="w-full sm:w-auto whitespace-nowrap"
+              className="w-full"
             >
               Manage Users
             </Button>

@@ -109,25 +109,25 @@ const HealthRecordManagement = () => {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+        <div className="flex flex-col gap-2 w-full md:w-auto">
           <Button
             onClick={() => navigate("/clinic/students")}
             variant="outline"
-            className="w-full sm:w-auto"
+            className="w-full"
           >
             Students
           </Button>
           <Button
             onClick={() => navigate("/clinic/visit-logging")}
             variant="outline"
-            className="w-full sm:w-auto"
+            className="w-full"
           >
             Log Visit
           </Button>
           <Button
             onClick={() => navigate("/clinic/students")}
             variant="primary"
-            className="w-full sm:w-auto"
+            className="w-full"
           >
             Add Health Record
           </Button>
@@ -298,7 +298,7 @@ const HealthRecordManagement = () => {
                             size="sm"
                             onClick={() => openLogVisit(s)}
                           >
-                            Log Visit
+                            Log
                           </Button>
                         </div>
                       </td>
