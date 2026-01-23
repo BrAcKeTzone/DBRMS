@@ -58,6 +58,7 @@ model Student {
   sex        Sex           @default(MALE)
   birthDate  DateTime
   yearEnrolled String
+  yearLevel  String?       @db.VarChar(10)
   status     StudentStatus @default(ACTIVE)
   bloodType  String?       @db.VarChar(5)
   allergies  String?       @db.Text

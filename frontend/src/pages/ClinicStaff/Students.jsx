@@ -26,6 +26,7 @@ const StudentsManagement = () => {
     middleName: "",
     studentId: "",
     yearEnrolled: "",
+    yearLevel: "",
     birthDate: "",
     sex: "",
     courseCode: "",
@@ -1398,6 +1399,26 @@ const StudentsManagement = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Year Level
+                </label>
+                <select
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                  value={newStudent.yearLevel || ""}
+                  onChange={(e) =>
+                    setNewStudent({ ...newStudent, yearLevel: e.target.value })
+                  }
+                >
+                  <option value="">Select Year Level (Optional)</option>
+                  {["1st", "2nd", "3rd", "4th", "5th"].map((lvl) => (
+                    <option key={lvl} value={lvl}>
+                      {lvl} Year
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Course
                 </label>
                 <select
@@ -1502,6 +1523,7 @@ const StudentsManagement = () => {
                       middleName: "",
                       studentId: "",
                       yearEnrolled: "",
+                      yearLevel: "",
                       birthDate: "",
                       courseCode: "",
                       bloodType: "",
@@ -1634,6 +1656,29 @@ const StudentsManagement = () => {
                     {yearOptions.map((year) => (
                       <option key={year} value={year}>
                         {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Year Level
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                    value={selectedStudent.yearLevel || ""}
+                    onChange={(e) =>
+                      setSelectedStudent({
+                        ...selectedStudent,
+                        yearLevel: e.target.value,
+                      })
+                    }
+                  >
+                    <option value="">Select Year Level (Optional)</option>
+                    {["1st", "2nd", "3rd", "4th", "5th"].map((lvl) => (
+                      <option key={lvl} value={lvl}>
+                        {lvl} Year
                       </option>
                     ))}
                   </select>

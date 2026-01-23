@@ -16,6 +16,7 @@ export interface CreateStudentData {
   sex: Sex;
   birthDate?: string | Date;
   yearEnrolled: string;
+  yearLevel?: string;
   courseId?: number;
   parentId?: number;
   bloodType?: string;
@@ -30,6 +31,7 @@ export interface UpdateStudentData {
   middleName?: string;
   sex?: Sex;
   yearEnrolled?: string;
+  yearLevel?: string;
   courseId?: number | null;
   status?: StudentStatus;
   linkStatus?: LinkStatus;
@@ -94,6 +96,7 @@ export const createStudent = async (
       sex: studentData.sex,
       birthDate: studentData.birthDate,
       yearEnrolled: studentData.yearEnrolled,
+      yearLevel: studentData.yearLevel,
       bloodType: studentData.bloodType,
       allergies: studentData.allergies,
       height: studentData.height,

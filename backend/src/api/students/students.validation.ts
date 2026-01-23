@@ -18,6 +18,7 @@ export const createStudent = Joi.object().keys({
     "string.pattern.base":
       "Year enrolled must follow format: YYYY (e.g., 2024)",
   }),
+  yearLevel: Joi.string().optional().allow("", null),
   parentId: Joi.number().integer().positive().optional(),
   courseCode: Joi.string().optional().allow("", null),
   bloodType: Joi.string().optional().allow("", null),
@@ -45,6 +46,7 @@ export const updateStudent = Joi.object()
         "string.pattern.base":
           "Year enrolled must follow format: YYYY (e.g., 2024)",
       }),
+    yearLevel: Joi.string().optional().allow("", null),
     status: Joi.string()
       .valid(...Object.values(StudentStatus))
       .optional(),
