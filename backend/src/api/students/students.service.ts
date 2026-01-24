@@ -214,7 +214,7 @@ export const getStudents = async (
     whereClause.linkStatus = { not: LinkStatus.APPROVED };
   }
 
-  const [students, totalCount] = await Promise.all([
+  const [students, totalCount, noYearLevelCount] = await Promise.all([
     prisma.student.findMany({
       where: whereClause,
       include: {
@@ -252,11 +252,17 @@ export const getStudents = async (
       take: limit,
     }),
     prisma.student.count({ where: whereClause }),
+    prisma.student.count({
+      where: {
+        OR: [{ yearLevel: null }, { yearLevel: "" }],
+      },
+    }),
   ]);
 
   return {
     students,
     totalCount,
+    noYearLevelCount,
     totalPages: Math.ceil(totalCount / limit),
     currentPage: page,
   };

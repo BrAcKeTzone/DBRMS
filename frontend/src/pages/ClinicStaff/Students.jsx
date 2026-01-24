@@ -39,6 +39,7 @@ const StudentsManagement = () => {
     total: 0,
     active: 0,
     inactive: 0,
+    noYearLevel: 0,
   });
 
   // Courses state
@@ -117,13 +118,15 @@ const StudentsManagement = () => {
 
       // Response structure: response.data.data.students
       let studentsArray = response.data?.data?.students || [];
+      const noYearLevelCount = response.data?.data?.noYearLevelCount || 0;
+
       // Normalize status to uppercase for consistency across frontend
       studentsArray = studentsArray.map((s) => ({
         ...s,
         status: (s.status || "").toString().toUpperCase(),
       }));
       setStudents(studentsArray);
-      calculateStats(studentsArray);
+      calculateStats(studentsArray, noYearLevelCount);
     } catch (error) {
       console.error("Error fetching students:", error);
       console.error("Error details:", error.response?.data);
@@ -314,13 +317,13 @@ const StudentsManagement = () => {
     }
   };
 
-  const calculateStats = (studentsArray) => {
+  const calculateStats = (studentsArray, noYearLevel = 0) => {
     const total = studentsArray.length;
     const active = studentsArray.filter((s) => s.status === "ACTIVE").length;
     const inactive = studentsArray.filter(
       (s) => s.status === "INACTIVE",
     ).length;
-    setStudentStats({ total, active, inactive });
+    setStudentStats({ total, active, inactive, noYearLevel });
   };
 
   const handlePageChange = (pageNum) => {
@@ -1063,15 +1066,6 @@ const StudentsManagement = () => {
               </div>
             </DashboardCard>
 
-            <DashboardCard title="Inactive Students" className="text-center">
-              <div className="text-2xl sm:text-3xl font-bold text-red-600">
-                {hasAppliedFilters
-                  ? filteredStudents.filter((s) => s.status === "INACTIVE")
-                      .length
-                  : studentStats.inactive}
-              </div>
-            </DashboardCard>
-
             <DashboardCard title="No Link Parents" className="text-center">
               <div className="text-2xl sm:text-3xl font-bold text-orange-600">
                 {hasAppliedFilters
@@ -1085,6 +1079,16 @@ const StudentsManagement = () => {
                         String(s.linkStatus).toUpperCase(),
                       ),
                     ).length}
+              </div>
+            </DashboardCard>
+
+            <DashboardCard title="Incomplete Profiles" className="text-center">
+              <div className="text-2xl sm:text-3xl font-bold text-indigo-600">
+                {hasAppliedFilters
+                  ? filteredStudents.filter(
+                      (s) => !s.yearLevel || s.yearLevel === "",
+                    ).length
+                  : studentStats.noYearLevel}
               </div>
             </DashboardCard>
           </div>
