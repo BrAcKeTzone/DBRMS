@@ -26,10 +26,12 @@ export interface CreateStudentData {
 }
 
 export interface UpdateStudentData {
+  studentId?: string;
   firstName?: string;
   lastName?: string;
   middleName?: string;
   sex?: Sex;
+  birthDate?: string | Date;
   yearEnrolled?: string;
   yearLevel?: string;
   courseId?: number | null;
@@ -44,6 +46,7 @@ export interface UpdateStudentData {
 export interface StudentSearchFilters {
   search?: string; // Search by name or student ID
   yearEnrolled?: string;
+  yearLevel?: string;
   status?: StudentStatus;
   linkStatus?: LinkStatus;
   parentId?: number;
@@ -191,6 +194,9 @@ export const getStudents = async (
   // Other filters
   if (filters.yearEnrolled) {
     whereClause.yearEnrolled = filters.yearEnrolled;
+  }
+  if (filters.yearLevel) {
+    whereClause.yearLevel = filters.yearLevel;
   }
   if (filters.status) {
     whereClause.status = filters.status;

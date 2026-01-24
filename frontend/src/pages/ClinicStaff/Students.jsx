@@ -69,7 +69,7 @@ const StudentsManagement = () => {
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-  const [filterYearEnrolled, setFilterYearEnrolled] = useState("");
+  const [filterYearLevel, setFilterYearLevel] = useState("");
   const [filterLinkStatus, setFilterLinkStatus] = useState("");
   const [filterCourse, setFilterCourse] = useState("");
   const [filteredStudents, setFilteredStudents] = useState([]);
@@ -234,10 +234,10 @@ const StudentsManagement = () => {
       );
     }
 
-    // Apply year enrolled filter
-    if (filterYearEnrolled) {
+    // Apply year level filter
+    if (filterYearLevel) {
       result = result.filter(
-        (student) => String(student.yearEnrolled) === filterYearEnrolled,
+        (student) => student.yearLevel === filterYearLevel,
       );
     }
 
@@ -271,7 +271,7 @@ const StudentsManagement = () => {
   const handleClearFilters = () => {
     setSearchQuery("");
     setFilterStatus("");
-    setFilterYearEnrolled("");
+    setFilterYearLevel("");
     setFilterLinkStatus("");
     setFilterCourse("");
     setFilteredStudents([]);
@@ -500,6 +500,15 @@ const StudentsManagement = () => {
           <p className="text-sm text-gray-500">
             Year: {row.yearEnrolled || "N/A"}
           </p>
+        </div>
+      ),
+    },
+    {
+      header: "Year Level",
+      accessor: "yearLevel",
+      cell: (row) => (
+        <div className="text-sm text-gray-600">
+          {row.yearLevel ? `${row.yearLevel} Year` : "N/A"}
         </div>
       ),
     },
@@ -949,24 +958,24 @@ const StudentsManagement = () => {
                   </select>
                 </div>
 
-                {/* Year Enrolled Filter */}
+                {/* Year Level Filter */}
                 <div>
                   <label
-                    htmlFor="filter-year"
+                    htmlFor="filter-year-level"
                     className="block text-sm font-medium text-gray-700 mb-2"
                   >
-                    Year Enrolled
+                    Year Level
                   </label>
                   <select
-                    id="filter-year"
-                    value={filterYearEnrolled}
-                    onChange={(e) => setFilterYearEnrolled(e.target.value)}
+                    id="filter-year-level"
+                    value={filterYearLevel}
+                    onChange={(e) => setFilterYearLevel(e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
-                    <option value="">All Years</option>
-                    {getUniqueYears().map((year) => (
-                      <option key={year} value={year}>
-                        {year}
+                    <option value="">All Year Levels</option>
+                    {["1st", "2nd", "3rd", "4th", "5th"].map((lvl) => (
+                      <option key={lvl} value={lvl}>
+                        {lvl} Year
                       </option>
                     ))}
                   </select>
@@ -1186,6 +1195,12 @@ const StudentsManagement = () => {
                             Course:{" "}
                             {student.course
                               ? `${student.course.code} - ${student.course.name}`
+                              : "N/A"}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            Year Level:{" "}
+                            {student.yearLevel
+                              ? `${student.yearLevel} Year`
                               : "N/A"}
                           </p>
                         </div>

@@ -45,6 +45,7 @@ export const getStudents = asyncHandler(async (req: Request, res: Response) => {
   const {
     search,
     yearEnrolled,
+    yearLevel,
     status,
     linkStatus,
     parentId,
@@ -64,6 +65,7 @@ export const getStudents = asyncHandler(async (req: Request, res: Response) => {
 
   if (search) filters.search = search as string;
   if (yearEnrolled) filters.yearEnrolled = yearEnrolled as string;
+  if (yearLevel) filters.yearLevel = yearLevel as string;
   if (status) filters.status = status as StudentStatus;
   if (linkStatus) filters.linkStatus = linkStatus as LinkStatus;
   if (parentId) filters.parentId = parseInt(parentId as string, 10);
@@ -122,33 +124,73 @@ export const getStudentByStudentId = asyncHandler(
 export const updateStudent = asyncHandler(
   async (req: Request, res: Response) => {
     const studentId = parseInt(req.params.id, 10);
-    const studentData = req.body;
+    const {
+      studentId: newStudentId,
+      firstName,
+      lastName,
+      middleName,
+      sex,
+      birthDate,
+      yearEnrolled,
+      yearLevel,
+      status,
+      linkStatus,
+      bloodType,
+      allergies,
+      height,
+      weight,
+      courseCode,
+      courseId,
+    } = req.body;
 
-    // Ensure numeric fields are handled correctly
-    if (
-      studentData.height === "" ||
-      studentData.height === undefined ||
-      studentData.height === null
-    ) {
-      studentData.height = 0;
-    } else {
-      studentData.height = parseFloat(studentData.height);
+    const data: studentService.UpdateStudentData = {};
+
+    if (newStudentId !== undefined) data.studentId = newStudentId;
+    if (firstName !== undefined) data.firstName = firstName;
+    if (lastName !== undefined) data.lastName = lastName;
+    if (middleName !== undefined) data.middleName = middleName;
+    if (sex !== undefined) data.sex = sex;
+    if (birthDate !== undefined && birthDate !== "") data.birthDate = birthDate;
+    if (yearEnrolled !== undefined) data.yearEnrolled = yearEnrolled;
+    if (yearLevel !== undefined) data.yearLevel = yearLevel;
+    if (status !== undefined) data.status = status;
+    if (linkStatus !== undefined) data.linkStatus = linkStatus;
+    if (bloodType !== undefined) data.bloodType = bloodType;
+    if (allergies !== undefined) data.allergies = allergies;
+
+    // Handle height
+    if (height !== undefined) {
+      if (height === "" || height === null) {
+        data.height = 0;
+      } else {
+        data.height = parseFloat(height);
+      }
     }
 
-    if (
-      studentData.weight === "" ||
-      studentData.weight === undefined ||
-      studentData.weight === null
-    ) {
-      studentData.weight = 0;
-    } else {
-      studentData.weight = parseFloat(studentData.weight);
+    // Handle weight
+    if (weight !== undefined) {
+      if (weight === "" || weight === null) {
+        data.weight = 0;
+      } else {
+        data.weight = parseFloat(weight);
+      }
     }
 
-    const updatedStudent = await studentService.updateStudent(
-      studentId,
-      studentData,
-    );
+    // If courseCode is provided, resolve it to courseId
+    if (courseCode) {
+      const course = await prisma.course.findUnique({
+        where: { code: courseCode },
+        select: { id: true },
+      });
+      if (!course) {
+        throw new ApiError(400, `Course not found with code: ${courseCode}`);
+      }
+      data.courseId = course.id;
+    } else if (courseId !== undefined) {
+      data.courseId = courseId;
+    }
+
+    const updatedStudent = await studentService.updateStudent(studentId, data);
     res
       .status(200)
       .json(
