@@ -25,6 +25,7 @@ const HealthRecordManagement = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedYearLevel, setSelectedYearLevel] = useState("");
   const [filtered, setFiltered] = useState([]);
 
   const [showViewModal, setShowViewModal] = useState(false);
@@ -45,13 +46,17 @@ const HealthRecordManagement = () => {
   }, []);
 
   useEffect(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) {
-      setFiltered(students || []);
-      return;
+    let result = students || [];
+
+    // Filter by year level
+    if (selectedYearLevel) {
+      result = result.filter((s) => s.yearLevel === selectedYearLevel);
     }
-    setFiltered(
-      (students || []).filter((s) => {
+
+    // Filter by search query
+    const q = searchQuery.trim().toLowerCase();
+    if (q) {
+      result = result.filter((s) => {
         const fullName = `${s.firstName || ""} ${s.middleName || ""} ${
           s.lastName || ""
         }`.toLowerCase();
@@ -60,13 +65,15 @@ const HealthRecordManagement = () => {
           (s.studentId || "").toLowerCase().includes(q) ||
           (s.course?.code || "").toLowerCase().includes(q)
         );
-      }),
-    );
-  }, [searchQuery, students]);
+      });
+    }
+
+    setFiltered(result);
+  }, [searchQuery, selectedYearLevel, students]);
 
   const studentsToShow = useMemo(
-    () => (searchQuery ? filtered : students || []),
-    [searchQuery, filtered, students],
+    () => (searchQuery || selectedYearLevel ? filtered : students || []),
+    [searchQuery, selectedYearLevel, filtered, students],
   );
 
   const openView = (student) => {
@@ -179,26 +186,19 @@ const HealthRecordManagement = () => {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Grade Level
+              Year Level
             </label>
             <select
               className="w-full p-2 border border-gray-300 rounded-md bg-white"
-              onChange={(e) => {
-                const v = e.target.value;
-                setFiltered(
-                  (students || []).filter((s) => !v || s.gradeLevel === v),
-                );
-              }}
+              value={selectedYearLevel}
+              onChange={(e) => setSelectedYearLevel(e.target.value)}
             >
-              <option value="">All</option>
-              {(students || [])
-                .map((s) => s.gradeLevel)
-                .filter((v, i, a) => v && a.indexOf(v) === i)
-                .map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
+              <option value="">All Year Levels</option>
+              {["1st", "2nd", "3rd", "4th", "5th"].map((lvl) => (
+                <option key={lvl} value={lvl}>
+                  {lvl} Year
+                </option>
+              ))}
             </select>
           </div>
 
@@ -206,6 +206,7 @@ const HealthRecordManagement = () => {
             <Button
               onClick={() => {
                 setSearchQuery("");
+                setSelectedYearLevel("");
                 setFiltered(students || []);
               }}
               variant="outline"
