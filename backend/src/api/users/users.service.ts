@@ -66,7 +66,7 @@ const excludePassword = (user: any): UserSafeData => {
 
 // Create new user (admin only)
 export const createUser = async (
-  data: CreateUserData
+  data: CreateUserData,
 ): Promise<UserSafeData> => {
   const { email, password, firstName, middleName, lastName, phone, role } =
     data;
@@ -173,7 +173,7 @@ export const getUserProfile = async (userId: number): Promise<UserSafeData> => {
 // Update user profile (self)
 export const updateUserProfile = async (
   userId: number,
-  data: UpdateUserProfileData
+  data: UpdateUserProfileData,
 ): Promise<UserSafeData> => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -343,7 +343,7 @@ export const getAllUsers = async (filter: GetUsersFilter) => {
 // Update user role (admin only)
 export const updateUserRole = async (
   userId: number,
-  newRole: UserRole
+  newRole: UserRole,
 ): Promise<UserSafeData> => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -377,7 +377,7 @@ export const updateUserRole = async (
 
 // Promote user to Clinic Admin and demote existing admins to Clinic Staff
 export const promoteUserToAdmin = async (
-  userId: number
+  userId: number,
 ): Promise<{ promoted: UserSafeData; demotedIds: number[] }> => {
   const userToPromote = await prisma.user.findUnique({ where: { id: userId } });
   if (!userToPromote) {
@@ -473,7 +473,7 @@ export const activateUser = async (userId: number): Promise<UserSafeData> => {
 // Update user by admin (admin only)
 export const updateUserByAdmin = async (
   userId: number,
-  data: UpdateUserByAdminData
+  data: UpdateUserByAdminData,
 ): Promise<UserSafeData> => {
   const userCheck = await prisma.user.findUnique({
     where: {
@@ -577,7 +577,7 @@ export const deleteUser = async (userId: number): Promise<void> => {
 export const changePassword = async (
   userId: number,
   currentPassword: string,
-  newPassword: string
+  newPassword: string,
 ): Promise<void> => {
   const user = await prisma.user.findUnique({
     where: { id: userId },
@@ -662,7 +662,7 @@ export const getUserStats = async () => {
 // Update user profile picture
 export const updateProfilePicture = async (
   userId: number,
-  profilePictureData: string
+  profilePictureData: string,
 ): Promise<UserSafeData> => {
   // Validate user exists
   const user = await prisma.user.findUnique({
@@ -683,7 +683,7 @@ export const updateProfilePicture = async (
         {
           folder: "clinic-record-ms/profile-picture",
           resource_type: "image",
-        }
+        },
       );
       profilePictureUrl = uploadResponse.secure_url;
     } catch (error) {

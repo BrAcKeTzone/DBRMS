@@ -9,7 +9,7 @@ export default function errorHandler(
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) {
   // Handle Prisma errors
   if (err instanceof Prisma.PrismaClientKnownRequestError) {

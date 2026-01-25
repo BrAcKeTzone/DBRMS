@@ -165,7 +165,7 @@ export const useAuthStore = create(
             // If no response (network), fallback to demo OTP
             if (!apiError?.response) {
               const otp = Math.floor(
-                100000 + Math.random() * 900000
+                100000 + Math.random() * 900000,
               ).toString();
               set({
                 loading: false,
@@ -206,7 +206,7 @@ export const useAuthStore = create(
             console.debug(
               "authStore.verifyOtp success",
               get().signupPhase,
-              get().signupData
+              get().signupData,
             );
 
             return { success: true };
@@ -244,7 +244,7 @@ export const useAuthStore = create(
         console.debug(
           "authStore.completeRegistration called",
           personalData,
-          get().signupData
+          get().signupData,
         );
         try {
           set({ loading: true, error: null });
@@ -400,7 +400,7 @@ export const useAuthStore = create(
                 throw new Error(errMsg);
               }
               const otp = Math.floor(
-                100000 + Math.random() * 900000
+                100000 + Math.random() * 900000,
               ).toString();
               set({
                 loading: false,
@@ -481,7 +481,7 @@ export const useAuthStore = create(
             await authApi.resetPassword(
               forgotPasswordData.email,
               forgotPasswordData.otp,
-              passwordData.newPassword
+              passwordData.newPassword,
             );
             set({
               loading: false,
@@ -498,7 +498,7 @@ export const useAuthStore = create(
             if (!apiError?.response) {
               const users = get().users ? [...get().users] : [...usersData];
               const idx = users.findIndex(
-                (u) => u.email === forgotPasswordData.email
+                (u) => u.email === forgotPasswordData.email,
               );
               if (idx === -1) {
                 const errMsg = "No account found";
@@ -649,9 +649,8 @@ export const useAuthStore = create(
           }
 
           const { userApi } = await import("../api/userApi");
-          const response = await userApi.uploadProfilePicture(
-            profilePictureData
-          );
+          const response =
+            await userApi.uploadProfilePicture(profilePictureData);
 
           const updatedUser = response.data?.data || response.data;
 
@@ -850,7 +849,7 @@ export const useAuthStore = create(
             // If API call fails, fall back to JWT decoding for basic validation
             console.warn(
               "Failed to fetch user from API, falling back to local validation:",
-              apiError
+              apiError,
             );
 
             try {
@@ -858,7 +857,7 @@ export const useAuthStore = create(
               if (token.startsWith("demo-token-")) {
                 const userId = token.replace("demo-token-", "");
                 const user = (get().users || usersData).find(
-                  (u) => u.id === userId || u.id === parseInt(userId)
+                  (u) => u.id === userId || u.id === parseInt(userId),
                 );
                 if (!user) throw new Error("Demo user not found");
 
@@ -883,7 +882,7 @@ export const useAuthStore = create(
 
               // Only use static data as absolute fallback
               const user = (get().users || usersData).find(
-                (u) => u.id === payload.id.toString() || u.id === payload.id
+                (u) => u.id === payload.id.toString() || u.id === payload.id,
               );
 
               if (!user) {
@@ -1035,6 +1034,6 @@ export const useAuthStore = create(
           state.setHasHydrated(true);
         }
       },
-    }
-  )
+    },
+  ),
 );

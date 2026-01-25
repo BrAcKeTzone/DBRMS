@@ -35,7 +35,7 @@ export const getUsers = Joi.object().keys({
       "role",
       "createdAt",
       "updatedAt",
-      "isActive"
+      "isActive",
     )
     .optional(),
   sortOrder: Joi.string().valid("asc", "desc").optional(),
