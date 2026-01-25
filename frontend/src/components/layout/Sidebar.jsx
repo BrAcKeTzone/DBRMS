@@ -6,7 +6,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
   const isHROrAdmin = useAuthStore(
-    (s) => s.user?.role === "CLINIC_ADMIN" || s.user?.role === "CLINIC_STAFF"
+    (s) => s.user?.role === "CLINIC_ADMIN" || s.user?.role === "CLINIC_STAFF",
   );
 
   // Consider the route active if pathname equals the path or starts with it
@@ -422,25 +422,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           ),
         },
         {
-          name: "Health Records",
-          path: "/parent/health-records",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-              />
-            </svg>
-          ),
-        },
-        {
           name: "SMS Tracking",
           path: "/parent/sms-tracking",
           icon: (
@@ -563,7 +544,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   <span
                     className={`mr-3 transition-colors duration-200 ${getMenuItemIconColor(
                       index,
-                      active
+                      active,
                     )}`}
                   >
                     {item.icon}

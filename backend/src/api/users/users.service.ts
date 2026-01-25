@@ -185,12 +185,23 @@ export const updateUserProfile = async (
 
   // Check if email is being changed and is already taken
   if (data.email && data.email !== user.email) {
-    const existingUser = await prisma.user.findUnique({
+    const existingEmail = await prisma.user.findUnique({
       where: { email: data.email },
     });
 
-    if (existingUser) {
+    if (existingEmail) {
       throw new ApiError(400, "Email is already in use");
+    }
+  }
+
+  // Check if phone number is being changed and is already taken
+  if (data.phone && data.phone !== user.phone) {
+    const existingPhone = await prisma.user.findUnique({
+      where: { phone: data.phone },
+    });
+
+    if (existingPhone) {
+      throw new ApiError(400, "Phone number is already in use");
     }
   }
 

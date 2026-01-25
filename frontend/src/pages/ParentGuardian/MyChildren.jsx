@@ -123,7 +123,7 @@ const MyChildren = () => {
       setSearchTerm("");
       setAvailableStudents([]);
       alert(
-        "Link request submitted successfully! Please wait for admin approval."
+        "Link request submitted successfully! Please wait for admin approval.",
       );
     } catch (error) {
       console.error("Error requesting link:", error);
@@ -226,19 +226,49 @@ const MyChildren = () => {
                       {child.middleName && ` ${child.middleName}`}{" "}
                       {child.lastName}
                     </h3>
-                    <div className="space-y-2">
-                      <p className="text-sm text-gray-600">
-                        <strong>Student ID:</strong> {child.studentId}
-                      </p>
-                      {child.yearEnrolled && (
-                        <p className="text-sm text-gray-600">
-                          <strong>Year Enrolled:</strong> {child.yearEnrolled}
-                        </p>
-                      )}
-                      <p className="text-sm text-gray-600">
-                        <strong>Relationship:</strong>{" "}
-                        {child.relationship || "Parent"}
-                      </p>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                      <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block">
+                          Student ID
+                        </span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {child.studentId}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block">
+                          Year Level
+                        </span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {child.yearLevel || "N/A"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block">
+                          Birth Date
+                        </span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {child.birthDate
+                            ? formatDateOnly(child.birthDate)
+                            : "N/A"}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block">
+                          Course
+                        </span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {child.course?.code || "N/A"}
+                        </span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-[10px] font-bold text-gray-400 uppercase block">
+                          Relationship
+                        </span>
+                        <span className="text-sm font-medium text-gray-700">
+                          {child.relationship || "Parent"}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -293,14 +323,14 @@ const MyChildren = () => {
         <div className="p-6">
           {linkRequests.filter(
             (req) =>
-              req.linkStatus?.toUpperCase() === requestFilter.toUpperCase()
+              req.linkStatus?.toUpperCase() === requestFilter.toUpperCase(),
           ).length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {linkRequests
                 .filter(
                   (req) =>
                     req.linkStatus?.toUpperCase() ===
-                    requestFilter.toUpperCase()
+                    requestFilter.toUpperCase(),
                 )
                 .map((request) => (
                   <div
@@ -389,7 +419,7 @@ const MyChildren = () => {
               </Button>
             </div>
             <p className="text-sm text-gray-500 mt-1">
-              Search by student name, student ID, or grade level
+              Search by student name, student ID, or year level
             </p>
           </div>
 

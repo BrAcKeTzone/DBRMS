@@ -1,7 +1,7 @@
 import React from "react";
 import Modal from "../ui/Modal";
 import Button from "../ui/Button";
-import { formatDate } from "../../utils/formatDate";
+import { formatDate, formatDateOnly } from "../../utils/formatDate";
 
 const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
   const handlePrint = () => {
@@ -70,6 +70,14 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
               <div class="info-box">
                 <div class="info-label">Birth Date</div>
                 <div class="info-value">${selectedChild.birthDate ? formatDate(selectedChild.birthDate) : "N/A"}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Year Level</div>
+                <div class="info-value">${selectedChild.yearLevel || "N/A"}</div>
+              </div>
+              <div class="info-box">
+                <div class="info-label">Course</div>
+                <div class="info-value">${selectedChild.course?.name || selectedChild.course?.code || "N/A"}</div>
               </div>
             </div>
           </div>
@@ -167,7 +175,7 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
       }
     >
       <div className="space-y-6">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
           <div>
             <div className="text-xs font-semibold text-gray-500 uppercase">
               Name
@@ -182,6 +190,32 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
             </div>
             <div className="font-medium text-gray-900">
               {selectedChild.studentId || "N/A"}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-gray-500 uppercase">
+              Birth Date
+            </div>
+            <div className="font-medium text-gray-900">
+              {selectedChild.birthDate
+                ? formatDateOnly(selectedChild.birthDate)
+                : "N/A"}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-gray-500 uppercase">
+              Year Level
+            </div>
+            <div className="font-medium text-gray-900">
+              {selectedChild.yearLevel || "N/A"}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-gray-500 uppercase">
+              Course
+            </div>
+            <div className="font-medium text-gray-900">
+              {selectedChild.course?.code || "N/A"}
             </div>
           </div>
           <div>

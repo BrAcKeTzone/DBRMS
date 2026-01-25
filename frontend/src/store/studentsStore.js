@@ -416,8 +416,8 @@ export const useStudentsStore = create(
           total: myChildren.length,
           active: myChildren.filter((child) => child.status === "active")
             .length,
-          gradeDistribution: myChildren.reduce((acc, child) => {
-            acc[child.gradeLevel] = (acc[child.gradeLevel] || 0) + 1;
+          yearDistribution: myChildren.reduce((acc, child) => {
+            acc[child.yearLevel] = (acc[child.yearLevel] || 0) + 1;
             return acc;
           }, {}),
           upcomingEvents: myChildren.reduce((count, child) => {
@@ -443,8 +443,8 @@ export const useStudentsStore = create(
           errors.studentId = "Student ID is required";
         }
 
-        if (!studentData.gradeLevel) {
-          errors.gradeLevel = "Grade level is required";
+        if (!studentData.yearLevel) {
+          errors.yearLevel = "Year level is required";
         }
 
         if (!studentData.section?.trim()) {

@@ -453,12 +453,6 @@ const StudentsManagement = () => {
     }
   };
 
-  const getGradeLevelDisplay = (gradeLevel) => {
-    if (gradeLevel <= 6) return `Grade ${gradeLevel} (Elementary)`;
-    if (gradeLevel <= 10) return `Grade ${gradeLevel} (Junior High)`;
-    return `Grade ${gradeLevel} (Senior High)`;
-  };
-
   const getStatusBadgeColor = (status) => {
     switch (status) {
       case "ACTIVE":

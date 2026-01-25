@@ -34,11 +34,13 @@ const ProfilePage = () => {
     middleName: "",
     lastName: "",
     email: "",
+    phone: "",
   });
 
   const firstNameRef = useRef(null);
   const lastNameRef = useRef(null);
   const middleNameRef = useRef(null);
+  const phoneRef = useRef(null);
   const caretSelection = useRef({});
 
   const handleFirstNameChange = React.useCallback((e) => {
@@ -80,6 +82,22 @@ const ProfilePage = () => {
       end: e.target.selectionEnd,
     };
     setProfileData((prev) => ({ ...prev, middleName: value }));
+  }, []);
+
+  const handlePhoneChange = React.useCallback((e) => {
+    const value = e.target.value;
+    caretSelection.current.phone = {
+      start: e.target.selectionStart,
+      end: e.target.selectionEnd,
+    };
+    setProfileData((prev) => ({ ...prev, phone: value }));
+    setValidationErrors((prev) => {
+      if (prev.phone) {
+        const { phone, ...rest } = prev;
+        return rest;
+      }
+      return prev;
+    });
   }, []);
 
   const [passwordData, setPasswordData] = useState({
@@ -142,6 +160,7 @@ const ProfilePage = () => {
         middleName: user.middleName || "",
         lastName: user.lastName || "",
         email: user.email || "",
+        phone: user.phone || "",
       });
       // Clear any validation errors when user data changes
       setValidationErrors({});
@@ -186,8 +205,25 @@ const ProfilePage = () => {
       } catch (err) {
         // ignore
       }
+
+      try {
+        if (
+          document.activeElement === phoneRef.current &&
+          caretSelection.current.phone
+        ) {
+          const { start, end } = caretSelection.current.phone;
+          phoneRef.current.setSelectionRange(start, end);
+        }
+      } catch (err) {
+        // ignore
+      }
     });
-  }, [profileData.firstName, profileData.lastName, profileData.middleName]);
+  }, [
+    profileData.firstName,
+    profileData.lastName,
+    profileData.middleName,
+    profileData.phone,
+  ]);
 
   const getRoleDisplayName = (role) => {
     switch (role) {
@@ -272,6 +308,11 @@ const ProfilePage = () => {
       errors.lastName = "Last name is required";
     } else if (profileData.lastName.trim().length < 2) {
       errors.lastName = "Last name must be at least 2 characters long";
+    }
+
+    // Phone validation
+    if (!values.phone || !values.phone.trim()) {
+      errors.phone = "Phone number is required";
     }
 
     // Email validation
@@ -541,6 +582,26 @@ const ProfilePage = () => {
 
               <div>
                 <Input
+                  ref={phoneRef}
+                  label="Phone Number"
+                  value={profileData.phone}
+                  onChange={handlePhoneChange}
+                  disabled={!isEditing}
+                  required
+                  placeholder="Enter your phone number"
+                  className={`input-field ${
+                    !isEditing ? "bg-gray-100" : "bg-white"
+                  }`}
+                />
+                {validationErrors.phone && (
+                  <p className="mt-1 text-sm text-red-600">
+                    {validationErrors.phone}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <Input
                   label="Email Address"
                   type="email"
                   value={profileData.email}
@@ -670,6 +731,9 @@ const ProfilePage = () => {
                     .join(" ")}
                 </h3>
                 <p className="text-sm text-gray-500 break-all">{user?.email}</p>
+                {user?.phone && (
+                  <p className="text-sm text-gray-500 mt-1">{user.phone}</p>
+                )}
                 <span
                   className={`inline-block mt-2 px-3 py-1 text-xs font-medium rounded-full ${
                     user?.role === "HR"

@@ -6,6 +6,7 @@ export const updateUserProfile = Joi.object().keys({
   middleName: Joi.string().min(1).max(100).optional().allow(null, ""),
   lastName: Joi.string().min(2).max(100).optional(),
   email: Joi.string().email().optional(),
+  phone: Joi.string().min(10).max(15).optional().allow(null, ""),
 });
 
 export const updateUserRole = Joi.object().keys({

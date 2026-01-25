@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import { AuthenticationError } from "../utils/errors";
 import ApiError from "../utils/ApiError";
+import { Prisma } from "@prisma/client";
 
 // Centralized error handler for express
 export default function errorHandler(
@@ -10,6 +11,19 @@ export default function errorHandler(
   res: Response,
   next: NextFunction
 ) {
+  // Handle Prisma errors
+  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+    if (err.code === "P2002") {
+      const target = (err.meta?.target as string[]) || [];
+      const field = target.join(", ");
+      return res.status(400).json({
+        success: false,
+        message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`,
+        errors: [],
+      });
+    }
+  }
+
   // Handle multer errors (file size, file filter rejections, etc.)
   if (err instanceof multer.MulterError) {
     // Map common multer errors to user-friendly messages

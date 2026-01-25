@@ -609,6 +609,7 @@ export const useAuthStore = create(
             middleName: profileData.middleName,
             lastName: profileData.lastName,
             email: profileData.email,
+            phone: profileData.phone,
           });
 
           // Update the local user state with the response from backend
