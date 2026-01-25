@@ -8,7 +8,7 @@ const storage = multer.memoryStorage();
 const fileFilter = (
   req: any,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback
+  cb: multer.FileFilterCallback,
 ) => {
   // Accept image files only
   if (file.mimetype.startsWith("image/")) {
@@ -22,7 +22,7 @@ const fileFilter = (
 const documentFileFilter = (
   req: any,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback
+  cb: multer.FileFilterCallback,
 ) => {
   const allowedMimeTypes = [
     "image/jpeg",
@@ -42,7 +42,7 @@ const documentFileFilter = (
 const expensesFileFilter = (
   req: any,
   file: Express.Multer.File,
-  cb: multer.FileFilterCallback
+  cb: multer.FileFilterCallback,
 ) => {
   const allowedMimeTypes = [
     "image/jpeg",
@@ -102,6 +102,30 @@ export const uploadExpenses = multer({
   limits: {
     fileSize: 50 * 1024 * 1024, // 50MB per file for expenses
     files: 20, // Maximum 20 files
+  },
+});
+
+// Specialized middleware for Excel backup files (.xlsx)
+export const uploadBackup = multer({
+  storage: storage,
+  fileFilter: (req, file, cb) => {
+    const allowedMimeTypes = [
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.ms-excel",
+    ];
+
+    if (
+      allowedMimeTypes.includes(file.mimetype) ||
+      file.originalname.endsWith(".xlsx")
+    ) {
+      cb(null, true);
+    } else {
+      cb(new ApiError(400, "Backup file must be an Excel (.xlsx) file"));
+    }
+  },
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB per file for backup
+    files: 1,
   },
 });
 

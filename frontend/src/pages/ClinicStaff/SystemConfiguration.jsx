@@ -140,53 +140,67 @@ const SystemConfiguration = () => {
 
       {/* SMS Gateway */}
       <DashboardCard title="SMS Gateway & Templates">
-        <form onSubmit={handleSaveSms} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+        <form onSubmit={handleSaveSms} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
                 API Key
               </label>
               <Input
                 value={sms.apiKey}
                 onChange={(e) => setSms({ ...sms, apiKey: e.target.value })}
-                placeholder="SMS provider API key"
+                placeholder="Enter SMS provider API key"
               />
+              <p className="text-xs text-gray-400">
+                Your unique key from the SMS provider.
+              </p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Sender Name
+            <div className="space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Sender Name (Sender ID)
               </label>
               <Input
                 value={sms.senderName}
                 onChange={(e) => setSms({ ...sms, senderName: e.target.value })}
-                placeholder="Sender name"
+                placeholder="e.g., DMRMS"
+                maxLength={11}
               />
+              <p className="text-xs text-gray-400">Maximum 11 characters.</p>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Default Template
+            <div className="md:col-span-2 lg:col-span-1 space-y-2">
+              <label className="block text-sm font-semibold text-gray-700">
+                Default Notification Template
               </label>
               <textarea
                 value={sms.defaultTemplate}
                 onChange={(e) =>
                   setSms({ ...sms, defaultTemplate: e.target.value })
                 }
-                placeholder="Default SMS template"
+                placeholder="Enter message template..."
                 rows={4}
-                className="w-full p-2 border border-gray-300 rounded-md bg-white text-sm"
+                className="input-field py-3 transition-all"
               />
-              <p className="text-xs text-gray-500 mt-1">
-                Tip: use placeholders like {`{student}`}, {`{date}`}, and{" "}
-                {`{reason}`}
-              </p>
+              <div className="flex flex-wrap gap-2 mt-1">
+                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                  {"{student}"}
+                </span>
+                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                  {"{date}"}
+                </span>
+                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
+                  {"{reason}"}
+                </span>
+              </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 justify-end">
+          <div className="flex flex-col sm:flex-row gap-3 justify-end pt-4 border-t border-gray-100">
             <Button
               variant="outline"
+              type="button"
+              className="w-full sm:w-auto order-2 sm:order-1"
               onClick={() => {
                 setSms({
                   apiKey: notificationSettings?.smsApiKey || "",
@@ -195,59 +209,85 @@ const SystemConfiguration = () => {
                 });
               }}
             >
-              Reset
+              Reset to Saved
             </Button>
-            <Button type="submit">Save SMS Settings</Button>
+            <Button
+              type="submit"
+              className="w-full sm:w-auto order-1 sm:order-2"
+            >
+              Save SMS Configuration
+            </Button>
           </div>
         </form>
       </DashboardCard>
 
       {/* Backups & Maintenance (manual) */}
       <DashboardCard title="Backups & Maintenance">
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Export All Data (XLSX)
-              </label>
-              <div className="flex gap-2">
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-1">
+                  Export All Data
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  Download a complete backup of the system database in XLSX
+                  format.
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                 <Button
                   onClick={() => setShowConfirmBackup(true)}
-                  className="w-full sm:w-auto"
+                  className="w-full sm:w-auto justify-center"
                 >
                   Export (Download)
                 </Button>
-                <div className="text-sm text-gray-500 ml-2">
-                  {systemSettings?.lastBackup
-                    ? `Last backup: ${systemSettings.lastBackup}`
-                    : ""}
-                </div>
+                {systemSettings?.lastBackup && (
+                  <span className="text-xs text-gray-400 italic">
+                    Last backup: {systemSettings.lastBackup}
+                  </span>
+                )}
               </div>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Import Backup (XLSX)
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="file"
-                  accept=".xlsx"
-                  onChange={handleImportBackup}
-                  className="w-full sm:w-auto"
-                />
-                <div className="text-sm text-gray-500 ml-2">
-                  Upload an XLSX export to restore data
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-1">
+                  Import Backup
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  Restore data from a previously exported XLSX file.
+                </p>
+              </div>
+              <div className="flex flex-col space-y-3">
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="backup-upload"
+                    accept=".xlsx"
+                    onChange={handleImportBackup}
+                    className="block w-full text-xs text-gray-500
+                      file:mr-4 file:py-2 file:px-4
+                      file:rounded-md file:border-0
+                      file:text-xs file:font-semibold
+                      file:bg-gray-100 file:text-gray-700
+                      hover:file:bg-gray-200
+                      cursor-pointer"
+                  />
                 </div>
               </div>
             </div>
           </div>
 
-          <div>
-            <p className="text-sm text-gray-500">
-              Note: Import will replace matching data from the uploaded XLSX.
-              Use with caution.
-            </p>
+          <div className="pt-4 border-t border-gray-100">
+            <div className="flex items-start gap-2 text-amber-600 bg-amber-50 p-3 rounded-md">
+              <span className="text-lg">⚠️</span>
+              <p className="text-xs leading-relaxed">
+                <strong>Attention:</strong> Importing data will replace matching
+                records in the current database. This action is irreversible.
+                Please ensure you have a current backup before proceeding.
+              </p>
+            </div>
           </div>
         </div>
       </DashboardCard>

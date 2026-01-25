@@ -14,8 +14,11 @@ export default function errorHandler(
   // Handle Prisma errors
   if (err instanceof Prisma.PrismaClientKnownRequestError) {
     if (err.code === "P2002") {
-      const target = (err.meta?.target as string[]) || [];
-      const field = target.join(", ");
+      const target = err.meta?.target;
+      const field = Array.isArray(target)
+        ? target.join(", ")
+        : (target as string) || "Record";
+
       return res.status(400).json({
         success: false,
         message: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists`,

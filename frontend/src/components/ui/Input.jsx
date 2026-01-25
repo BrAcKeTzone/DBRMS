@@ -7,14 +7,14 @@ const Input = forwardRef(
       onChange,
       placeholder,
       type = "text",
-      className = "input-field",
+      className = "",
       label,
       id,
       labelClassName = "block text-sm font-medium text-gray-700 mb-2",
       required,
       ...rest
     },
-    ref
+    ref,
   ) => {
     const generatedId = useId();
     const inputId = id || `input-${generatedId}`;
@@ -26,7 +26,7 @@ const Input = forwardRef(
       onChange,
       placeholder,
       type,
-      className,
+      className: `input-field ${className}`.trim(),
       "aria-label": label || rest["aria-label"] || placeholder,
       required,
       ...rest,
@@ -47,7 +47,7 @@ const Input = forwardRef(
         <input ref={ref} {...inputProps} />
       </div>
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

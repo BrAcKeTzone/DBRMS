@@ -2,6 +2,7 @@ import { Router } from "express";
 import * as settingsController from "./settings.controller";
 import { authenticate, authorize } from "../../middlewares/auth.middleware";
 import validate from "../../middlewares/validate.middleware";
+import { uploadBackup } from "../../middlewares/upload.middleware";
 import {
   updateSettingsSchema,
   getSettingsByCategorySchema,
@@ -11,10 +12,6 @@ const router = Router();
 
 // All routes require authentication
 router.use(authenticate);
-
-// Note: Role-based authorization middleware should be added here
-// For now, all authenticated users can access these routes
-// TODO: Add admin-only middleware for settings modification
 
 /**
  * @route   GET /api/settings
@@ -32,7 +29,20 @@ router.put(
   "/",
   authorize("CLINIC_ADMIN"),
   validate(updateSettingsSchema),
-  settingsController.updateSettings
+  settingsController.updateSettings,
+);
+
+// Backup and Restore
+router.post(
+  "/backup",
+  authorize("CLINIC_ADMIN"),
+  settingsController.backupSettings,
+);
+router.post(
+  "/restore",
+  authorize("CLINIC_ADMIN"),
+  uploadBackup.single("backup"),
+  settingsController.restoreSettings,
 );
 
 /**
@@ -43,7 +53,7 @@ router.put(
 router.post(
   "/initialize",
   authorize("CLINIC_ADMIN"),
-  settingsController.initializeSettings
+  settingsController.initializeSettings,
 );
 
 /**
@@ -54,7 +64,7 @@ router.post(
 router.post(
   "/reset",
   authorize("CLINIC_ADMIN"),
-  settingsController.resetToDefaults
+  settingsController.resetToDefaults,
 );
 
 /**
@@ -66,40 +76,7 @@ router.get(
   "/category/:category",
   authorize("CLINIC_ADMIN"),
   validate(getSettingsByCategorySchema, "params"),
-  settingsController.getSettingsByCategory
-);
-
-/**
- * @route   GET /api/settings/documents/categories
- * @desc    Get document categories
- * @access  Private
- */
-router.get(
-  "/documents/categories",
-  authorize("CLINIC_ADMIN"),
-  settingsController.getDocumentCategories
-);
-
-/**
- * @route   POST /api/settings/documents/categories
- * @desc    Add document category
- * @access  Private (Admin only)
- */
-router.post(
-  "/documents/categories",
-  authorize("CLINIC_ADMIN"),
-  settingsController.addDocumentCategory
-);
-
-/**
- * @route   DELETE /api/settings/documents/categories/:category
- * @desc    Remove document category
- * @access  Private (Admin only)
- */
-router.delete(
-  "/documents/categories/:category",
-  authorize("CLINIC_ADMIN"),
-  settingsController.removeDocumentCategory
+  settingsController.getSettingsByCategory,
 );
 
 export default router;

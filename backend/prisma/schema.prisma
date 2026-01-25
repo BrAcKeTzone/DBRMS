@@ -121,6 +121,7 @@ model User {
   activityLogs     ActivityLog[]
 
   createdCourses Course[] @relation("CourseCreator")
+  updatedSettings SystemSetting[] @relation("SettingsUpdatedBy")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -206,10 +207,21 @@ model SmsLog {
 // SYSTEM CONFIGURATION & LOGS
 model SystemSetting {
   id            Int     @id @default(autoincrement())
-  key           String  @unique
-  value         String  @db.Text
-  description   String?
+  key           String  @unique // e.g., "system_config"
   
+  // SMS Notification Settings
+  smsApiKey                String?
+  senderName               String?
+  defaultTemplate          String? @db.Text
+  enableSMSNotifications   Boolean @default(true)
+  
+  // Maintenance
+  lastBackup               String? // Date of last XLSX export
+
+  // Tracking
+  updatedById Int?
+  updatedBy   User? @relation("SettingsUpdatedBy", fields: [updatedById], references: [id])
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { Meeting } from "@prisma/client";
+import { sendSMS } from "./smsService";
 
 // Create transporter
 const transporter = nodemailer.createTransport({
@@ -19,7 +20,8 @@ export const sendMeetingNotification = async (
   recipientEmail: string,
   recipientName: string,
   meeting: any,
-  customMessage?: string
+  customMessage?: string,
+  phone?: string | null,
 ): Promise<void> => {
   const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
     weekday: "long",
@@ -73,8 +75,8 @@ export const sendMeetingNotification = async (
             
             <div class="detail-row">
               <span class="label">Time:</span> ${meeting.startTime}${
-    meeting.endTime ? ` - ${meeting.endTime}` : ""
-  }
+                meeting.endTime ? ` - ${meeting.endTime}` : ""
+              }
             </div>
             
             <div class="detail-row">
@@ -166,6 +168,16 @@ JHCSC Dumingag Campus PTA
     text: textContent,
     html: htmlContent,
   });
+
+  // Send SMS if phone is available
+  if (phone) {
+    const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    const smsMessage = `Meeting Invite: ${meeting.title} on ${meetingDate} at ${meeting.startTime}. Venue: ${meeting.venue}. Please attend.`;
+    await sendSMS(phone, smsMessage);
+  }
 };
 
 /**
@@ -174,7 +186,8 @@ JHCSC Dumingag Campus PTA
 export const sendMeetingReminder = async (
   recipientEmail: string,
   recipientName: string,
-  meeting: any
+  meeting: any,
+  phone?: string | null,
 ): Promise<void> => {
   const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
     weekday: "long",
@@ -223,8 +236,8 @@ export const sendMeetingReminder = async (
             
             <div class="detail-row">
               <span class="label">Time:</span> ${meeting.startTime}${
-    meeting.endTime ? ` - ${meeting.endTime}` : ""
-  }
+                meeting.endTime ? ` - ${meeting.endTime}` : ""
+              }
             </div>
             
             <div class="detail-row">
@@ -262,4 +275,14 @@ export const sendMeetingReminder = async (
     subject,
     html: htmlContent,
   });
+
+  // Send SMS if phone is available
+  if (phone) {
+    const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+    });
+    const smsMessage = `Reminder: Meeting "${meeting.title}" is tomorrow, ${meetingDate} at ${meeting.startTime}. Venue: ${meeting.venue}. See you there!`;
+    await sendSMS(phone, smsMessage);
+  }
 };

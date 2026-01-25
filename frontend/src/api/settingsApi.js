@@ -1,55 +1,6 @@
 import { fetchClient } from "../utils/fetchClient";
 
 export const settingsApi = {
-  // Penalty settings
-  getPenaltySettings: async () => {
-    return await fetchClient.get("/settings/category/penalty");
-  },
-
-  updatePenaltySettings: async (penaltyData) => {
-    return await fetchClient.put("/settings", penaltyData);
-  },
-
-  // Payment basis settings
-  getPaymentBasisSettings: async () => {
-    return await fetchClient.get("/settings/category/payment");
-  },
-
-  updatePaymentBasisSettings: async (paymentData) => {
-    return await fetchClient.put("/settings", paymentData);
-  },
-
-  // Contribution amount settings
-  getContributionSettings: async () => {
-    return await fetchClient.get("/settings/category/contribution");
-  },
-
-  updateContributionSettings: async (contributionData) => {
-    return await fetchClient.put("/settings", contributionData);
-  },
-
-  // Document category settings
-  getDocumentCategories: async () => {
-    return await fetchClient.get("/settings/documents/categories");
-  },
-
-  updateDocumentCategories: async (categories) => {
-    return await fetchClient.put("/settings", categories);
-  },
-
-  addDocumentCategory: async (categoryData) => {
-    return await fetchClient.post(
-      "/settings/documents/categories",
-      categoryData
-    );
-  },
-
-  deleteDocumentCategory: async (categoryId) => {
-    return await fetchClient.delete(
-      `/settings/documents/categories/${categoryId}`
-    );
-  },
-
   // System settings
   getSystemSettings: async () => {
     return await fetchClient.get("/settings/category/system");
@@ -57,15 +8,6 @@ export const settingsApi = {
 
   updateSystemSettings: async (systemData) => {
     return await fetchClient.put("/settings", systemData);
-  },
-
-  // School year settings
-  getSchoolYearSettings: async () => {
-    return await fetchClient.get("/settings/category/academic");
-  },
-
-  updateSchoolYearSettings: async (schoolYearData) => {
-    return await fetchClient.put("/settings", schoolYearData);
   },
 
   // Notification settings
@@ -107,5 +49,10 @@ export const settingsApi = {
   // Reset to defaults
   resetToDefaults: async (settingType = "all") => {
     return await fetchClient.post("/settings/reset", { settingType });
+  },
+
+  // Initialize (first time)
+  initializeSettings: async () => {
+    return await fetchClient.post("/settings/initialize", {});
   },
 };

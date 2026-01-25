@@ -1,5 +1,6 @@
 import sendEmail from "./email";
 import { AnnouncementPriority } from "@prisma/client";
+import { sendSMS } from "./smsService";
 
 interface AnnouncementNotificationOptions {
   title: string;
@@ -7,6 +8,7 @@ interface AnnouncementNotificationOptions {
   priority: AnnouncementPriority;
   recipients: Array<{
     email: string;
+    phone?: string | null;
     firstName: string;
     lastName: string;
     middleName: string | null;
@@ -29,7 +31,7 @@ const formatAnnouncementEmail = (
   content: string,
   priority: AnnouncementPriority,
   recipientName: string,
-  attachmentUrl?: string
+  attachmentUrl?: string,
 ): string => {
   const priorityLabel = getPriorityLabel(priority);
   const attachmentSection = attachmentUrl
@@ -56,7 +58,7 @@ Please do not reply to this email.
 };
 
 export const sendAnnouncementNotifications = async (
-  options: AnnouncementNotificationOptions
+  options: AnnouncementNotificationOptions,
 ): Promise<{ sent: number; failed: number; errors: string[] }> => {
   const { title, content, priority, recipients, attachmentUrl } = options;
 
@@ -76,7 +78,7 @@ export const sendAnnouncementNotifications = async (
           content,
           priority,
           recipientName,
-          attachmentUrl
+          attachmentUrl,
         );
 
         await sendEmail({
@@ -84,6 +86,12 @@ export const sendAnnouncementNotifications = async (
           subject: `[${getPriorityLabel(priority)}] ${title}`,
           message,
         });
+
+        // Also send SMS if phone is available
+        if (recipient.phone) {
+          const smsMessage = `[${getPriorityLabel(priority)}] Announcement: ${title}. ${content.substring(0, 100)}${content.length > 100 ? "..." : ""}`;
+          await sendSMS(recipient.phone, smsMessage);
+        }
 
         sent++;
       } catch (error) {
@@ -115,7 +123,8 @@ export const sendSingleAnnouncementNotification = async (
   title: string,
   content: string,
   priority: AnnouncementPriority,
-  attachmentUrl?: string
+  attachmentUrl?: string,
+  phone?: string | null,
 ): Promise<void> => {
   const recipientName = `${firstName} ${lastName}`;
   const message = formatAnnouncementEmail(
@@ -123,7 +132,7 @@ export const sendSingleAnnouncementNotification = async (
     content,
     priority,
     recipientName,
-    attachmentUrl
+    attachmentUrl,
   );
 
   await sendEmail({
@@ -131,4 +140,9 @@ export const sendSingleAnnouncementNotification = async (
     subject: `[${getPriorityLabel(priority)}] ${title}`,
     message,
   });
+
+  if (phone) {
+    const smsMessage = `[${getPriorityLabel(priority)}] Announcement: ${title}. ${content.substring(0, 100)}${content.length > 100 ? "..." : ""}`;
+    await sendSMS(phone, smsMessage);
+  }
 };
