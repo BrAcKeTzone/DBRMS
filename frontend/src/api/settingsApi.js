@@ -19,6 +19,10 @@ export const settingsApi = {
     return await fetchClient.put("/settings", notificationData);
   },
 
+  sendTestSMS: async (phoneNumber) => {
+    return await fetchClient.post("/settings/test-sms", { phoneNumber });
+  },
+
   // All settings (for settings page)
   getAllSettings: async () => {
     return await fetchClient.get("/settings");
@@ -31,7 +35,7 @@ export const settingsApi = {
       {},
       {
         responseType: "blob",
-      }
+      },
     );
   },
 

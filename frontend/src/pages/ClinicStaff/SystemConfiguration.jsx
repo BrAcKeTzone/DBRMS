@@ -14,6 +14,7 @@ const SystemConfiguration = () => {
     fetchSystemSettings,
     systemSettings,
     updateSystemSettings,
+    sendTestSMS,
     createBackup,
     restoreBackup,
     optimizeDatabase,
@@ -30,6 +31,8 @@ const SystemConfiguration = () => {
   });
 
   const [showConfirmBackup, setShowConfirmBackup] = useState(false);
+  const [showTestSMSModal, setShowTestSMSModal] = useState(false);
+  const [testPhoneNumber, setTestPhoneNumber] = useState("");
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
@@ -125,6 +128,26 @@ const SystemConfiguration = () => {
     }
   };
 
+  const handleSendTestSMS = async (e) => {
+    e.preventDefault();
+    if (!testPhoneNumber) return;
+
+    try {
+      await sendTestSMS(testPhoneNumber);
+      setMessage({
+        type: "success",
+        text: `Test SMS sent to ${testPhoneNumber}`,
+      });
+      setShowTestSMSModal(false);
+      setTestPhoneNumber("");
+    } catch (err) {
+      setMessage({
+        type: "error",
+        text: err.message || "Failed to send test SMS",
+      });
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 sm:mb-8">
@@ -200,7 +223,7 @@ const SystemConfiguration = () => {
             <Button
               variant="outline"
               type="button"
-              className="w-full sm:w-auto order-2 sm:order-1"
+              className="w-full sm:w-auto order-3 sm:order-1"
               onClick={() => {
                 setSms({
                   apiKey: notificationSettings?.smsApiKey || "",
@@ -212,8 +235,16 @@ const SystemConfiguration = () => {
               Reset to Saved
             </Button>
             <Button
+              variant="outline"
+              type="button"
+              className="w-full sm:w-auto order-2 border-blue-200 text-blue-600 hover:bg-blue-50"
+              onClick={() => setShowTestSMSModal(true)}
+            >
+              Send Test SMS
+            </Button>
+            <Button
               type="submit"
-              className="w-full sm:w-auto order-1 sm:order-2"
+              className="w-full sm:w-auto order-1 sm:order-3"
             >
               Save SMS Configuration
             </Button>
@@ -333,6 +364,43 @@ const SystemConfiguration = () => {
             <Button onClick={handleRunBackup}>Run Backup</Button>
           </div>
         </div>
+      </Modal>
+
+      <Modal
+        isOpen={showTestSMSModal}
+        onClose={() => setShowTestSMSModal(false)}
+        title="Send Test SMS"
+        size="md"
+      >
+        <form onSubmit={handleSendTestSMS} className="space-y-4">
+          <div>
+            <p className="text-sm text-gray-600 mb-4">
+              Enter a phone number to send a test message. This uses your
+              current saved API configuration.
+            </p>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Recipient Phone Number
+            </label>
+            <Input
+              value={testPhoneNumber}
+              onChange={(e) => setTestPhoneNumber(e.target.value)}
+              placeholder="e.g., 09123456789"
+              required
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setShowTestSMSModal(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" loading={loading}>
+              Send Test Message
+            </Button>
+          </div>
+        </form>
       </Modal>
 
       {loading && (

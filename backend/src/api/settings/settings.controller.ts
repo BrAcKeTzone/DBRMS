@@ -128,8 +128,20 @@ export const initializeSettings = asyncHandler(
   },
 );
 
-/**
- * @desc    Backup all system data to XLSX
+/** * @desc    Send test SMS
+ * @route   POST /api/settings/test-sms
+ * @access  Private (Admin only)
+ */
+export const sendTestSMS = asyncHandler(async (req: Request, res: Response) => {
+  const { phoneNumber } = req.body;
+  const result = await settingsService.sendTestSMS(phoneNumber);
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, result, "Test SMS sent successfully"));
+});
+
+/** * @desc    Backup all system data to XLSX
  * @route   POST /api/settings/backup
  * @access  Private (Admin only)
  */

@@ -2,12 +2,33 @@ import { PrismaClient, SystemSetting, User } from "@prisma/client";
 import ApiError from "../../utils/ApiError";
 import prisma from "../../configs/prisma";
 import * as XLSX from "xlsx";
+import { sendSMS as triggerSMS } from "../../utils/smsService";
 
 const SYSTEM_CONFIG_KEY = "system_config";
 
 export interface Settings extends Partial<SystemSetting> {
   updatedBy?: Partial<User>;
 }
+
+/**
+ * Send a test SMS to verify configuration
+ */
+export const sendTestSMS = async (phoneNumber: string) => {
+  if (!phoneNumber) {
+    throw new ApiError(400, "Phone number is required");
+  }
+
+  const message =
+    "DMRMS: This is a test message to verify your SMS configuration. If you received this, your settings are working correctly!";
+
+  const result = await triggerSMS(phoneNumber, message);
+
+  if (!result.success) {
+    throw new ApiError(500, `SMS failed: ${result.error || result.message}`);
+  }
+
+  return result;
+};
 
 /**
  * Get system settings (creates default if not exists)

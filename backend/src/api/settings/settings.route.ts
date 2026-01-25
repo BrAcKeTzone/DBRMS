@@ -32,6 +32,17 @@ router.put(
   settingsController.updateSettings,
 );
 
+/**
+ * @route   POST /api/settings/test-sms
+ * @desc    Send test SMS
+ * @access  Private (Admin only)
+ */
+router.post(
+  "/test-sms",
+  authorize("CLINIC_ADMIN"),
+  settingsController.sendTestSMS,
+);
+
 // Backup and Restore
 router.post(
   "/backup",

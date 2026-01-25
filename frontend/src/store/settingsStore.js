@@ -130,6 +130,20 @@ export const useSettingsStore = create(
         }
       },
 
+      sendTestSMS: async (phoneNumber) => {
+        try {
+          set({ loading: true, error: null });
+          await settingsApi.sendTestSMS(phoneNumber);
+          set({ loading: false });
+        } catch (error) {
+          set({
+            error: error.response?.data?.message || "Failed to send test SMS",
+            loading: false,
+          });
+          throw error;
+        }
+      },
+
       // Utility actions
       clearError: () => set({ error: null }),
 

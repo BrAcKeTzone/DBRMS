@@ -14,6 +14,7 @@ export const sendSMS = async (recipients: string, message: string) => {
       where: { key: SYSTEM_CONFIG_KEY },
       select: {
         smsApiKey: true,
+        senderName: true,
         enableSMSNotifications: true,
       },
     });
@@ -33,17 +34,34 @@ export const sendSMS = async (recipients: string, message: string) => {
     // Clean up the phone number - ensure it's in the correct format
     const cleanRecipient = recipients.replace(/\+/g, "").trim();
 
-    const data = {
-      recipients: cleanRecipient,
-      message: message,
-      apikey: settings.smsApiKey,
-    };
-
     console.log(`📤 Sending SMS to ${cleanRecipient}...`);
 
-    const response = await axios.post(SMS_BASE_URL, data);
+    // Use query parameters instead of a JSON body.
+    // Many legacy SMS gateways (like SMSMobileAPI) do not parse JSON POST bodies.
+    const response = await axios.get(SMS_BASE_URL, {
+      params: {
+        apikey: settings.smsApiKey,
+        recipients: cleanRecipient,
+        message: message,
+        senderid: settings.senderName || "DMRMS",
+      },
+    });
 
     console.log("✅ SMS response:", response.data);
+
+    // Specifically handle the response format of SMSMobileAPI
+    const apiResult = response.data?.result;
+
+    if (!apiResult || apiResult.sent === "no" || apiResult.error) {
+      const errorMessage = apiResult?.error || "Unknown provider error";
+      console.error(`❌ SMS Gateway Error: ${errorMessage}`);
+
+      return {
+        success: false,
+        message: `Gateway Error: ${errorMessage}`,
+        details: apiResult,
+      };
+    }
 
     return {
       success: true,
