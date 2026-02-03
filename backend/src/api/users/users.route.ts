@@ -15,104 +15,96 @@ router.put(
   "/me",
   authenticate,
   validate(userValidation.updateUserProfile),
-  userController.updateUserProfile
+  userController.updateUserProfile,
 );
 
 router.put(
   "/profile",
   authenticate,
   validate(userValidation.updateUserProfile),
-  userController.updateUserProfile
+  userController.updateUserProfile,
 );
 
 router.post(
   "/change-password",
   authenticate,
   validate(userValidation.changePassword),
-  userController.changePassword
+  userController.changePassword,
 );
 
 router.post(
   "/profile-picture",
   authenticate,
-  userController.uploadProfilePicture
+  userController.uploadProfilePicture,
 );
 
 // Admin routes for user management - specific routes BEFORE dynamic :id routes
 router.post(
   "/",
   authenticate,
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   validate(userValidation.createUser),
-  userController.createUser
+  userController.createUser,
 );
 
 router.get(
   "/stats",
   authenticate,
-  authorize("CLINIC_ADMIN"),
-  userController.getUserStats
-);
-
-// Promote to admin
-router.patch(
-  "/:id/promote",
-  authenticate,
-  authorize("CLINIC_ADMIN"),
-  userController.promoteToAdmin
+  authorize("CLINIC_STAFF"),
+  userController.getUserStats,
 );
 
 router.get(
   "/",
   authenticate,
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   validate(userValidation.getUsers),
-  userController.getAllUsers
+  userController.getAllUsers,
 );
 
 // Dynamic :id routes - MUST come after specific routes
 router.get(
   "/:id",
   authenticate,
-  authorize("CLINIC_ADMIN"),
-  userController.getUserById
+  authorize("CLINIC_STAFF"),
+  userController.getUserById,
 );
 
 router.put(
   "/:id",
   authenticate,
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   validate(userValidation.updateUserByAdmin),
-  userController.updateUserByAdmin
+  userController.updateUserByAdmin,
 );
 
 router.delete(
   "/:id",
   authenticate,
-  authorize("CLINIC_ADMIN"),
-  userController.deleteUser
+  authorize("CLINIC_STAFF"),
+  userController.deleteUser,
 );
 
 router.patch(
   "/:id/role",
   authenticate,
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   validate(userValidation.updateUserRole),
-  userController.updateUserRole
+  userController.updateUserRole,
 );
 
 router.patch(
   "/:id/deactivate",
   authenticate,
-  authorize("CLINIC_ADMIN"),
-  userController.deactivateUser
+  authorize("CLINIC_STAFF"),
+  userController.deactivateUser,
 );
 
 router.patch(
   "/:id/activate",
   authenticate,
-  authorize("CLINIC_ADMIN"),
-  userController.activateUser
+  authorize("CLINIC_STAFF"),
+  userController.activateUser,
 );
 
 export default router;

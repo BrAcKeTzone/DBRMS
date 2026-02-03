@@ -43,7 +43,6 @@ const UsersManagement = () => {
     addUser,
     updateUser,
     deleteUser,
-    promoteToAdmin,
     getUserStats,
     clearError,
   } = useUserManagementStore();
@@ -66,12 +65,6 @@ const UsersManagement = () => {
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [createError, setCreateError] = useState(null);
-
-  // Promote confirmation modal state
-  const [showPromoteModal, setShowPromoteModal] = useState(false);
-  const [promoteTarget, setPromoteTarget] = useState(null);
-  const [promoteLoading, setPromoteLoading] = useState(false);
-  const [promoteError, setPromoteError] = useState(null);
 
   // Search and filter state
   const [searchQuery, setSearchQuery] = useState("");
@@ -158,20 +151,6 @@ const UsersManagement = () => {
     }
   };
 
-  // Promote helper that calls store action
-  const handlePromoteToAdmin = async (userId) => {
-    try {
-      const result = await promoteToAdmin(userId);
-      // Refresh UI
-      fetchData();
-      return result;
-    } catch (err) {
-      // error is set into the store's `error` state
-      console.error(err);
-      throw err;
-    }
-  };
-
   const handleDeleteUser = async (userId) => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
@@ -206,14 +185,7 @@ const UsersManagement = () => {
 
     // Apply role filter
     if (filterRole) {
-      if (filterRole === "CLINIC_STAFF") {
-        // include both clinic admin and staff under Clinic Staff umbrella
-        result = result.filter((user) =>
-          ["CLINIC_ADMIN", "CLINIC_STAFF"].includes(user.role),
-        );
-      } else {
-        result = result.filter((user) => user.role === filterRole);
-      }
+      result = result.filter((user) => user.role === filterRole);
     }
 
     // Apply status filter
@@ -370,23 +342,6 @@ const UsersManagement = () => {
           {user.id === currentUser?.id && (
             <span className="text-xs text-gray-500">Current User</span>
           )}
-
-          {/* Promote to Admin (visible for all clinic staff entries) */}
-          {user.role === "CLINIC_STAFF" && (
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => {
-                setPromoteTarget(user);
-                setPromoteError(null);
-                setShowPromoteModal(true);
-              }}
-              title="Promote to Admin"
-            >
-              <FaUserShield className="hidden md:block" />
-              <span className="md:hidden">Promote</span>
-            </Button>
-          )}
         </div>
       ),
     },
@@ -487,94 +442,6 @@ const UsersManagement = () => {
         </div>
       )}
 
-      {/* Promotion Confirmation Modal */}
-      <Modal
-        isOpen={showPromoteModal}
-        onClose={() => {
-          setShowPromoteModal(false);
-          setPromoteTarget(null);
-          setPromoteError(null);
-        }}
-        title={
-          promoteTarget
-            ? `Promote ${promoteTarget.firstName} ${promoteTarget.lastName} to Clinic Admin?`
-            : "Promote User"
-        }
-        size="md"
-      >
-        <div className="space-y-4">
-          <p>
-            Promoting this user to <strong>Clinic Admin</strong> will{" "}
-            <strong>demote all current Clinic Admin(s)</strong> to{" "}
-            <strong>Clinic Staff</strong>.
-          </p>
-          <p className="text-sm text-gray-600">
-            If you proceed and you are the current Clinic Admin, you will be
-            demoted to Clinic Staff and will be signed out.
-          </p>
-
-          {promoteError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {promoteError}
-            </div>
-          )}
-
-          <div className="flex justify-end gap-2">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setShowPromoteModal(false);
-                setPromoteTarget(null);
-                setPromoteError(null);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="primary"
-              onClick={async () => {
-                if (!promoteTarget) return;
-                setPromoteLoading(true);
-                setPromoteError(null);
-                try {
-                  const result = await handlePromoteToAdmin(promoteTarget.id);
-                  setShowPromoteModal(false);
-                  // If current user was demoted, sign out and redirect
-                  const demotedIds = result?.demotedIds || [];
-                  if (demotedIds.includes(currentUser?.id)) {
-                    // Inform user and sign out
-                    alert(
-                      "You have been demoted to Clinic Staff. You will be signed out.",
-                    );
-                    await logout();
-                    navigate("/signin");
-                    return;
-                  }
-
-                  // Success feedback
-                  alert(
-                    `${promoteTarget.firstName} ${promoteTarget.lastName} was promoted to Clinic Admin.`,
-                  );
-                  fetchData();
-                } catch (err) {
-                  console.error("Promotion failed:", err);
-                  setPromoteError(
-                    err?.response?.data?.message ||
-                      err.message ||
-                      "Promotion failed",
-                  );
-                } finally {
-                  setPromoteLoading(false);
-                  setPromoteTarget(null);
-                }
-              }}
-            >
-              {promoteLoading ? "Promoting..." : "Confirm"}
-            </Button>
-          </div>
-        </div>
-      </Modal>
-
       {/* Search and Filter Section */}
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200 mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -613,7 +480,6 @@ const UsersManagement = () => {
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">All Roles</option>
-                <option value="CLINIC_ADMIN">Clinic Admin</option>
                 <option value="CLINIC_STAFF">Clinic Staff</option>
                 <option value="PARENT_GUARDIAN">Parent/Guardians</option>
               </select>
@@ -777,7 +643,7 @@ const UsersManagement = () => {
                             </div>
                           )}
                           <div className="min-w-0 text-center">
-                            <h3 className="font-bold text-gray-900 text-lg break-words">
+                            <h3 className="font-bold text-gray-900 text-lg wrap-break-words">
                               {user.firstName} {user.middleName} {user.lastName}
                             </h3>
                             <p className="text-sm text-gray-500 break-all">
@@ -1001,9 +867,6 @@ const UsersManagement = () => {
               value={newUser.role}
               onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
             >
-              {currentUser?.role === "CLINIC_ADMIN" && (
-                <option value="CLINIC_ADMIN">Clinic Admin</option>
-              )}
               <option value="CLINIC_STAFF">Clinic Staff</option>
               <option value="PARENT_GUARDIAN">Parent/Guardian</option>
             </select>
@@ -1097,9 +960,6 @@ const UsersManagement = () => {
                   setSelectedUser({ ...selectedUser, role: e.target.value })
                 }
               >
-                {currentUser?.role === "CLINIC_ADMIN" && (
-                  <option value="CLINIC_ADMIN">Clinic Admin</option>
-                )}
                 <option value="CLINIC_STAFF">Clinic Staff</option>
                 <option value="PARENT_GUARDIAN">Parent/Guardian</option>
               </select>
@@ -1143,7 +1003,7 @@ const UsersManagement = () => {
       {/* Fullscreen Image Viewer Modal */}
       {showImageViewer && (
         <div
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-90 p-4"
+          className="fixed inset-0 z-100 flex items-center justify-center bg-black bg-opacity-90 p-4"
           onClick={() => setShowImageViewer(false)}
         >
           <button

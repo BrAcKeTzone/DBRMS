@@ -42,7 +42,7 @@ export const getUserProfile = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, user, "Profile retrieved successfully"));
-  }
+  },
 );
 
 // Update user profile (self)
@@ -62,7 +62,7 @@ export const updateUserProfile = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, user, "Profile updated successfully"));
-  }
+  },
 );
 
 // Get all users with filters (admin only)
@@ -91,7 +91,7 @@ export const updateUserRole = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, user, "User role updated successfully"));
-  }
+  },
 );
 
 // Deactivate user (admin only)
@@ -110,26 +110,7 @@ export const deactivateUser = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, user, "User deactivated successfully"));
-  }
-);
-
-// Promote user to Clinic Admin (admin only)
-export const promoteToAdmin = asyncHandler(
-  async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id);
-
-    if (isNaN(id)) {
-      return res
-        .status(400)
-        .json(new ApiResponse(400, null, "Invalid user ID"));
-    }
-
-    const result = await userService.promoteUserToAdmin(id);
-
-    res
-      .status(200)
-      .json(new ApiResponse(200, result, "User promoted to Clinic Admin"));
-  }
+  },
 );
 
 // Activate user (admin only)
@@ -148,7 +129,7 @@ export const activateUser = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, user, "User activated successfully"));
-  }
+  },
 );
 
 // Update user by admin (admin only)
@@ -167,7 +148,7 @@ export const updateUserByAdmin = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, user, "User updated successfully"));
-  }
+  },
 );
 
 // Delete user (admin only)
@@ -186,8 +167,8 @@ export const deleteUser = asyncHandler(async (req: Request, res: Response) => {
       new ApiResponse(
         200,
         { message: "User deleted successfully" },
-        "User deleted successfully"
-      )
+        "User deleted successfully",
+      ),
     );
 });
 
@@ -213,10 +194,10 @@ export const changePassword = asyncHandler(
         new ApiResponse(
           200,
           { message: "Password changed successfully" },
-          "Password changed successfully"
-        )
+          "Password changed successfully",
+        ),
       );
-  }
+  },
 );
 
 // Get user statistics (admin only)
@@ -227,9 +208,9 @@ export const getUserStats = asyncHandler(
     res
       .status(200)
       .json(
-        new ApiResponse(200, stats, "User statistics retrieved successfully")
+        new ApiResponse(200, stats, "User statistics retrieved successfully"),
       );
-  }
+  },
 );
 
 // Upload profile picture (self)
@@ -258,5 +239,5 @@ export const uploadProfilePicture = asyncHandler(
     res
       .status(200)
       .json(new ApiResponse(200, user, "Profile picture updated successfully"));
-  }
+  },
 );

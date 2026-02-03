@@ -11,20 +11,20 @@ router.use(authenticate);
 router.get("/", coursesController.getAllCourses);
 router.post(
   "/",
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   validate(createCourseSchema),
-  coursesController.createCourse
+  coursesController.createCourse,
 );
 router.put(
   "/:id",
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   validate(updateCourseSchema),
-  coursesController.updateCourse
+  coursesController.updateCourse,
 );
 router.delete(
   "/:id",
-  authorize("CLINIC_ADMIN"),
-  coursesController.deleteCourse
+  authorize("CLINIC_STAFF"),
+  coursesController.deleteCourse,
 );
 
 export default router;

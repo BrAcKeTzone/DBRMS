@@ -715,7 +715,7 @@ export const unlinkStudent = async (
 
   // Only the linked parent or admin can unlink
   if (
-    requestingUserRole !== "CLINIC_ADMIN" &&
+    requestingUserRole !== "CLINIC_STAFF" &&
     student.parentId !== requestingUserId
   ) {
     throw new ApiError(403, "You can only unlink your own students");

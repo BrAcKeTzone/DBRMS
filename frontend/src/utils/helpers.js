@@ -135,7 +135,6 @@ export const toTitleCase = (str) => {
 // Role helpers
 export const getRoleLabel = (role) => {
   if (!role) return "";
-  if (role === "CLINIC_ADMIN") return "Clinic Admin";
   if (role === "CLINIC_STAFF") return "Clinic Staff";
   if (role === "PARENT_GUARDIAN") return "Parent/Guardians";
   // fallback to title-case of role
@@ -143,9 +142,6 @@ export const getRoleLabel = (role) => {
 };
 
 export const getRoleBadgeClasses = (role) => {
-  if (role === "CLINIC_ADMIN") {
-    return "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800";
-  }
   if (role === "CLINIC_STAFF") {
     return "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800";
   }

@@ -96,7 +96,7 @@ const AdminDashboard = () => {
             Manage Students
           </Button>
 
-          {user?.role === "CLINIC_ADMIN" && (
+          {user?.role === "CLINIC_STAFF" && (
             <Button
               onClick={() => navigate("/clinic/users")}
               variant="outline"

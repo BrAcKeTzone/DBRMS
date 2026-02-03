@@ -227,8 +227,6 @@ const ProfilePage = () => {
 
   const getRoleDisplayName = (role) => {
     switch (role) {
-      case "CLINIC_ADMIN":
-        return "Clinic Administrator";
       case "CLINIC_STAFF":
         return "Clinic Staff";
       case "PARENT_GUARDIAN":

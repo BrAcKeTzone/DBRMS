@@ -239,27 +239,6 @@ export const useUserManagementStore = create(
         }
       },
 
-      // Promote user to Clinic Admin
-      promoteToAdmin: async (userId) => {
-        set({ loading: true, error: null });
-        try {
-          const response = await userApi.promoteToAdmin(userId);
-
-          // Refresh the users list
-          const { getAllUsers } = get();
-          await getAllUsers();
-
-          set({ loading: false });
-          return response.data;
-        } catch (error) {
-          set({
-            error: error.response?.data?.message || error.message,
-            loading: false,
-          });
-          throw error;
-        }
-      },
-
       // Get user by ID
       getUserById: async (userId) => {
         set({ loading: true, error: null });
@@ -298,7 +277,7 @@ export const useUserManagementStore = create(
         try {
           const response = await userApi.updateUserPassword(
             userId,
-            passwordData
+            passwordData,
           );
           set({ loading: false });
           return response.data;
@@ -340,6 +319,6 @@ export const useUserManagementStore = create(
         sortBy: state.sortBy,
         sortOrder: state.sortOrder,
       }),
-    }
-  )
+    },
+  ),
 );

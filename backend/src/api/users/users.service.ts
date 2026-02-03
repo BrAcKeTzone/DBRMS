@@ -251,7 +251,7 @@ export const getAllUsers = async (filter: GetUsersFilter) => {
     // Validate and cast role to UserRole enum
     const roleUpper = typeof role === "string" ? role.toUpperCase() : role;
     if (
-      roleUpper === UserRole.CLINIC_ADMIN ||
+      roleUpper === UserRole.CLINIC_STAFF ||
       roleUpper === UserRole.PARENT_GUARDIAN
     ) {
       whereClause.role = roleUpper as UserRole;
@@ -355,15 +355,15 @@ export const updateUserRole = async (
 
   // Check if this is the last admin
   if (
-    user.role === UserRole.CLINIC_ADMIN &&
-    newRole !== UserRole.CLINIC_ADMIN
+    user.role === UserRole.CLINIC_STAFF &&
+    newRole !== UserRole.CLINIC_STAFF
   ) {
     const adminCount = await prisma.user.count({
-      where: { role: UserRole.CLINIC_ADMIN },
+      where: { role: UserRole.CLINIC_STAFF },
     });
 
     if (adminCount <= 1) {
-      throw new ApiError(400, "Cannot change role of the last admin");
+      throw new ApiError(400, "Cannot change role of the last staff");
     }
   }
 
@@ -373,43 +373,6 @@ export const updateUserRole = async (
   });
 
   return excludePassword(updatedUser);
-};
-
-// Promote user to Clinic Admin and demote existing admins to Clinic Staff
-export const promoteUserToAdmin = async (
-  userId: number,
-): Promise<{ promoted: UserSafeData; demotedIds: number[] }> => {
-  const userToPromote = await prisma.user.findUnique({ where: { id: userId } });
-  if (!userToPromote) {
-    throw new ApiError(404, "User not found");
-  }
-
-  // Find current admin ids BEFORE transaction so we can inform clients who was demoted
-  const currentAdmins = await prisma.user.findMany({
-    where: { role: UserRole.CLINIC_ADMIN },
-    select: { id: true },
-  });
-  const demotedIds = currentAdmins
-    .map((a) => a.id)
-    .filter((id) => id !== userId);
-
-  // Use transaction to ensure atomicity: demote all current admins, then promote target
-  await prisma.$transaction(async (tx) => {
-    await tx.user.updateMany({
-      where: { role: UserRole.CLINIC_ADMIN },
-      data: { role: UserRole.CLINIC_STAFF },
-    });
-
-    await tx.user.update({
-      where: { id: userId },
-      data: { role: UserRole.CLINIC_ADMIN },
-    });
-  });
-
-  // Return the promoted user (fresh) and list of demoted ids
-  const promoted = await prisma.user.findUnique({ where: { id: userId } });
-  if (!promoted) throw new ApiError(500, "Failed to promote user");
-  return { promoted: excludePassword(promoted), demotedIds };
 };
 
 // Deactivate user (admin only)
@@ -426,17 +389,17 @@ export const deactivateUser = async (userId: number): Promise<UserSafeData> => {
     throw new ApiError(400, "User is already deactivated");
   }
 
-  // Check if this is the last active admin
-  if (user.role === UserRole.CLINIC_ADMIN) {
+  // Check if this is the last active staff
+  if (user.role === UserRole.CLINIC_STAFF) {
     const activeAdminCount = await prisma.user.count({
       where: {
-        role: UserRole.CLINIC_ADMIN,
+        role: UserRole.CLINIC_STAFF,
         isActive: true,
       },
     });
 
     if (activeAdminCount <= 1) {
-      throw new ApiError(400, "Cannot deactivate the last active admin");
+      throw new ApiError(400, "Cannot deactivate the last active staff");
     }
   }
 
@@ -496,36 +459,36 @@ export const updateUserByAdmin = async (
     }
   }
 
-  // Check if changing role from admin
+  // Check if changing role from staff
   if (
     data.role &&
-    userCheck.role === UserRole.CLINIC_ADMIN &&
-    data.role !== UserRole.CLINIC_ADMIN
+    userCheck.role === UserRole.CLINIC_STAFF &&
+    data.role !== UserRole.CLINIC_STAFF
   ) {
     const adminCount = await prisma.user.count({
-      where: { role: UserRole.CLINIC_ADMIN },
+      where: { role: UserRole.CLINIC_STAFF },
     });
 
     if (adminCount <= 1) {
-      throw new ApiError(400, "Cannot change role of the last admin");
+      throw new ApiError(400, "Cannot change role of the last staff");
     }
   }
 
-  // Check if deactivating admin
+  // Check if deactivating staff
   if (
     data.isActive === false &&
-    userCheck.role === UserRole.CLINIC_ADMIN &&
+    userCheck.role === UserRole.CLINIC_STAFF &&
     userCheck.isActive
   ) {
     const activeAdminCount = await prisma.user.count({
       where: {
-        role: UserRole.CLINIC_ADMIN,
+        role: UserRole.CLINIC_STAFF,
         isActive: true,
       },
     });
 
     if (activeAdminCount <= 1) {
-      throw new ApiError(400, "Cannot deactivate the last active admin");
+      throw new ApiError(400, "Cannot deactivate the last active staff");
     }
   }
 
@@ -557,14 +520,14 @@ export const deleteUser = async (userId: number): Promise<void> => {
     throw new ApiError(404, "User not found");
   }
 
-  // Check if this is the last admin
-  if (user.role === UserRole.CLINIC_ADMIN) {
+  // Check if this is the last staff
+  if (user.role === UserRole.CLINIC_STAFF) {
     const adminCount = await prisma.user.count({
-      where: { role: UserRole.CLINIC_ADMIN },
+      where: { role: UserRole.CLINIC_STAFF },
     });
 
     if (adminCount <= 1) {
-      throw new ApiError(400, "Cannot delete the last admin");
+      throw new ApiError(400, "Cannot delete the last staff");
     }
   }
 
@@ -618,7 +581,7 @@ export const getUserStats = async () => {
     prisma.user.count(),
     prisma.user.count({ where: { isActive: true } }),
     prisma.user.count({ where: { isActive: false } }),
-    prisma.user.count({ where: { role: UserRole.CLINIC_ADMIN } }),
+    prisma.user.count({ where: { role: UserRole.CLINIC_STAFF } }),
     prisma.user.count({ where: { role: UserRole.PARENT_GUARDIAN } }),
     // Parents who have at least one student linked (parentId set on Student)
     prisma.user.count({

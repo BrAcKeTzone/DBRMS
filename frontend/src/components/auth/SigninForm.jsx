@@ -37,7 +37,7 @@ const SigninForm = () => {
     try {
       const { user } = await login(formData);
       // Navigate to appropriate dashboard based on user role
-      if (user?.role === "CLINIC_ADMIN" || user?.role === "CLINIC_STAFF") {
+      if (user?.role === "CLINIC_STAFF") {
         navigate("/clinic/dashboard");
       } else if (user?.role === "PARENT_GUARDIAN") {
         navigate("/parent/dashboard");

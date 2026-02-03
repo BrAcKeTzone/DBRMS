@@ -1017,9 +1017,9 @@ export const useAuthStore = create(
         return user?.role === role;
       },
 
-      isHROrAdmin: () => {
+      isStaff: () => {
         const { user } = get();
-        return user?.role === "CLINIC_ADMIN" || user?.role === "CLINIC_STAFF";
+        return user?.role === "CLINIC_STAFF";
       },
     }),
     {

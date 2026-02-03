@@ -26,31 +26,31 @@ router.get("/pending-parent-links", studentController.getPendingParentLinks);
 // Clear old rejected parent links (older than 3 days)
 router.post(
   "/clear-rejected-links",
-  authorize("CLINIC_ADMIN"),
-  studentController.clearOldRejectedLinks
+  authorize("CLINIC_STAFF"),
+  studentController.clearOldRejectedLinks,
 );
 
 // Create a new student
 router.post(
   "/",
   validate(studentValidation.createStudent),
-  studentController.createStudent
+  studentController.createStudent,
 );
 
 // Export students XLSX (Admin only)
 router.get(
   "/export",
   authenticate,
-  authorize("CLINIC_ADMIN"),
-  studentController.exportStudentsXlsx
+  authorize("CLINIC_STAFF"),
+  studentController.exportStudentsXlsx,
 );
 
 // Download a blank students template (XLSX)
 router.get(
   "/template",
   authenticate,
-  authorize("CLINIC_ADMIN"),
-  studentController.downloadStudentsTemplateXlsx
+  authorize("CLINIC_STAFF"),
+  studentController.downloadStudentsTemplateXlsx,
 );
 
 // XLSX upload config for import
@@ -75,9 +75,9 @@ const excelUpload = multer({
 router.post(
   "/bulk-import",
   authenticate,
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   excelUpload.single("file"),
-  studentController.bulkImportStudents
+  studentController.bulkImportStudents,
 );
 
 // Get all students with filtering and pagination (query params will be validated in controller)
@@ -93,19 +93,19 @@ router.get("/pending", studentController.getPendingStudents);
 router.post(
   "/link",
   validate(studentValidation.requestLinkStudent),
-  studentController.requestLinkStudent
+  studentController.requestLinkStudent,
 );
 
 // Get pending link requests for a parent
 router.get(
   "/parent/:parentId/pending",
-  studentController.getPendingLinksByParentId
+  studentController.getPendingLinksByParentId,
 );
 
 // Get approved (linked) students for a parent
 router.get(
   "/parent/:parentId/approved",
-  studentController.getApprovedStudentsByParentId
+  studentController.getApprovedStudentsByParentId,
 );
 
 // Get students by parent ID (all statuses)
@@ -121,7 +121,7 @@ router.get("/:id", studentController.getStudentById);
 router.put(
   "/:id",
   validate(studentValidation.updateStudent),
-  studentController.updateStudent
+  studentController.updateStudent,
 );
 
 // Delete student
@@ -137,14 +137,14 @@ router.patch("/:id/reject", studentController.rejectStudentLink);
 router.patch(
   "/:id/unlink",
   validate(studentValidation.unlinkStudent),
-  studentController.unlinkStudent
+  studentController.unlinkStudent,
 );
 
 // Bulk update student status
 router.patch(
   "/bulk/status",
   validate(studentValidation.bulkUpdateStatus),
-  studentController.bulkUpdateStudentStatus
+  studentController.bulkUpdateStudentStatus,
 );
 
 export default router;

@@ -34,7 +34,7 @@ const generateToken = (userId: number): string => {
 };
 
 export const sendOtp = async (
-  email: string
+  email: string,
 ): Promise<{ message: string; otp?: string }> => {
   console.log("🔐 Starting OTP process for email:", email);
 
@@ -96,7 +96,7 @@ export const sendOtp = async (
     }
     throw new ApiError(
       500,
-      "There was an error sending the email. Please try again later."
+      "There was an error sending the email. Please try again later.",
     );
   }
 
@@ -104,7 +104,7 @@ export const sendOtp = async (
 };
 
 export const sendOtpForReset = async (
-  email: string
+  email: string,
 ): Promise<{ message: string; otp?: string }> => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -153,7 +153,7 @@ export const sendOtpForReset = async (
 
     throw new ApiError(
       500,
-      "There was an error sending the email. Please try again later."
+      "There was an error sending the email. Please try again later.",
     );
   }
 
@@ -162,7 +162,7 @@ export const sendOtpForReset = async (
 
 export const sendOtpForChange = async (
   email: string,
-  password: string
+  password: string,
 ): Promise<{ message: string; otp?: string }> => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -215,7 +215,7 @@ export const sendOtpForChange = async (
 
     throw new ApiError(
       500,
-      "There was an error sending the email. Please try again later."
+      "There was an error sending the email. Please try again later.",
     );
   }
 
@@ -224,7 +224,7 @@ export const sendOtpForChange = async (
 
 export const verifyOtp = async (
   email: string,
-  otp: string
+  otp: string,
 ): Promise<{ message: string; verified: boolean }> => {
   const otpRecord = await prisma.otp.findFirst({
     where: {
@@ -270,7 +270,7 @@ interface RegisterData {
 }
 
 export const register = async (
-  userData: RegisterData
+  userData: RegisterData,
 ): Promise<{ user: User; token: string }> => {
   const { email, password, firstName, middleName, lastName, phone } = userData;
 
@@ -289,7 +289,7 @@ export const register = async (
   if (!otpRecord) {
     throw new ApiError(
       400,
-      "Email not verified. Please verify your email with OTP first."
+      "Email not verified. Please verify your email with OTP first.",
     );
   }
 
@@ -305,9 +305,9 @@ export const register = async (
 
   // Check current user count to determine initial roles
   const userCount = await prisma.user.count();
-  // First user becomes CLINIC_ADMIN, second becomes PARENT_GUARDIAN, others default to PARENT_GUARDIAN
-  let assignedRole: string = "PARENT_GUARDIAN";
-  if (userCount === 0) assignedRole = "CLINIC_ADMIN";
+  // First user becomes CLINIC_STAFF, others default to PARENT_GUARDIAN
+  let assignedRole: UserRole = "PARENT_GUARDIAN";
+  if (userCount === 0) assignedRole = "CLINIC_STAFF";
   else if (userCount === 1) assignedRole = "PARENT_GUARDIAN";
 
   const hashedPassword = await bcrypt.hash(password, 12);
@@ -353,7 +353,7 @@ export const register = async (
 
 export const login = async (
   email: string,
-  password: string
+  password: string,
 ): Promise<{ user: User; token: string }> => {
   const user = await prisma.user.findUnique({ where: { email } });
 
@@ -397,7 +397,7 @@ export const login = async (
 // Function to verify OTP specifically for password reset
 export const verifyOtpForReset = async (
   email: string,
-  otp: string
+  otp: string,
 ): Promise<{ message: string; verified: boolean }> => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -434,7 +434,7 @@ export const verifyOtpForReset = async (
 // Function to verify OTP specifically for password change
 export const verifyOtpForChange = async (
   email: string,
-  otp: string
+  otp: string,
 ): Promise<{ message: string; verified: boolean }> => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -471,7 +471,7 @@ export const verifyOtpForChange = async (
 export const resetPassword = async (
   email: string,
   otp: string,
-  newPassword: string
+  newPassword: string,
 ): Promise<{ message: string }> => {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) {
@@ -494,7 +494,7 @@ export const resetPassword = async (
   if (!otpRecord) {
     throw new ApiError(
       400,
-      "OTP not verified or expired. Please verify OTP first."
+      "OTP not verified or expired. Please verify OTP first.",
     );
   }
 
@@ -522,7 +522,7 @@ export const changePassword = async (
   email: string,
   oldPassword: string,
   otp: string,
-  newPassword: string
+  newPassword: string,
 ): Promise<{ message: string }> => {
   const user = await prisma.user.findUnique({ where: { email } });
 
@@ -546,7 +546,7 @@ export const changePassword = async (
   if (!otpRecord) {
     throw new ApiError(
       400,
-      "OTP not verified or expired. Please verify OTP first."
+      "OTP not verified or expired. Please verify OTP first.",
     );
   }
 

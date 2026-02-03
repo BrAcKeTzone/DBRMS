@@ -70,7 +70,7 @@ const ProtectedRoute = ({ children, allowedRoles = [] }) => {
 
   if (allowedRoles.length > 0 && !allowedRoles.includes(userRole)) {
     // redirect to appropriate dashboard based on role
-    if (userRole === "CLINIC_ADMIN" || userRole === "CLINIC_STAFF") {
+    if (userRole === "CLINIC_STAFF") {
       return <Navigate to="/clinic/dashboard" replace />;
     }
     if (userRole === "PARENT_GUARDIAN") {
@@ -109,7 +109,7 @@ const PublicRoute = ({ children }) => {
 
   if (isAuthenticated && user && user.role) {
     const userRole = user.role;
-    if (userRole === "CLINIC_ADMIN" || userRole === "CLINIC_STAFF") {
+    if (userRole === "CLINIC_STAFF") {
       return <Navigate to="/clinic/dashboard" replace />;
     }
     if (userRole === "PARENT_GUARDIAN") {
@@ -163,7 +163,7 @@ const AppRoutes = () => {
       <Route
         path="/clinic"
         element={
-          <ProtectedRoute allowedRoles={["CLINIC_ADMIN", "CLINIC_STAFF"]}>
+          <ProtectedRoute allowedRoles={["CLINIC_STAFF"]}>
             <AdminLayout />
           </ProtectedRoute>
         }
@@ -172,7 +172,7 @@ const AppRoutes = () => {
         <Route
           path="system-configuration"
           element={
-            <ProtectedRoute allowedRoles={["CLINIC_ADMIN"]}>
+            <ProtectedRoute allowedRoles={["CLINIC_STAFF"]}>
               <SystemConfiguration />
             </ProtectedRoute>
           }
@@ -184,7 +184,7 @@ const AppRoutes = () => {
         <Route
           path="users"
           element={
-            <ProtectedRoute allowedRoles={["CLINIC_ADMIN"]}>
+            <ProtectedRoute allowedRoles={["CLINIC_STAFF"]}>
               <Users />
             </ProtectedRoute>
           }

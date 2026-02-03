@@ -18,7 +18,7 @@ router.use(authenticate);
  * @desc    Get all system settings
  * @access  Private (Admin only)
  */
-router.get("/", authorize("CLINIC_ADMIN"), settingsController.getSettings);
+router.get("/", authorize("CLINIC_STAFF"), settingsController.getSettings);
 
 /**
  * @route   PUT /api/settings
@@ -27,7 +27,7 @@ router.get("/", authorize("CLINIC_ADMIN"), settingsController.getSettings);
  */
 router.put(
   "/",
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   validate(updateSettingsSchema),
   settingsController.updateSettings,
 );
@@ -39,19 +39,19 @@ router.put(
  */
 router.post(
   "/test-sms",
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   settingsController.sendTestSMS,
 );
 
 // Backup and Restore
 router.post(
   "/backup",
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   settingsController.backupSettings,
 );
 router.post(
   "/restore",
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   uploadBackup.single("backup"),
   settingsController.restoreSettings,
 );
@@ -63,7 +63,7 @@ router.post(
  */
 router.post(
   "/initialize",
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   settingsController.initializeSettings,
 );
 
@@ -74,7 +74,7 @@ router.post(
  */
 router.post(
   "/reset",
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   settingsController.resetToDefaults,
 );
 
@@ -85,7 +85,7 @@ router.post(
  */
 router.get(
   "/category/:category",
-  authorize("CLINIC_ADMIN"),
+  authorize("CLINIC_STAFF"),
   validate(getSettingsByCategorySchema, "params"),
   settingsController.getSettingsByCategory,
 );

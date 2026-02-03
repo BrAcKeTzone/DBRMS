@@ -52,19 +52,22 @@ export const getSettings = async (): Promise<Settings> => {
 
   // If settings don't exist, create with defaults
   if (!settings) {
-    // Find first admin to set as updatedBy
-    const admin = await prisma.user.findFirst({
-      where: { role: "CLINIC_ADMIN" },
+    // Find first staff to set as updatedBy
+    const staff = await prisma.user.findFirst({
+      where: { role: "CLINIC_STAFF" },
     });
 
-    if (!admin) {
-      throw new ApiError(500, "No admin user found to initialize settings");
+    if (!staff) {
+      throw new ApiError(
+        500,
+        "No clinic staff user found to initialize settings",
+      );
     }
 
     settings = await prisma.systemSetting.create({
       data: {
         key: SYSTEM_CONFIG_KEY,
-        updatedById: admin.id,
+        updatedById: staff.id,
         enableSMSNotifications: true,
         defaultTemplate:
           "Clinic Alert: Your child {student} visited the clinic on {date}. Symptoms: {reason}. Diagnosis: Pending.",

@@ -6,9 +6,9 @@ import { authenticate, authorize } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
-// Only admin and staff can send or view SMS logs
+// Only staff can send or view SMS logs
 router.use(authenticate);
-router.use(authorize("CLINIC_ADMIN", "CLINIC_STAFF"));
+router.use(authorize("CLINIC_STAFF"));
 
 router.post("/send", validate(smsValidation.sendSMS), smsController.sendSMS);
 router.get("/logs", smsController.getLogs);

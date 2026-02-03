@@ -5,7 +5,7 @@ import { useAuthStore } from "../../store/authStore";
 const Breadcrumb = () => {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  const isHROrAdmin = useAuthStore((s) => s.user?.role === "CLINIC_ADMIN" || s.user?.role === "CLINIC_STAFF");
+  const isStaff = useAuthStore((s) => s.isStaff());
 
   const getBreadcrumbs = () => {
     const pathnames = location.pathname.split("/").filter((x) => x);
@@ -15,8 +15,7 @@ const Breadcrumb = () => {
     const breadcrumbs = [];
     let currentPath = "";
 
-    if (isHROrAdmin) {
-    if (isHROrAdmin()) {
+    if (isStaff) {
       breadcrumbs.push({
         name: "Clinic Dashboard",
         path: "/clinic/dashboard",
