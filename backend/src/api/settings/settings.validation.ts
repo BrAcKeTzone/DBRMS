@@ -10,9 +10,8 @@ export const updateSettingsSchema = Joi.object({
     "string.base": "SMS API Key must be a string",
   }),
 
-  senderName: Joi.string().trim().max(11).allow(null, "").optional().messages({
+  senderName: Joi.string().trim().allow(null, "").optional().messages({
     "string.base": "Sender Name must be a string",
-    "string.max": "Sender Name cannot exceed 11 characters",
   }),
 
   defaultTemplate: Joi.string().trim().allow(null, "").optional().messages({

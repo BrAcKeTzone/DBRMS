@@ -1,11 +1,14 @@
 import axios from "axios";
 import prisma from "../configs/prisma";
 
-const SMS_BASE_URL = "https://api.smsmobileapi.com/sendsms/";
+const TEXTBEE_BASE_URL = "https://api.textbee.dev/api/v1/gateway/devices";
 const SYSTEM_CONFIG_KEY = "system_config";
 
 /**
- * Service to handle sending SMS notifications via SMSmobileAPI
+ * Service to handle sending SMS notifications via TextBee.dev
+ * Repurposes:
+ * - smsApiKey as TextBee API Key
+ * - senderName as TextBee Device ID
  */
 export const sendSMS = async (recipients: string, message: string) => {
   try {
@@ -24,57 +27,45 @@ export const sendSMS = async (recipients: string, message: string) => {
       return { success: false, message: "SMS notifications disabled" };
     }
 
-    if (!settings?.smsApiKey) {
+    if (!settings?.smsApiKey || !settings?.senderName) {
       console.warn(
-        "SMS API Key is not defined in database. Skipping SMS delivery.",
+        "SMS API Key or Device ID (Sender Name) is missing. Skipping SMS delivery.",
       );
-      return { success: false, message: "API key missing" };
+      return { success: false, message: "API credentials missing" };
     }
 
-    // Clean up the phone number - ensure it's in the correct format
+    // Clean up the phone number. TextBee usually takes an array of strings.
     const cleanRecipient = recipients.replace(/\+/g, "").trim();
 
-    console.log(`📤 Sending SMS to ${cleanRecipient}...`);
+    console.log(
+      `📤 Sending TextBee SMS to ${cleanRecipient} via device ${settings.senderName}...`,
+    );
 
-    // Use query parameters instead of a JSON body.
-    // Many legacy SMS gateways (like SMSMobileAPI) do not parse JSON POST bodies.
-    const response = await axios.get(SMS_BASE_URL, {
-      params: {
-        apikey: settings.smsApiKey,
-        recipients: cleanRecipient,
+    const response = await axios.post(
+      `${TEXTBEE_BASE_URL}/${settings.senderName}/send-sms`,
+      {
+        recipients: [cleanRecipient],
         message: message,
-        senderid: settings.senderName || "DMRMS",
       },
-    });
+      {
+        headers: {
+          "x-api-key": settings.smsApiKey,
+        },
+      },
+    );
 
-    console.log("✅ SMS response:", response.data);
-
-    // Specifically handle the response format of SMSMobileAPI
-    const apiResult = response.data?.result;
-
-    if (!apiResult || apiResult.sent === "no" || apiResult.error) {
-      const errorMessage = apiResult?.error || "Unknown provider error";
-      console.error(`❌ SMS Gateway Error: ${errorMessage}`);
-
-      return {
-        success: false,
-        message: `Gateway Error: ${errorMessage}`,
-        details: apiResult,
-      };
-    }
+    console.log("✅ TextBee response:", response.data);
 
     return {
       success: true,
       data: response.data,
     };
   } catch (error: any) {
-    console.error(
-      "❌ SMS delivery failed:",
-      error.response?.data || error.message,
-    );
+    const errorData = error.response?.data || error.message;
+    console.error("❌ TextBee delivery failed:", errorData);
     return {
       success: false,
-      error: error.response?.data || error.message,
+      error: errorData,
     };
   }
 };

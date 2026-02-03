@@ -167,29 +167,30 @@ const SystemConfiguration = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
-                API Key
+                TextBee API Key
               </label>
               <Input
                 value={sms.apiKey}
                 onChange={(e) => setSms({ ...sms, apiKey: e.target.value })}
-                placeholder="Enter SMS provider API key"
+                placeholder="Enter TextBee.dev API key"
               />
               <p className="text-xs text-gray-400">
-                Your unique key from the SMS provider.
+                Found in your TextBee dashboard settings.
               </p>
             </div>
 
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
-                Sender Name (Sender ID)
+                TextBee Device ID
               </label>
               <Input
                 value={sms.senderName}
                 onChange={(e) => setSms({ ...sms, senderName: e.target.value })}
-                placeholder="e.g., DMRMS"
-                maxLength={11}
+                placeholder="Enter your Android Device ID"
               />
-              <p className="text-xs text-gray-400">Maximum 11 characters.</p>
+              <p className="text-xs text-gray-400">
+                The ID of the synced Android device.
+              </p>
             </div>
 
             <div className="md:col-span-2 lg:col-span-1 space-y-2">
