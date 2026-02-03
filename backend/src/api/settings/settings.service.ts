@@ -1,4 +1,4 @@
-import { PrismaClient, SystemSetting, User } from "@prisma/client";
+import { SystemSetting, User } from "@prisma/client";
 import ApiError from "../../utils/ApiError";
 import prisma from "../../configs/prisma";
 import * as XLSX from "xlsx";
@@ -7,7 +7,7 @@ import { sendSMS as triggerSMS } from "../../utils/smsService";
 const SYSTEM_CONFIG_KEY = "system_config";
 
 export interface Settings extends Partial<SystemSetting> {
-  updatedBy?: Partial<User>;
+  updatedBy?: Partial<User> | null;
 }
 
 /**
@@ -19,7 +19,7 @@ export const sendTestSMS = async (phoneNumber: string) => {
   }
 
   const message =
-    "DMRMS: This is a test message to verify your SMS configuration. If you received this, your settings are working correctly!";
+    "BCFI School Clinic Management System: This is a test message to verify your SMS configuration. If you received this, your settings are working correctly!";
 
   const result = await triggerSMS(phoneNumber, message);
 
@@ -70,7 +70,7 @@ export const getSettings = async (): Promise<Settings> => {
         updatedById: staff.id,
         enableSMSNotifications: true,
         defaultTemplate:
-          "Clinic Alert: Your child {student} visited the clinic on {date}. Symptoms: {reason}. Diagnosis: Pending.",
+          "BCFI School Clinic Alert: Your child {student} visited the clinic on {date}. Symptoms: {reason}. Diagnosis: Pending.",
         senderName: "DMRMS",
       },
       include: {
@@ -96,7 +96,10 @@ export const getSettings = async (): Promise<Settings> => {
  */
 export const updateSettings = async (
   updateData: Partial<
-    Omit<Settings, "id" | "key" | "createdAt" | "updatedAt" | "updatedById">
+    Omit<
+      Settings,
+      "id" | "key" | "createdAt" | "updatedAt" | "updatedById" | "updatedBy"
+    >
   >,
   updatedById: number,
 ): Promise<Settings> => {
@@ -113,7 +116,7 @@ export const updateSettings = async (
         updatedById,
         enableSMSNotifications: true,
         defaultTemplate:
-          "Clinic Alert: Your child {student} visited the clinic on {date}. Symptoms: {reason}. Diagnosis: Pending.",
+          "BCFI School Clinic Alert: Your child {student} visited the clinic on {date}. Symptoms: {reason}. Diagnosis: Pending.",
         senderName: "DMRMS",
       },
     });
@@ -165,7 +168,7 @@ export const initializeSettings = async (
       updatedById: adminId,
       enableSMSNotifications: true,
       defaultTemplate:
-        "Clinic Alert: Your child {student} visited the clinic on {date}. Symptoms: {reason}. Diagnosis: Pending.",
+        "BCFI School Clinic Alert: Your child {student} visited the clinic on {date}. Symptoms: {reason}. Diagnosis: Pending.",
       senderName: "DMRMS",
     },
     include: {

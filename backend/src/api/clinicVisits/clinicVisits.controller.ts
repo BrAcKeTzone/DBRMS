@@ -5,11 +5,12 @@ import asyncHandler from "../../utils/asyncHandler";
 
 export const createClinicVisit = asyncHandler(
   async (req: Request, res: Response) => {
-    const visit = await service.createClinicVisit(req.body);
+    const actorId = req.user?.id;
+    const visit = await service.createClinicVisit(req.body, actorId);
     res
       .status(201)
       .json(new ApiResponse(201, visit, "Clinic visit logged successfully"));
-  }
+  },
 );
 
 export const getAllClinicVisits = asyncHandler(
@@ -19,9 +20,9 @@ export const getAllClinicVisits = asyncHandler(
     res
       .status(200)
       .json(
-        new ApiResponse(200, visits, "Clinic visits retrieved successfully")
+        new ApiResponse(200, visits, "Clinic visits retrieved successfully"),
       );
-  }
+  },
 );
 
 export const getClinicVisitStats = asyncHandler(
@@ -30,7 +31,11 @@ export const getClinicVisitStats = asyncHandler(
     res
       .status(200)
       .json(
-        new ApiResponse(200, stats, "Clinic visit stats retrieved successfully")
+        new ApiResponse(
+          200,
+          stats,
+          "Clinic visit stats retrieved successfully",
+        ),
       );
-  }
+  },
 );
