@@ -1,7 +1,43 @@
 import prisma from "../../configs/prisma";
+import { sendSMS } from "../../utils/smsService";
+
+const SYSTEM_CONFIG_KEY = "system_config";
+const FALLBACK_VISIT_TEMPLATE =
+  "BCFI Clinic Alert: {student} visited on {date}. Symptoms: {reason}. Diagnosis: {diagnosis}. Treatment: {treatment}. Emergency: {emergency}.";
+
+const formatVisitDate = (value: Date) =>
+  new Date(value).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+
+const buildVisitSmsMessage = async (visit: any) => {
+  const templateSetting = await prisma.systemSetting.findUnique({
+    where: { key: SYSTEM_CONFIG_KEY },
+    select: { defaultTemplate: true },
+  });
+
+  const template = templateSetting?.defaultTemplate || FALLBACK_VISIT_TEMPLATE;
+  const replacements: Record<string, string> = {
+    student: `${visit.student.firstName} ${visit.student.lastName}`.trim(),
+    date: formatVisitDate(visit.visitDateTime),
+    reason: visit.symptoms || "N/A",
+    diagnosis: visit.diagnosis || "Pending",
+    treatment: visit.treatment || "Pending",
+    emergency: visit.isEmergency ? "YES" : "NO",
+  };
+
+  return Object.entries(replacements).reduce((msg, [key, value]) => {
+    const matcher = new RegExp(`\\{${key}\\}`, "g");
+    return msg.replace(matcher, value);
+  }, template);
+};
 
 export const createClinicVisit = async (data: any, _actorId?: number) => {
-  const { recipientPhone: _recipientPhone, ...visitData } = data;
+  const { recipientPhone, ...visitData } = data;
 
   const visit = await prisma.clinicVisit.create({
     data: visitData,
@@ -11,6 +47,7 @@ export const createClinicVisit = async (data: any, _actorId?: number) => {
           parent: true,
         },
       },
+      smsLog: true,
     },
   });
 
@@ -32,8 +69,48 @@ export const createClinicVisit = async (data: any, _actorId?: number) => {
     isEmergency: visit.isEmergency,
     hospitalName: visit.hospitalName || "",
   });
+  const smsRecipient = recipientPhone || visit.student.parent?.phone;
+  let smsLog = visit.smsLog;
+  let smsStatus: {
+    success: boolean;
+    recipient?: string;
+    message?: string;
+    error?: any;
+  } | null = null;
 
-  return visit;
+  if (smsRecipient) {
+    const smsMessage = await buildVisitSmsMessage(visit);
+    const smsResult = await sendSMS(smsRecipient, smsMessage);
+    const sent = smsResult.success !== false;
+
+    smsLog = await prisma.smsLog.create({
+      data: {
+        clinicVisitId: visit.id,
+        message: smsMessage,
+        status: sent ? "SENT" : "FAILED",
+        sentAt: sent ? new Date() : null,
+        failReason: sent
+          ? null
+          : smsResult.error || smsResult.message || "Unknown SMS error",
+      },
+    });
+
+    smsStatus = {
+      success: sent,
+      recipient: smsRecipient,
+      message:
+        smsResult.message ||
+        (sent ? "SMS sent successfully" : "SMS delivery failed"),
+      error: smsResult.error,
+    };
+  } else {
+    smsStatus = {
+      success: false,
+      message: "No recipient phone provided; SMS skipped",
+    };
+  }
+
+  return { ...visit, smsLog, smsStatus };
 };
 
 export const getAllClinicVisits = async (search?: string) => {

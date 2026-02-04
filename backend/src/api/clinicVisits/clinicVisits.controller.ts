@@ -7,9 +7,10 @@ export const createClinicVisit = asyncHandler(
   async (req: Request, res: Response) => {
     const actorId = req.user?.id;
     const visit = await service.createClinicVisit(req.body, actorId);
-    res
-      .status(201)
-      .json(new ApiResponse(201, visit, "Clinic visit logged successfully"));
+    const smsStatusMessage = visit?.smsStatus?.success
+      ? "Clinic visit logged and SMS sent successfully"
+      : "Clinic visit logged; SMS not sent";
+    res.status(201).json(new ApiResponse(201, visit, smsStatusMessage));
   },
 );
 

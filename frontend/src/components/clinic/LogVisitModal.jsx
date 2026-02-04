@@ -146,12 +146,23 @@ const LogVisitModal = ({
     if (!pendingVisit) return;
     setSubmitting(true);
     try {
-      await clinicVisitsApi.create({
+      const response = await clinicVisitsApi.create({
         ...pendingVisit,
         recipientPhone: phoneNumber,
       });
+      const smsStatus = response?.data?.data?.smsStatus;
+
+      if (smsStatus && !smsStatus.success) {
+        alert(
+          smsStatus.message ||
+            "Clinic visit saved, but SMS could not be delivered.",
+        );
+      }
+
       if (onSuccess) await onSuccess();
       setShowSendSmsModal(false);
+      setPendingVisit(null);
+      setSmsPhone("");
       onClose();
     } catch (err) {
       console.error(err);
