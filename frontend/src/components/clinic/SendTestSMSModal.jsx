@@ -16,6 +16,7 @@ const SendTestSMSModal = ({
   initialPhone = "",
 }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [sending, setSending] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -30,6 +31,7 @@ const SendTestSMSModal = ({
     const trimmed = phoneNumber.trim();
     if (!trimmed) return;
 
+    setSending(true);
     try {
       await onSend(trimmed);
       if (shouldCloseOnSuccess) {
@@ -39,6 +41,8 @@ const SendTestSMSModal = ({
     } catch (err) {
       // Let the parent surface any errors via its own messaging
       console.error("Failed to send SMS:", err);
+    } finally {
+      setSending(false);
     }
   };
 
@@ -55,13 +59,19 @@ const SendTestSMSModal = ({
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="e.g., 09123456789"
             required
+            disabled={loading || sending}
           />
         </div>
         <div className="flex justify-end gap-2 pt-2">
-          <Button variant="outline" type="button" onClick={onClose}>
+          <Button
+            variant="outline"
+            type="button"
+            onClick={onClose}
+            disabled={loading || sending}
+          >
             Cancel
           </Button>
-          <Button type="submit" loading={loading}>
+          <Button type="submit" loading={loading || sending}>
             {submitLabel}
           </Button>
         </div>

@@ -3,7 +3,18 @@ import { sendSMS } from "../../utils/smsService";
 
 const SYSTEM_CONFIG_KEY = "system_config";
 const FALLBACK_VISIT_TEMPLATE =
-  "BCFI Clinic Alert: {student} visited on {date}. Symptoms: {reason}. Diagnosis: {diagnosis}. Treatment: {treatment}. Emergency: {emergency}.";
+  "BCFI Clinic Update\n" +
+  "Student: {student}\n" +
+  "Date: {date}\n" +
+  "Reason: {reason}\n" +
+  "Blood Pressure: {bp} mmHg\n" +
+  "Temperature: {temp} °C\n" +
+  "Pulse: {pulse} bpm\n" +
+  "Diagnosis: {diagnosis}\n" +
+  "Treatment: {treatment}\n" +
+  "Emergency: {emergency}\n" +
+  "Hospital: {hospital}";
+const SMS_FOOTER = "\n\nAutomated message. Please do not reply.";
 
 const formatVisitDate = (value: Date) =>
   new Date(value).toLocaleString("en-US", {
@@ -25,15 +36,28 @@ const buildVisitSmsMessage = async (visit: any) => {
     student: `${visit.student.firstName} ${visit.student.lastName}`.trim(),
     date: formatVisitDate(visit.visitDateTime),
     reason: visit.symptoms || "N/A",
+    bp: visit.bloodPressure || "N/A",
+    temp: visit.temperature || "N/A",
+    pulse: visit.pulseRate || "N/A",
     diagnosis: visit.diagnosis || "Pending",
     treatment: visit.treatment || "Pending",
     emergency: visit.isEmergency ? "YES" : "NO",
+    hospital:
+      visit.isReferredToHospital && visit.hospitalName
+        ? visit.hospitalName
+        : visit.isReferredToHospital
+          ? "Referred"
+          : "N/A",
   };
 
-  return Object.entries(replacements).reduce((msg, [key, value]) => {
+  const filled = Object.entries(replacements).reduce((msg, [key, value]) => {
     const matcher = new RegExp(`\\{${key}\\}`, "g");
     return msg.replace(matcher, value);
   }, template);
+
+  return filled.includes("Automated message")
+    ? filled
+    : `${filled}${SMS_FOOTER}`;
 };
 
 export const createClinicVisit = async (data: any, _actorId?: number) => {
