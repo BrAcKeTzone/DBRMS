@@ -109,22 +109,23 @@ const AdminDashboard = () => {
       </div>
 
       {/* Statistics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <DashboardCard title="Students" className="text-center">
-          <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-            {stats ? stats.total : "—"}
+          <div className="flex items-center justify-center h-48 sm:h-64">
+            <div className="text-6xl sm:text-7xl font-extrabold leading-tight tracking-tight text-blue-600 w-full text-center">
+              {stats ? stats.total : "—"}
+            </div>
           </div>
         </DashboardCard>
 
         <DashboardCard title="Parents/Guardians" className="text-center">
-          <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
-            {userStats?.parentCount ?? "—"}
+          <div className="flex items-center justify-center h-48 sm:h-64">
+            <div className="text-6xl sm:text-7xl font-extrabold leading-tight tracking-tight text-emerald-600 w-full text-center">
+              {userStats?.parentCount ?? "—"}
+            </div>
           </div>
         </DashboardCard>
-      </div>
 
-      {/* Sex Distribution Chart */}
-      <div className="max-w-md mx-auto">
         <DashboardCard title="Students by Sex" className="text-center">
           <div className="h-64">
             {loading || sexData.every((item) => item.value === 0) ? (

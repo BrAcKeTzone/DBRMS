@@ -408,7 +408,7 @@ const UsersManagement = () => {
 
       {/* Statistics */}
       {stats && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           <DashboardCard title="Total Users" className="text-center">
             <div className="text-2xl sm:text-3xl font-bold text-blue-600">
               {stats.totalUsers}
@@ -431,13 +431,6 @@ const UsersManagement = () => {
             <div className="text-2xl sm:text-3xl font-bold text-purple-600">
               {stats.adminCount}
             </div>
-          </DashboardCard>
-
-          <DashboardCard title="Recent Users" className="text-center">
-            <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
-              {stats.recentUsers}
-            </div>
-            <p className="text-xs text-gray-500 mt-1">Last 30 days</p>
           </DashboardCard>
         </div>
       )}
