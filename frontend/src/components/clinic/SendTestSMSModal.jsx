@@ -13,14 +13,17 @@ const SendTestSMSModal = ({
   description = "Enter a phone number to send an SMS. This uses your current saved API configuration.",
   submitLabel = "Send SMS",
   shouldCloseOnSuccess = true,
+  initialPhone = "",
 }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      setPhoneNumber(initialPhone || "");
+    } else {
       setPhoneNumber("");
     }
-  }, [isOpen]);
+  }, [isOpen, initialPhone]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

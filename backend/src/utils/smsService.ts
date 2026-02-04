@@ -4,6 +4,17 @@ import prisma from "../configs/prisma";
 const TEXTBEE_BASE_URL = "https://api.textbee.dev/api/v1/gateway/devices";
 const SYSTEM_CONFIG_KEY = "system_config";
 
+const formatToE164 = (raw: string) => {
+  const defaultCode = process.env.SMS_DEFAULT_COUNTRY_CODE || "63"; // Philippines by default
+  const digits = (raw || "").replace(/\D+/g, "");
+  if (!digits) return "";
+
+  // If already starts with country code, keep it; if starts with 0, swap to country code
+  if (digits.startsWith(defaultCode)) return digits;
+  if (digits.startsWith("0")) return `${defaultCode}${digits.slice(1)}`;
+  return `${defaultCode}${digits}`;
+};
+
 /**
  * Service to handle sending SMS notifications via TextBee.dev
  * Repurposes:
@@ -34,8 +45,15 @@ export const sendSMS = async (recipients: string, message: string) => {
       return { success: false, message: "API credentials missing" };
     }
 
-    // Clean up the phone number. TextBee usually takes an array of strings.
-    const cleanRecipient = recipients.replace(/\+/g, "").trim();
+    // Normalize to digits with country code (E.164-like without +)
+    const cleanRecipient = formatToE164(recipients);
+
+    if (!cleanRecipient) {
+      console.warn(
+        "SMS skipped: recipient phone is empty after normalization.",
+      );
+      return { success: false, message: "Invalid recipient phone" };
+    }
 
     console.log(
       `📤 Sending TextBee SMS to ${cleanRecipient} via device ${settings.senderName}...`,
@@ -51,14 +69,18 @@ export const sendSMS = async (recipients: string, message: string) => {
         headers: {
           "x-api-key": settings.smsApiKey,
         },
+        validateStatus: (status) => status >= 200 && status < 500,
       },
     );
 
     console.log("✅ TextBee response:", response.data);
 
+    const success = response.data?.success !== false && response.status < 400;
+
     return {
-      success: true,
+      success,
       data: response.data,
+      message: response.data?.message,
     };
   } catch (error: any) {
     const errorData = error.response?.data || error.message;
