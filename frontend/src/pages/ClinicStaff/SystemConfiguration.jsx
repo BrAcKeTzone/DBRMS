@@ -4,6 +4,7 @@ import Button from "../../components/ui/Button";
 import Input from "../../components/ui/Input";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import Modal from "../../components/ui/Modal";
+import SendTestSMSModal from "../../components/clinic/SendTestSMSModal";
 import { useSettingsStore } from "../../store/settingsStore";
 
 const SystemConfiguration = () => {
@@ -32,7 +33,6 @@ const SystemConfiguration = () => {
 
   const [showConfirmBackup, setShowConfirmBackup] = useState(false);
   const [showTestSMSModal, setShowTestSMSModal] = useState(false);
-  const [testPhoneNumber, setTestPhoneNumber] = useState("");
   const [message, setMessage] = useState(null);
 
   useEffect(() => {
@@ -128,23 +128,20 @@ const SystemConfiguration = () => {
     }
   };
 
-  const handleSendTestSMS = async (e) => {
-    e.preventDefault();
-    if (!testPhoneNumber) return;
-
+  const handleSendTestSMS = async (phoneNumber) => {
     try {
-      await sendTestSMS(testPhoneNumber);
+      await sendTestSMS(phoneNumber);
       setMessage({
         type: "success",
-        text: `Test SMS sent to ${testPhoneNumber}`,
+        text: `SMS sent to ${phoneNumber}`,
       });
       setShowTestSMSModal(false);
-      setTestPhoneNumber("");
     } catch (err) {
       setMessage({
         type: "error",
-        text: err.message || "Failed to send test SMS",
+        text: err.message || "Failed to send SMS",
       });
+      throw err;
     }
   };
 
@@ -164,7 +161,7 @@ const SystemConfiguration = () => {
       {/* SMS Gateway */}
       <DashboardCard title="SMS Gateway & Templates">
         <form onSubmit={handleSaveSms} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
               <label className="block text-sm font-semibold text-gray-700">
                 TextBee API Key
@@ -191,32 +188,6 @@ const SystemConfiguration = () => {
               <p className="text-xs text-gray-400">
                 The ID of the synced Android device.
               </p>
-            </div>
-
-            <div className="md:col-span-2 lg:col-span-1 space-y-2">
-              <label className="block text-sm font-semibold text-gray-700">
-                Default Notification Template
-              </label>
-              <textarea
-                value={sms.defaultTemplate}
-                onChange={(e) =>
-                  setSms({ ...sms, defaultTemplate: e.target.value })
-                }
-                placeholder="Enter message template..."
-                rows={4}
-                className="input-field py-3 transition-all"
-              />
-              <div className="flex flex-wrap gap-2 mt-1">
-                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                  {"{student}"}
-                </span>
-                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                  {"{date}"}
-                </span>
-                <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-0.5 rounded">
-                  {"{reason}"}
-                </span>
-              </div>
             </div>
           </div>
 
@@ -367,42 +338,12 @@ const SystemConfiguration = () => {
         </div>
       </Modal>
 
-      <Modal
+      <SendTestSMSModal
         isOpen={showTestSMSModal}
         onClose={() => setShowTestSMSModal(false)}
-        title="Send Test SMS"
-        size="md"
-      >
-        <form onSubmit={handleSendTestSMS} className="space-y-4">
-          <div>
-            <p className="text-sm text-gray-600 mb-4">
-              Enter a phone number to send a test message. This uses your
-              current saved API configuration.
-            </p>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Recipient Phone Number
-            </label>
-            <Input
-              value={testPhoneNumber}
-              onChange={(e) => setTestPhoneNumber(e.target.value)}
-              placeholder="e.g., 09123456789"
-              required
-            />
-          </div>
-          <div className="flex justify-end gap-2 pt-2">
-            <Button
-              variant="outline"
-              type="button"
-              onClick={() => setShowTestSMSModal(false)}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" loading={loading}>
-              Send Test Message
-            </Button>
-          </div>
-        </form>
-      </Modal>
+        onSend={handleSendTestSMS}
+        loading={loading}
+      />
 
       {loading && (
         <div className="fixed bottom-6 right-6">
