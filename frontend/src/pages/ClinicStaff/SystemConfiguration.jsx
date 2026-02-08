@@ -231,7 +231,7 @@ const SystemConfiguration = () => {
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
-                  Export All Data
+                  Export to XLSX
                 </label>
                 <p className="text-xs text-gray-500 mb-3">
                   Download a complete backup of the system database in XLSX
@@ -256,7 +256,7 @@ const SystemConfiguration = () => {
             <div className="space-y-3">
               <div>
                 <label className="block text-sm font-semibold text-gray-800 mb-1">
-                  Import Backup
+                  Import XLSX File
                 </label>
                 <p className="text-xs text-gray-500 mb-3">
                   Restore data from a previously exported XLSX file.

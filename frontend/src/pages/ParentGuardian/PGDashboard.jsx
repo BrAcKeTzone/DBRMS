@@ -42,7 +42,7 @@ const PGDashboard = () => {
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 sm:mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            Parent Dashboard
+            Student Records
           </h1>
           <p className="text-gray-600">
             A quick summary of your linked students and recent activity

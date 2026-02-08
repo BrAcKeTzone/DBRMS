@@ -122,7 +122,7 @@ const HealthRecordManagement = () => {
             variant="outline"
             className="w-full"
           >
-            Students
+            Manage Students
           </Button>
           <Button
             onClick={() => navigate("/clinic/visit-logging")}
@@ -130,13 +130,6 @@ const HealthRecordManagement = () => {
             className="w-full"
           >
             Log Visit
-          </Button>
-          <Button
-            onClick={() => navigate("/clinic/students")}
-            variant="primary"
-            className="w-full"
-          >
-            Add Health Record
           </Button>
         </div>
       </div>

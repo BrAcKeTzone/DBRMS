@@ -94,7 +94,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     if (user?.role === "CLINIC_STAFF") {
       return [
         {
-          name: "Dashboard",
+          name: "Clinic Records",
           path: "/clinic/dashboard",
           icon: (
             <svg
@@ -261,7 +261,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
     } else if (user?.role === "PARENT_GUARDIAN") {
       return [
         {
-          name: "Dashboard",
+          name: "Student Records",
           path: "/parent/dashboard",
           icon: (
             <svg
