@@ -50,7 +50,27 @@ const HealthRecordManagement = () => {
 
     // Filter by year level
     if (selectedYearLevel) {
-      result = result.filter((s) => s.yearLevel === selectedYearLevel);
+      if (selectedYearLevel === "HS") {
+        // High School (All Grades)
+        result = result.filter(
+          (s) =>
+            s.yearLevel &&
+            (s.yearLevel.includes("Grade") || s.yearLevel.startsWith("HS")),
+        );
+      } else if (selectedYearLevel === "JHS") {
+        // Junior High School (7-10)
+        result = result.filter((s) =>
+          ["Grade 7", "Grade 8", "Grade 9", "Grade 10"].includes(s.yearLevel),
+        );
+      } else if (selectedYearLevel === "SHS") {
+        // Senior High School (11-12)
+        result = result.filter((s) =>
+          ["Grade 11", "Grade 12"].includes(s.yearLevel),
+        );
+      } else {
+        // Specific Year Levels (College)
+        result = result.filter((s) => s.yearLevel === selectedYearLevel);
+      }
     }
 
     // Filter by search query
@@ -187,11 +207,18 @@ const HealthRecordManagement = () => {
               onChange={(e) => setSelectedYearLevel(e.target.value)}
             >
               <option value="">All Year Levels</option>
-              {["1st", "2nd", "3rd", "4th", "5th"].map((lvl) => (
-                <option key={lvl} value={lvl}>
-                  {lvl} Year
-                </option>
-              ))}
+              <optgroup label="High School">
+                <option value="HS">HS (All Grade 7-12)</option>
+                <option value="JHS">JHS (Grade 7-10)</option>
+                <option value="SHS">SHS (Grade 11-12)</option>
+              </optgroup>
+              <optgroup label="College">
+                <option value="1st Year College">1st Year College</option>
+                <option value="2nd Year College">2nd Year College</option>
+                <option value="3rd Year College">3rd Year College</option>
+                <option value="4th Year College">4th Year College</option>
+                <option value="5th+ Year College">5th+ Year College</option>
+              </optgroup>
             </select>
           </div>
 

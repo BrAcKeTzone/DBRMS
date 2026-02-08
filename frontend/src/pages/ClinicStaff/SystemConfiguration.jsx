@@ -223,78 +223,7 @@ const SystemConfiguration = () => {
           </div>
         </form>
       </DashboardCard>
-
-      {/* Backups & Maintenance (manual) */}
-      <DashboardCard title="Backups & Maintenance">
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-1">
-                  Export to XLSX
-                </label>
-                <p className="text-xs text-gray-500 mb-3">
-                  Download a complete backup of the system database in XLSX
-                  format.
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <Button
-                  onClick={() => setShowConfirmBackup(true)}
-                  className="w-full sm:w-auto justify-center"
-                >
-                  Export (Download)
-                </Button>
-                {systemSettings?.lastBackup && (
-                  <span className="text-xs text-gray-400 italic">
-                    Last backup: {systemSettings.lastBackup}
-                  </span>
-                )}
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-semibold text-gray-800 mb-1">
-                  Import XLSX File
-                </label>
-                <p className="text-xs text-gray-500 mb-3">
-                  Restore data from a previously exported XLSX file.
-                </p>
-              </div>
-              <div className="flex flex-col space-y-3">
-                <div className="relative">
-                  <input
-                    type="file"
-                    id="backup-upload"
-                    accept=".xlsx"
-                    onChange={handleImportBackup}
-                    className="block w-full text-xs text-gray-500
-                      file:mr-4 file:py-2 file:px-4
-                      file:rounded-md file:border-0
-                      file:text-xs file:font-semibold
-                      file:bg-gray-100 file:text-gray-700
-                      hover:file:bg-gray-200
-                      cursor-pointer"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-gray-100">
-            <div className="flex items-start gap-2 text-amber-600 bg-amber-50 p-3 rounded-md">
-              <span className="text-lg">⚠️</span>
-              <p className="text-xs leading-relaxed">
-                <strong>Attention:</strong> Importing data will replace matching
-                records in the current database. This action is irreversible.
-                Please ensure you have a current backup before proceeding.
-              </p>
-            </div>
-          </div>
-        </div>
-      </DashboardCard>
-
+      {/* Backups & Maintenance removed */}
       {message && (
         <div
           className={`p-3 rounded ${
