@@ -115,7 +115,7 @@ const PGDashboard = () => {
                     </div>
                   </div>
                 </div>
-                <div className="flex-shrink-0 w-full sm:w-auto">
+                <div className="shrink-0 w-full sm:w-auto">
                   <Button
                     className="w-full sm:w-auto"
                     onClick={() => openView(c)}
