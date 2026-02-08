@@ -68,27 +68,27 @@ const SMSNotificationsTracking = () => {
     return messages.filter(
       (m) =>
         (m.body || "").toLowerCase().includes(q) ||
-        (m.to || "").toLowerCase().includes(q)
+        (m.to || "").toLowerCase().includes(q),
     );
   }, [messages, search]);
 
   const markReadToggle = (id) => {
     setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, read: !m.read } : m))
+      prev.map((m) => (m.id === id ? { ...m, read: !m.read } : m)),
     );
   };
 
   const resendMessage = (id) => {
     // Demo: set status to QUEUED then SENT
     setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: "QUEUED" } : m))
+      prev.map((m) => (m.id === id ? { ...m, status: "QUEUED" } : m)),
     );
     setTimeout(
       () =>
         setMessages((prev) =>
-          prev.map((m) => (m.id === id ? { ...m, status: "SENT" } : m))
+          prev.map((m) => (m.id === id ? { ...m, status: "SENT" } : m)),
         ),
-      800
+      800,
     );
   };
 

@@ -94,6 +94,10 @@ export const createClinicVisit = async (data: any, _actorId?: number) => {
     hospitalName: visit.hospitalName || "",
   });
   const smsRecipient = recipientPhone || visit.student.parent?.phone;
+  const recipientName = visit.student.parent
+    ? `${visit.student.parent.firstName} ${visit.student.parent.lastName}`.trim()
+    : "N/A";
+
   let smsLog = visit.smsLog;
   let smsStatus: {
     success: boolean;
@@ -112,6 +116,8 @@ export const createClinicVisit = async (data: any, _actorId?: number) => {
         clinicVisitId: visit.id,
         message: smsMessage,
         status: sent ? "SENT" : "FAILED",
+        recipientName,
+        recipientPhone: smsRecipient,
         sentAt: sent ? new Date() : null,
         failReason: sent
           ? null
