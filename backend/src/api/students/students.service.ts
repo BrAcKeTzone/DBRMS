@@ -807,7 +807,7 @@ export const getAllLinkRequestsByParentId = async (
 // Get approved (linked) students for a specific parent
 export const getApprovedStudentsByParentId = async (
   parentId: number,
-): Promise<Student[]> => {
+): Promise<any[]> => {
   const students = await prisma.student.findMany({
     where: {
       parentId,
@@ -830,6 +830,16 @@ export const getApprovedStudentsByParentId = async (
           id: true,
           code: true,
           name: true,
+        },
+      },
+      clinicVisits: {
+        orderBy: {
+          visitDateTime: "desc",
+        },
+      },
+      healthMetrics: {
+        orderBy: {
+          year: "desc",
         },
       },
     },
