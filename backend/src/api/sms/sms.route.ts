@@ -12,5 +12,6 @@ router.use(authorize("CLINIC_STAFF"));
 
 router.post("/send", validate(smsValidation.sendSMS), smsController.sendSMS);
 router.get("/logs", smsController.getLogs);
+router.post("/resend/:id", smsController.resendSMS);
 
 export default router;

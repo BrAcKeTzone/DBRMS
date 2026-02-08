@@ -23,6 +23,18 @@ export const sendTestSMS = async (phoneNumber: string) => {
 
   const result = await triggerSMS(phoneNumber, message);
 
+  // Log to SmsLog for tracking
+  await prisma.smsLog.create({
+    data: {
+      message,
+      status: result.success ? "SENT" : "FAILED",
+      recipientPhone: phoneNumber,
+      recipientName: "Test SMS",
+      sentAt: result.success ? new Date() : null,
+      failReason: result.success ? null : (result as any).error || (result as any).message,
+    },
+  });
+
   if (!result.success) {
     throw new ApiError(500, `SMS failed: ${result.error || result.message}`);
   }

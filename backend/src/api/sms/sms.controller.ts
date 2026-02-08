@@ -24,3 +24,11 @@ export const getLogs = asyncHandler(async (req: Request, res: Response) => {
     .status(200)
     .json(new ApiResponse(200, result, "SMS logs fetched successfully"));
 });
+
+export const resendSMS = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await smsService.resendSMS(Number(id));
+  res
+    .status(200)
+    .json(new ApiResponse(200, result, "SMS resend attempt completed"));
+});

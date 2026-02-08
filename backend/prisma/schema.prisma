@@ -192,7 +192,7 @@ model ClinicVisit {
 
 model SmsLog {
   id            Int         @id @default(autoincrement())
-  clinicVisitId Int         @unique
+  clinicVisitId Int?        @unique
   message       String      @db.Text
   status        String // e.g., "SENT", "FAILED", "PENDING"
   recipientName String?
@@ -200,7 +200,7 @@ model SmsLog {
   sentAt        DateTime?
   failReason    String?
 
-  clinicVisit ClinicVisit @relation(fields: [clinicVisitId], references: [id], onDelete: Cascade)
+  clinicVisit ClinicVisit? @relation(fields: [clinicVisitId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 }

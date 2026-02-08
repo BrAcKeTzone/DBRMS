@@ -6,12 +6,11 @@ import Modal from "../../components/ui/Modal";
 import MessagePreviewModal from "../../components/clinic/MessagePreviewModal";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { formatDate } from "../../utils/formatDate";
-import { useSettingsStore } from "../../store/settingsStore";
+import { fetchClient } from "../../utils/fetchClient";
 
 const SMSNotificationsTracking = () => {
-  const { fetchNotificationSettings, notificationSettings } =
-    useSettingsStore();
   const [messages, setMessages] = useState([]);
+  const [stats, setStats] = useState({ sent: 0, failed: 0, queued: 0 });
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
@@ -22,48 +21,17 @@ const SMSNotificationsTracking = () => {
     const load = async () => {
       setLoading(true);
       try {
-        await fetchNotificationSettings();
+        const response = await fetchClient.get("/sms/logs?limit=100");
+        const respData = response.data?.data || {};
+        setMessages(respData.logs || []);
+        setStats(respData.stats || { sent: 0, failed: 0, queued: 0 });
       } catch (err) {
-        // ignore
+        console.error("Failed to fetch SMS logs:", err);
       }
-
-      // Demo messages (replace when backend endpoint available)
-      const demo = [
-        {
-          id: "m1",
-          to: "+63-912-345-6789",
-          recipientName: "John Doe (Parent)",
-          body: "Your child John was seen at the clinic today.",
-          date: new Date().toISOString(),
-          status: "SENT",
-          read: true,
-        },
-        {
-          id: "m2",
-          to: "+63-912-345-6789",
-          recipientName: "Mary Smith (Parent)",
-          body: "Your child Mary has been referred to a doctor.",
-          date: new Date().toISOString(),
-          status: "FAILED",
-          read: false,
-        },
-        {
-          id: "m3",
-          to: "+63-923-456-7890",
-          recipientName: "Robert Johnson",
-          body: "Reminder: Vaccination tomorrow at 9 AM.",
-          date: new Date().toISOString(),
-          status: "QUEUED",
-          read: false,
-        },
-      ];
-
-      setMessages(demo);
       setLoading(false);
     };
 
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const filtered = useMemo(() => {
@@ -71,23 +39,40 @@ const SMSNotificationsTracking = () => {
     if (!q) return messages;
     return messages.filter(
       (m) =>
-        (m.body || "").toLowerCase().includes(q) ||
-        (m.to || "").toLowerCase().includes(q),
+        (m.message || "").toLowerCase().includes(q) ||
+        (m.recipientPhone || "").toLowerCase().includes(q) ||
+        (m.recipientName || "").toLowerCase().includes(q),
     );
   }, [messages, search]);
 
-  const resendMessage = (id) => {
-    // Demo: set status to QUEUED then SENT
-    setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: "QUEUED" } : m)),
-    );
-    setTimeout(
-      () =>
+  const resendMessage = async (id) => {
+    try {
+      // Optimistic UI update
+      setMessages((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, status: "QUEUED" } : m)),
+      );
+
+      const response = await fetchClient.post(`/sms/resend/${id}`);
+      const updatedLog = response.data?.data?.log;
+
+      if (updatedLog) {
         setMessages((prev) =>
-          prev.map((m) => (m.id === id ? { ...m, status: "SENT" } : m)),
-        ),
-      800,
-    );
+          prev.map((m) => (m.id === id ? updatedLog : m)),
+        );
+        
+        // Refresh stats after a resend
+        const statsResp = await fetchClient.get("/sms/logs?limit=1");
+        if (statsResp.data?.data?.stats) {
+          setStats(statsResp.data.data.stats);
+        }
+      }
+    } catch (err) {
+      console.error("Resend failed:", err);
+      // Revert status on failure
+      setMessages((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, status: "FAILED" } : m)),
+      );
+    }
   };
 
   return (
@@ -106,21 +91,21 @@ const SMSNotificationsTracking = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         <DashboardCard title="Total Sent" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
-            {messages.filter((m) => m.status === "SENT").length}
+            {stats.sent}
           </div>
           <p className="text-xs text-gray-500 mt-1">Messages delivered</p>
         </DashboardCard>
 
         <DashboardCard title="Failed" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-red-600">
-            {messages.filter((m) => m.status === "FAILED").length}
+            {stats.failed}
           </div>
           <p className="text-xs text-gray-500 mt-1">Failed deliveries</p>
         </DashboardCard>
 
         <DashboardCard title="Queued" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-            {messages.filter((m) => m.status === "QUEUED").length}
+            {stats.queued}
           </div>
           <p className="text-xs text-gray-500 mt-1">Queued for sending</p>
         </DashboardCard>
@@ -135,7 +120,7 @@ const SMSNotificationsTracking = () => {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by message content or recipient"
+              placeholder="Search by message, phone or name"
             />
           </div>
 
@@ -194,9 +179,9 @@ const SMSNotificationsTracking = () => {
               <table className="min-w-full table-auto">
                 <thead>
                   <tr className="text-left text-xs text-gray-500 uppercase tracking-wider">
-                    <th className="px-3 py-2">To</th>
+                    <th className="px-3 py-2">Recipient</th>
                     <th className="px-3 py-2">Message</th>
-                    <th className="px-3 py-2">Date</th>
+                    <th className="px-3 py-2">Date Sent</th>
                     <th className="px-3 py-2">Status</th>
                     <th className="px-3 py-2">Actions</th>
                   </tr>
@@ -211,17 +196,32 @@ const SMSNotificationsTracking = () => {
                         setShowPreview(true);
                       }}
                     >
-                      <td className="px-3 py-3 text-sm text-gray-900">
-                        {m.to}
+                      <td className="px-3 py-3 text-sm">
+                        <div className="font-medium text-gray-900">
+                          {m.recipientName || "Unknown"}
+                        </div>
+                        <div className="text-gray-500">{m.recipientPhone}</div>
                       </td>
-                      <td className="px-3 py-3 text-sm text-gray-600 truncate">
-                        {m.body}
+                      <td className="px-3 py-3 text-sm text-gray-600 max-w-xs">
+                        {m.message?.length > 100
+                          ? `${m.message.substring(0, 100)}...`
+                          : m.message}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-600">
-                        {formatDate(m.date)}
+                        {formatDate(m.sentAt || m.createdAt)}
                       </td>
-                      <td className="px-3 py-3 text-sm text-gray-600">
-                        {m.status}
+                      <td className="px-3 py-3 text-sm">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            m.status === "SENT"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : m.status === "FAILED"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {m.status}
+                        </span>
                       </td>
                       <td
                         className="px-3 py-3 text-sm"
@@ -256,10 +256,32 @@ const SMSNotificationsTracking = () => {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">{m.to}</div>
-                      <div className="text-sm text-gray-700 mt-1">{m.body}</div>
-                      <div className="text-xs text-gray-500 mt-2">
-                        {formatDate(m.date)} • {m.status}
+                      <div className="font-medium text-gray-900">
+                        {m.recipientName || "Unknown"}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        {m.recipientPhone}
+                      </div>
+                      <div className="text-sm text-gray-700 mt-2">
+                        {m.message?.length > 100
+                          ? `${m.message.substring(0, 100)}...`
+                          : m.message}
+                      </div>
+                      <div className="flex items-center gap-2 mt-3">
+                        <span
+                          className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                            m.status === "SENT"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : m.status === "FAILED"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-blue-100 text-blue-800"
+                          }`}
+                        >
+                          {m.status}
+                        </span>
+                        <span className="text-xs text-gray-500">
+                          {formatDate(m.sentAt || m.createdAt)}
+                        </span>
                       </div>
                     </div>
                   </div>
