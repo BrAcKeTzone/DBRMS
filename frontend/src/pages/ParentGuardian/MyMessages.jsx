@@ -6,11 +6,11 @@ import Modal from "../../components/ui/Modal";
 import MessagePreviewModal from "../../components/clinic/MessagePreviewModal";
 import LoadingSpinner from "../../components/ui/LoadingSpinner";
 import { formatDate } from "../../utils/formatDate";
-import { useSettingsStore } from "../../store/settingsStore";
+import { fetchClient } from "../../utils/fetchClient";
+import { useAuthStore } from "../../store/authStore";
 
-const SMSNotificationsTracking = () => {
-  const { fetchNotificationSettings, notificationSettings } =
-    useSettingsStore();
+const MyMessages = () => {
+  const user = useAuthStore((s) => s.user);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -22,49 +22,52 @@ const SMSNotificationsTracking = () => {
     const load = async () => {
       setLoading(true);
       try {
-        await fetchNotificationSettings();
+        const resp = await fetchClient.get("/sms/logs");
+        const respData = resp?.data?.data ?? resp?.data ?? resp;
+        const allLogs = respData?.logs ?? respData ?? [];
+
+        // Normalize phone digits for matching
+        const userPhoneDigits = (user?.phone || "").replace(/\D+/g, "");
+        const last7 = userPhoneDigits.slice(-7);
+
+        const myLogs = (allLogs || []).filter((l) => {
+          const recipient = (l.recipientPhone || "").replace(/\D+/g, "");
+          const byPhone =
+            recipient && last7 ? recipient.includes(last7) : false;
+          const byParentId = !!(
+            l?.clinicVisit?.student?.parent?.id &&
+            user?.id &&
+            l.clinicVisit.student.parent.id === user.id
+          );
+          return byPhone || byParentId;
+        });
+
+        // Map to frontend-friendly shape (backwards compatible with demo structure)
+        const mapped = myLogs.map((m) => ({
+          id: m.id,
+          to: m.recipientPhone || m.clinicVisit?.student?.parent?.phone || "",
+          recipientName:
+            m.recipientName || m.clinicVisit?.student?.parent
+              ? `${m.clinicVisit.student.parent.firstName} ${m.clinicVisit.student.parent.lastName}`.trim()
+              : "",
+          body: m.message,
+          date: m.sentAt || m.createdAt || m.clinicVisit?.visitDateTime,
+          status: m.status,
+          raw: m,
+        }));
+
+        setMessages(mapped);
       } catch (err) {
-        // ignore
+        // fallback to empty
+        setMessages([]);
       }
 
-      // Demo messages (replace when backend endpoint available)
-      const demo = [
-        {
-          id: "m1",
-          to: "+63-912-345-6789",
-          recipientName: "John Doe (Parent)",
-          body: "Your child John was seen at the clinic today.",
-          date: new Date().toISOString(),
-          status: "SENT",
-          read: true,
-        },
-        {
-          id: "m2",
-          to: "+63-912-345-6789",
-          recipientName: "Mary Smith (Parent)",
-          body: "Your child Mary has been referred to a doctor.",
-          date: new Date().toISOString(),
-          status: "FAILED",
-          read: false,
-        },
-        {
-          id: "m3",
-          to: "+63-923-456-7890",
-          recipientName: "Robert Johnson",
-          body: "Reminder: Vaccination tomorrow at 9 AM.",
-          date: new Date().toISOString(),
-          status: "QUEUED",
-          read: false,
-        },
-      ];
-
-      setMessages(demo);
       setLoading(false);
     };
 
     load();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -72,58 +75,20 @@ const SMSNotificationsTracking = () => {
     return messages.filter(
       (m) =>
         (m.body || "").toLowerCase().includes(q) ||
-        (m.to || "").toLowerCase().includes(q),
+        (m.to || "").toLowerCase().includes(q) ||
+        (m.recipientName || "").toLowerCase().includes(q),
     );
   }, [messages, search]);
-
-  const resendMessage = (id) => {
-    // Demo: set status to QUEUED then SENT
-    setMessages((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: "QUEUED" } : m)),
-    );
-    setTimeout(
-      () =>
-        setMessages((prev) =>
-          prev.map((m) => (m.id === id ? { ...m, status: "SENT" } : m)),
-        ),
-      800,
-    );
-  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6 sm:mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
-            SMS & Notification Tracking
+            My Messages
           </h1>
-          <p className="text-gray-600">
-            View and manage SMS notifications sent by the system
-          </p>
+          <p className="text-gray-600">Messages sent to you by the clinic</p>
         </div>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        <DashboardCard title="Total Sent" className="text-center">
-          <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
-            {messages.filter((m) => m.status === "SENT").length}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Messages delivered</p>
-        </DashboardCard>
-
-        <DashboardCard title="Failed" className="text-center">
-          <div className="text-2xl sm:text-3xl font-bold text-red-600">
-            {messages.filter((m) => m.status === "FAILED").length}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Failed deliveries</p>
-        </DashboardCard>
-
-        <DashboardCard title="Queued" className="text-center">
-          <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-            {messages.filter((m) => m.status === "QUEUED").length}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Queued for sending</p>
-        </DashboardCard>
       </div>
 
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
@@ -135,7 +100,7 @@ const SMSNotificationsTracking = () => {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by message content or recipient"
+              placeholder="Search by message, recipient or name"
             />
           </div>
 
@@ -159,22 +124,11 @@ const SMSNotificationsTracking = () => {
 
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => {
-                setSearch("");
-              }}
+              onClick={() => setSearch("")}
               variant="outline"
               className="w-full sm:w-auto"
             >
               Clear
-            </Button>
-            <Button
-              onClick={() => {
-                /* placeholder for export */
-              }}
-              variant="primary"
-              className="w-full sm:w-auto"
-            >
-              Export
             </Button>
           </div>
         </div>
@@ -189,7 +143,6 @@ const SMSNotificationsTracking = () => {
           <div className="p-6 text-center text-gray-500">No messages found</div>
         ) : (
           <>
-            {/* Desktop table */}
             <div className="hidden lg:block overflow-x-auto">
               <table className="min-w-full table-auto">
                 <thead>
@@ -198,7 +151,6 @@ const SMSNotificationsTracking = () => {
                     <th className="px-3 py-2">Message</th>
                     <th className="px-3 py-2">Date</th>
                     <th className="px-3 py-2">Status</th>
-                    <th className="px-3 py-2">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -223,27 +175,12 @@ const SMSNotificationsTracking = () => {
                       <td className="px-3 py-3 text-sm text-gray-600">
                         {m.status}
                       </td>
-                      <td
-                        className="px-3 py-3 text-sm"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <div className="flex items-center gap-2">
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => resendMessage(m.id)}
-                          >
-                            Resend
-                          </Button>
-                        </div>
-                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
 
-            {/* Mobile cards */}
             <div className="lg:hidden space-y-3">
               {filtered.map((m) => (
                 <div
@@ -263,19 +200,6 @@ const SMSNotificationsTracking = () => {
                       </div>
                     </div>
                   </div>
-
-                  <div
-                    className="mt-3 grid grid-cols-1 gap-2"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Button
-                      className="w-full"
-                      variant="primary"
-                      onClick={() => resendMessage(m.id)}
-                    >
-                      Resend
-                    </Button>
-                  </div>
                 </div>
               ))}
             </div>
@@ -292,4 +216,4 @@ const SMSNotificationsTracking = () => {
   );
 };
 
-export default SMSNotificationsTracking;
+export default MyMessages;

@@ -19,6 +19,8 @@ import Users from "../pages/ClinicStaff/Users";
 // Parent pages
 import PGDashboard from "../pages/ParentGuardian/PGDashboard";
 import MyChildren from "../pages/ParentGuardian/MyChildren";
+import MyMessages from "../pages/ParentGuardian/MyMessages";
+// SMS tracking page (used by clinic staff)
 import SMSNotificationsTracking from "../pages/ParentGuardian/SMSNotificationsTracking";
 
 // Shared pages
@@ -190,6 +192,14 @@ const AppRoutes = () => {
           }
         />
         <Route path="profile" element={<ProfilePage />} />
+        <Route
+          path="sms-tracking"
+          element={
+            <ProtectedRoute allowedRoles={["CLINIC_STAFF"]}>
+              <SMSNotificationsTracking />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       {/* Parent routes */}
@@ -203,7 +213,7 @@ const AppRoutes = () => {
       >
         <Route path="dashboard" element={<PGDashboard />} />
         <Route path="linked-students" element={<MyChildren />} />
-        <Route path="sms-tracking" element={<SMSNotificationsTracking />} />
+        <Route path="sms-tracking" element={<MyMessages />} />
         <Route path="profile" element={<ProfilePage />} />
       </Route>
 
