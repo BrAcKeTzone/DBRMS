@@ -237,9 +237,25 @@ const StudentsManagement = () => {
 
     // Apply year level filter
     if (filterYearLevel) {
-      result = result.filter(
-        (student) => student.yearLevel === filterYearLevel,
-      );
+      result = result.filter((student) => {
+        const yl = student.yearLevel || "";
+        if (filterYearLevel === "HS") {
+          // All HS grades (7-12)
+          return yl.includes("Grade");
+        }
+        if (filterYearLevel === "JHS") {
+          // Grade 7-10
+          return ["Grade 7", "Grade 8", "Grade 9", "Grade 10"].some((g) =>
+            yl.includes(g),
+          );
+        }
+        if (filterYearLevel === "SHS") {
+          // Grade 11-12
+          return ["Grade 11", "Grade 12"].some((g) => yl.includes(g));
+        }
+        // Specific college years
+        return yl === filterYearLevel;
+      });
     }
 
     // Apply course filter
@@ -985,15 +1001,30 @@ const StudentsManagement = () => {
                   <select
                     id="filter-year-level"
                     value={filterYearLevel}
-                    onChange={(e) => setFilterYearLevel(e.target.value)}
+                    onChange={(e) => {
+                      setFilterYearLevel(e.target.value);
+                      // Reset course filter if not college
+                      if (!e.target.value.includes("College")) {
+                        setFilterCourse("");
+                      }
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">All Year Levels</option>
-                    {["1st", "2nd", "3rd", "4th", "5th"].map((lvl) => (
-                      <option key={lvl} value={lvl}>
-                        {lvl} Year
+                    <optgroup label="High School">
+                      <option value="HS">HS (All Grade 7-12)</option>
+                      <option value="JHS">JHS (Grade 7-10)</option>
+                      <option value="SHS">SHS (Grade 11-12)</option>
+                    </optgroup>
+                    <optgroup label="College">
+                      <option value="1st Year College">1st Year College</option>
+                      <option value="2nd Year College">2nd Year College</option>
+                      <option value="3rd Year College">3rd Year College</option>
+                      <option value="4th Year College">4th Year College</option>
+                      <option value="5th+ Year College">
+                        5th+ Year College
                       </option>
-                    ))}
+                    </optgroup>
                   </select>
                 </div>
 
@@ -1017,28 +1048,30 @@ const StudentsManagement = () => {
                   </select>
                 </div>
 
-                {/* Course Filter */}
-                <div>
-                  <label
-                    htmlFor="filter-course"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Course
-                  </label>
-                  <select
-                    id="filter-course"
-                    value={filterCourse}
-                    onChange={(e) => setFilterCourse(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">All Courses</option>
-                    {getUniqueCourses().map((course) => (
-                      <option key={course.id} value={course.id}>
-                        {course.code} - {course.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {/* Course Filter - Only visible for College */}
+                {filterYearLevel && filterYearLevel.includes("College") && (
+                  <div>
+                    <label
+                      htmlFor="filter-course"
+                      className="block text-sm font-medium text-gray-700 mb-2"
+                    >
+                      Course
+                    </label>
+                    <select
+                      id="filter-course"
+                      value={filterCourse}
+                      onChange={(e) => setFilterCourse(e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">All Courses</option>
+                      {getUniqueCourses().map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.code} - {course.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
 
               {/* Action Buttons */}
