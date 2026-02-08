@@ -86,7 +86,7 @@ const SMSNotificationsTracking = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
         <DashboardCard title="Total Sent" className="text-center">
           <div className="text-2xl sm:text-3xl font-bold text-emerald-600">
             {stats.sent}
@@ -99,13 +99,6 @@ const SMSNotificationsTracking = () => {
             {stats.failed}
           </div>
           <p className="text-xs text-gray-500 mt-1">Failed deliveries</p>
-        </DashboardCard>
-
-        <DashboardCard title="Queued" className="text-center">
-          <div className="text-2xl sm:text-3xl font-bold text-blue-600">
-            {stats.queued}
-          </div>
-          <p className="text-xs text-gray-500 mt-1">Queued for sending</p>
         </DashboardCard>
       </div>
 
@@ -136,7 +129,6 @@ const SMSNotificationsTracking = () => {
               <option value="">All</option>
               <option value="SENT">Sent</option>
               <option value="FAILED">Failed</option>
-              <option value="QUEUED">Queued</option>
             </select>
           </div>
 

@@ -19,7 +19,7 @@ export const sendSMS = asyncHandler(async (req: Request, res: Response) => {
 });
 
 export const getLogs = asyncHandler(async (req: Request, res: Response) => {
-  const result = await smsService.getSMSLogs(req.query);
+  const result = await smsService.getSMSLogs(req.query, (req as any).user);
   res
     .status(200)
     .json(new ApiResponse(200, result, "SMS logs fetched successfully"));

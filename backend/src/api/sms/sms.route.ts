@@ -6,12 +6,16 @@ import { authenticate, authorize } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
-// Only staff can send or view SMS logs
+// Only staff can send or view all SMS logs, parents can view their own
 router.use(authenticate);
-router.use(authorize("CLINIC_STAFF"));
 
-router.post("/send", validate(smsValidation.sendSMS), smsController.sendSMS);
+router.post(
+  "/send",
+  authorize("CLINIC_STAFF"),
+  validate(smsValidation.sendSMS),
+  smsController.sendSMS,
+);
 router.get("/logs", smsController.getLogs);
-router.post("/resend/:id", smsController.resendSMS);
+router.post("/resend/:id", authorize("CLINIC_STAFF"), smsController.resendSMS);
 
 export default router;

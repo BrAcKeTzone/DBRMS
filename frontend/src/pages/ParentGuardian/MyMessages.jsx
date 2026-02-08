@@ -22,34 +22,19 @@ const MyMessages = () => {
     const load = async () => {
       setLoading(true);
       try {
-        const resp = await fetchClient.get("/sms/logs");
+        const resp = await fetchClient.get("/sms/logs?limit=100");
         const respData = resp?.data?.data ?? resp?.data ?? resp;
-        const allLogs = respData?.logs ?? respData ?? [];
+        const serverLogs = respData?.logs ?? [];
 
-        // Normalize phone digits for matching
-        const userPhoneDigits = (user?.phone || "").replace(/\D+/g, "");
-        const last7 = userPhoneDigits.slice(-7);
-
-        const myLogs = (allLogs || []).filter((l) => {
-          const recipient = (l.recipientPhone || "").replace(/\D+/g, "");
-          const byPhone =
-            recipient && last7 ? recipient.includes(last7) : false;
-          const byParentId = !!(
-            l?.clinicVisit?.student?.parent?.id &&
-            user?.id &&
-            l.clinicVisit.student.parent.id === user.id
-          );
-          return byPhone || byParentId;
-        });
-
-        // Map to frontend-friendly shape (backwards compatible with demo structure)
-        const mapped = myLogs.map((m) => ({
+        // Map to frontend-friendly shape
+        const mapped = serverLogs.map((m) => ({
           id: m.id,
-          to: m.recipientPhone || m.clinicVisit?.student?.parent?.phone || "",
+          recipientPhone: m.recipientPhone,
           recipientName:
-            m.recipientName || m.clinicVisit?.student?.parent
+            m.recipientName ||
+            (m.clinicVisit?.student?.parent
               ? `${m.clinicVisit.student.parent.firstName} ${m.clinicVisit.student.parent.lastName}`.trim()
-              : "",
+              : ""),
           body: m.message,
           date: m.sentAt || m.createdAt || m.clinicVisit?.visitDateTime,
           status: m.status,
@@ -58,7 +43,7 @@ const MyMessages = () => {
 
         setMessages(mapped);
       } catch (err) {
-        // fallback to empty
+        console.error("Failed to fetch messages:", err);
         setMessages([]);
       }
 
@@ -66,7 +51,6 @@ const MyMessages = () => {
     };
 
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const filtered = useMemo(() => {
@@ -75,7 +59,7 @@ const MyMessages = () => {
     return messages.filter(
       (m) =>
         (m.body || "").toLowerCase().includes(q) ||
-        (m.to || "").toLowerCase().includes(q) ||
+        (m.recipientPhone || "").toLowerCase().includes(q) ||
         (m.recipientName || "").toLowerCase().includes(q),
     );
   }, [messages, search]);
@@ -92,7 +76,7 @@ const MyMessages = () => {
       </div>
 
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Search
@@ -102,24 +86,6 @@ const MyMessages = () => {
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search by message, recipient or name"
             />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Status
-            </label>
-            <select
-              className="w-full p-2 border border-gray-300 rounded-md bg-white"
-              onChange={(e) => {
-                const v = e.target.value;
-                setMessages((prev) => prev.filter((m) => !v || m.status === v));
-              }}
-            >
-              <option value="">All</option>
-              <option value="SENT">Sent</option>
-              <option value="FAILED">Failed</option>
-              <option value="QUEUED">Queued</option>
-            </select>
           </div>
 
           <div className="flex items-center gap-2">
@@ -164,10 +130,12 @@ const MyMessages = () => {
                       }}
                     >
                       <td className="px-3 py-3 text-sm text-gray-900">
-                        {m.to}
+                        {m.recipientPhone}
                       </td>
-                      <td className="px-3 py-3 text-sm text-gray-600 truncate">
-                        {m.body}
+                      <td className="px-3 py-3 text-sm text-gray-600 truncate max-w-xs">
+                        {m.body?.length > 100
+                          ? m.body.substring(0, 100) + "..."
+                          : m.body}
                       </td>
                       <td className="px-3 py-3 text-sm text-gray-600">
                         {formatDate(m.date)}
@@ -193,8 +161,14 @@ const MyMessages = () => {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">{m.to}</div>
-                      <div className="text-sm text-gray-700 mt-1">{m.body}</div>
+                      <div className="font-medium text-gray-900">
+                        {m.recipientPhone}
+                      </div>
+                      <div className="text-sm text-gray-700 mt-1">
+                        {m.body?.length > 100
+                          ? m.body.substring(0, 100) + "..."
+                          : m.body}
+                      </div>
                       <div className="text-xs text-gray-500 mt-2">
                         {formatDate(m.date)} • {m.status}
                       </div>

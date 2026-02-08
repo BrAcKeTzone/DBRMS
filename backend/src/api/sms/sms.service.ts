@@ -35,7 +35,11 @@ export const sendManualSMS = async (data: {
       sentAt: result.success ? new Date() : null,
       failReason: result.success
         ? null
-        : (result as any).error || (result as any).message,
+        : typeof (result as any).error === "string"
+          ? (result as any).error
+          : (result as any).message ||
+            JSON.stringify((result as any).error) ||
+            "Unknown error",
     },
   });
 
@@ -55,15 +59,36 @@ export const sendManualSMS = async (data: {
   return result;
 };
 
-export const getSMSLogs = async (query: any) => {
+export const getSMSLogs = async (query: any, user: any) => {
   const { page = 1, limit = 10 } = query;
   const skip = (Number(page) - 1) * Number(limit);
 
+  const where: any = {};
+
+  // If user is a parent, only show logs relevant to them or their students
+  if (user.role === "PARENT_GUARDIAN") {
+    where.OR = [
+      { recipientPhone: user.phone },
+      {
+        clinicVisit: {
+          student: {
+            parentId: user.id,
+          },
+        },
+      },
+    ];
+  }
+
   const logs = await prisma.smsLog.findMany({
+    where,
     include: {
       clinicVisit: {
         include: {
-          student: true,
+          student: {
+            include: {
+              parent: true,
+            },
+          },
         },
       },
     },
@@ -72,13 +97,15 @@ export const getSMSLogs = async (query: any) => {
     take: Number(limit),
   });
 
-  const total = await prisma.smsLog.count();
-  const sentCount = await prisma.smsLog.count({ where: { status: "SENT" } });
+  const total = await prisma.smsLog.count({ where });
+  const sentCount = await prisma.smsLog.count({
+    where: { ...where, status: "SENT" },
+  });
   const failedCount = await prisma.smsLog.count({
-    where: { status: "FAILED" },
+    where: { ...where, status: "FAILED" },
   });
   const queuedCount = await prisma.smsLog.count({
-    where: { status: "QUEUED" },
+    where: { ...where, status: "QUEUED" },
   });
 
   return {
@@ -101,6 +128,17 @@ export const getSMSLogs = async (query: any) => {
 export const resendSMS = async (logId: number) => {
   const log = await prisma.smsLog.findUnique({
     where: { id: logId },
+    include: {
+      clinicVisit: {
+        include: {
+          student: {
+            include: {
+              parent: true,
+            },
+          },
+        },
+      },
+    },
   });
 
   if (!log) {
@@ -113,8 +151,7 @@ export const resendSMS = async (logId: number) => {
 
   const result = await triggerSMS(log.recipientPhone, log.message);
 
-  // Update the log or create a new one? Usually updating the status and sentAt is fine for a resend,
-  // or we could track attempts. Let's update the existing log to show most recent attempt.
+  // Update the log with the latest attempt status
   const updatedLog = await prisma.smsLog.update({
     where: { id: logId },
     data: {
@@ -122,7 +159,22 @@ export const resendSMS = async (logId: number) => {
       sentAt: result.success ? new Date() : log.sentAt,
       failReason: result.success
         ? null
-        : (result as any).error || (result as any).message,
+        : typeof (result as any).error === "string"
+          ? (result as any).error
+          : (result as any).message ||
+            JSON.stringify((result as any).error) ||
+            "Unknown error",
+    },
+    include: {
+      clinicVisit: {
+        include: {
+          student: {
+            include: {
+              parent: true,
+            },
+          },
+        },
+      },
     },
   });
 

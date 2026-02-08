@@ -121,7 +121,11 @@ export const createClinicVisit = async (data: any, _actorId?: number) => {
         sentAt: sent ? new Date() : null,
         failReason: sent
           ? null
-          : smsResult.error || smsResult.message || "Unknown SMS error",
+          : typeof (smsResult as any).error === "string"
+            ? (smsResult as any).error
+            : (smsResult as any).message ||
+              JSON.stringify((smsResult as any).error) ||
+              "Unknown SMS error",
       },
     });
 

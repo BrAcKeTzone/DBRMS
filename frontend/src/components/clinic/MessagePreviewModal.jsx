@@ -8,7 +8,7 @@ const MessagePreviewModal = ({ isOpen, onClose, message }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Message Preview" size="md">
-      <div className="space-y-6">
+      <div className="space-y-6 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
         <div>
           <div className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-1">
             Recipient
