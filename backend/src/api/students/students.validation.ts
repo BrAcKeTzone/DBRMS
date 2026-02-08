@@ -14,11 +14,17 @@ export const createStudent = Joi.object().keys({
   lastName: Joi.string().min(2).max(50).required(),
   middleName: Joi.string().min(2).max(50).optional().allow("", null),
   birthDate: Joi.date().optional().allow("", null),
-  yearEnrolled: Joi.string().pattern(yearEnrolledPattern).required().messages({
-    "string.pattern.base":
-      "Year enrolled must follow format: YYYY (e.g., 2024)",
+  yearEnrolled: Joi.string()
+    .pattern(yearEnrolledPattern)
+    .optional()
+    .allow("", null)
+    .messages({
+      "string.pattern.base":
+        "Year enrolled must follow format: YYYY (e.g., 2024)",
+    }),
+  yearLevel: Joi.string().required().messages({
+    "any.required": "Year level is required",
   }),
-  yearLevel: Joi.string().optional().allow("", null),
   parentId: Joi.number().integer().positive().optional(),
   courseCode: Joi.string().optional().allow("", null),
   bloodType: Joi.string().optional().allow("", null),

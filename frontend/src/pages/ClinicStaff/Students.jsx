@@ -25,7 +25,6 @@ const StudentsManagement = () => {
     lastName: "",
     middleName: "",
     studentId: "",
-    yearEnrolled: "",
     yearLevel: "",
     birthDate: "",
     sex: "",
@@ -353,8 +352,8 @@ const StudentsManagement = () => {
       alert("Student ID must be in format YYYY-NNNNN (e.g., 2024-12345)");
       return;
     }
-    if (!yearPattern.test(String(newStudent.yearEnrolled))) {
-      alert("Year enrolled must be a 4-digit year (e.g., 2024)");
+    if (!newStudent.yearLevel) {
+      alert("Please select a year level");
       return;
     }
     if (!newStudent.sex) {
@@ -372,7 +371,7 @@ const StudentsManagement = () => {
         lastName: "",
         middleName: "",
         studentId: "",
-        yearEnrolled: "",
+        yearLevel: "",
         birthDate: "",
         sex: "",
         courseCode: "",
@@ -491,9 +490,6 @@ const StudentsManagement = () => {
             </p>
           </div>
           <p className="text-sm text-gray-500">ID: {row.studentId}</p>
-          <p className="text-sm text-gray-500">
-            Year: {row.yearEnrolled || "N/A"}
-          </p>
         </div>
       ),
     },
@@ -501,9 +497,7 @@ const StudentsManagement = () => {
       header: "Year Level",
       accessor: "yearLevel",
       cell: (row) => (
-        <div className="text-sm text-gray-600">
-          {row.yearLevel ? `${row.yearLevel} Year` : "N/A"}
-        </div>
+        <div className="text-sm text-gray-600">{row.yearLevel || "N/A"}</div>
       ),
     },
     // Status column removed in favor of left border indicator
@@ -1183,19 +1177,13 @@ const StudentsManagement = () => {
                             ID: {student.studentId}
                           </p>
                           <p className="text-sm text-gray-500">
-                            Year: {student.yearEnrolled || "N/A"}
-                          </p>
-                          <p className="text-sm text-gray-500">
                             Course:{" "}
                             {student.course
                               ? `${student.course.code} - ${student.course.name}`
                               : "N/A"}
                           </p>
                           <p className="text-sm text-gray-500">
-                            Year Level:{" "}
-                            {student.yearLevel
-                              ? `${student.yearLevel} Year`
-                              : "N/A"}
+                            Year Level: {student.yearLevel || "N/A"}
                           </p>
                         </div>
                         <div className="flex flex-col items-end space-y-1">
@@ -1304,7 +1292,7 @@ const StudentsManagement = () => {
                 lastName: "",
                 middleName: "",
                 studentId: "",
-                yearEnrolled: "",
+                yearLevel: "",
                 birthDate: "",
                 sex: "",
                 courseCode: "",
@@ -1388,31 +1376,7 @@ const StudentsManagement = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Year Enrolled <span className="text-red-500">*</span>
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-                  value={newStudent.yearEnrolled}
-                  onChange={(e) =>
-                    setNewStudent({
-                      ...newStudent,
-                      yearEnrolled: e.target.value,
-                    })
-                  }
-                  required
-                >
-                  <option value="">Select Year</option>
-                  {yearOptions.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Year Level
+                  Year Level <span className="text-red-500">*</span>
                 </label>
                 <select
                   className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
@@ -1420,13 +1384,20 @@ const StudentsManagement = () => {
                   onChange={(e) =>
                     setNewStudent({ ...newStudent, yearLevel: e.target.value })
                   }
+                  required
                 >
-                  <option value="">Select Year Level (Optional)</option>
-                  {["1st", "2nd", "3rd", "4th", "5th"].map((lvl) => (
-                    <option key={lvl} value={lvl}>
-                      {lvl} Year
-                    </option>
-                  ))}
+                  <option value="">Select Year Level</option>
+                  <option value="HS Grade 7">HS Grade 7</option>
+                  <option value="HS Grade 8">HS Grade 8</option>
+                  <option value="HS Grade 9">HS Grade 9</option>
+                  <option value="HS Grade 10">HS Grade 10</option>
+                  <option value="HS Grade 11">HS Grade 11</option>
+                  <option value="HS Grade 12">HS Grade 12</option>
+                  <option value="1st Year College">1st Year College</option>
+                  <option value="2nd Year College">2nd Year College</option>
+                  <option value="3rd Year College">3rd Year College</option>
+                  <option value="4th Year College">4th Year College</option>
+                  <option value="5th+ Year College">5th+ Year College</option>
                 </select>
               </div>
 
@@ -1535,7 +1506,6 @@ const StudentsManagement = () => {
                       lastName: "",
                       middleName: "",
                       studentId: "",
-                      yearEnrolled: "",
                       yearLevel: "",
                       birthDate: "",
                       courseCode: "",
@@ -1652,31 +1622,7 @@ const StudentsManagement = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Year Enrolled <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-                    value={selectedStudent.yearEnrolled || ""}
-                    onChange={(e) =>
-                      setSelectedStudent({
-                        ...selectedStudent,
-                        yearEnrolled: e.target.value,
-                      })
-                    }
-                    required
-                  >
-                    <option value="">Select Year</option>
-                    {yearOptions.map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Year Level
+                    Year Level <span className="text-red-500">*</span>
                   </label>
                   <select
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
@@ -1687,13 +1633,20 @@ const StudentsManagement = () => {
                         yearLevel: e.target.value,
                       })
                     }
+                    required
                   >
-                    <option value="">Select Year Level (Optional)</option>
-                    {["1st", "2nd", "3rd", "4th", "5th"].map((lvl) => (
-                      <option key={lvl} value={lvl}>
-                        {lvl} Year
-                      </option>
-                    ))}
+                    <option value="">Select Year Level</option>
+                    <option value="HS Grade 7">HS Grade 7</option>
+                    <option value="HS Grade 8">HS Grade 8</option>
+                    <option value="HS Grade 9">HS Grade 9</option>
+                    <option value="HS Grade 10">HS Grade 10</option>
+                    <option value="HS Grade 11">HS Grade 11</option>
+                    <option value="HS Grade 12">HS Grade 12</option>
+                    <option value="1st Year College">1st Year College</option>
+                    <option value="2nd Year College">2nd Year College</option>
+                    <option value="3rd Year College">3rd Year College</option>
+                    <option value="4th Year College">4th Year College</option>
+                    <option value="5th+ Year College">5th+ Year College</option>
                   </select>
                 </div>
 

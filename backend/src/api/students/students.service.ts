@@ -417,14 +417,48 @@ export const deleteStudent = async (
 ): Promise<{ message: string }> => {
   const student = await prisma.student.findUnique({
     where: { id },
+    include: {
+      clinicVisits: true,
+      healthMetrics: true,
+    },
   });
 
   if (!student) {
     throw new ApiError(404, "Student not found");
   }
 
-  await prisma.student.delete({
-    where: { id },
+  // Delete student and all related records in a transaction
+  await prisma.$transaction(async (tx) => {
+    // Delete related SMS logs first (if any clinic visits have SMS logs)
+    if (student.clinicVisits.length > 0) {
+      await tx.smsLog.deleteMany({
+        where: {
+          clinicVisitId: {
+            in: student.clinicVisits.map((v) => v.id),
+          },
+        },
+      });
+
+      // Delete clinic visits
+      await tx.clinicVisit.deleteMany({
+        where: { studentId: id },
+      });
+    }
+
+    // Delete health metrics (should cascade, but doing it explicitly for safety)
+    await tx.healthMetric.deleteMany({
+      where: { studentId: id },
+    });
+
+    // Delete link requests (should cascade, but doing it explicitly for safety)
+    await tx.studentLinkRequest.deleteMany({
+      where: { studentId: id },
+    });
+
+    // Finally delete the student
+    await tx.student.delete({
+      where: { id },
+    });
   });
 
   return { message: "Student deleted successfully" };
