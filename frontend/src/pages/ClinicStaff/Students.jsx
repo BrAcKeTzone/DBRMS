@@ -11,7 +11,14 @@ import DashboardCard from "../../components/dashboard/DashboardCard";
 import Pagination from "../../components/ui/Pagination";
 import { formatDate, formatDateOnly } from "../../utils/formatDate";
 import { capitalizeWords } from "../../utils/helpers";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import {
+  FaEdit,
+  FaTrash,
+  FaPlus,
+  FaFileExport,
+  FaFileDownload,
+  FaFileUpload,
+} from "react-icons/fa";
 
 const StudentsManagement = () => {
   const [students, setStudents] = useState([]);
@@ -60,7 +67,8 @@ const StudentsManagement = () => {
   const [limit, setLimit] = useState(10);
 
   // import states
-  const fileInputRef = useRef(null);
+  const hsFileInputRef = useRef(null);
+  const colFileInputRef = useRef(null);
   const [importLoading, setImportLoading] = useState(false);
   const [importResult, setImportResult] = useState(null);
 
@@ -680,20 +688,22 @@ const StudentsManagement = () => {
     );
   }
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = async (e, type) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImportLoading(true);
     try {
-      const resp = await studentsApi.bulkImportStudents(file);
+      const resp = await studentsApi.bulkImportStudents(file, type);
       const data = resp?.data?.data || resp?.data || {};
       setImportResult(data);
       // Refresh students list
       await fetchStudents();
       const created = data.created || 0;
       const skipped = data.skipped || 0;
-      alert(`Import successful - Created: ${created}, Skipped: ${skipped}`);
+      alert(
+        `Import (${type}) successful - Created: ${created}, Skipped: ${skipped}`,
+      );
 
       // Show import errors if present
       if (data.invalidRows && data.invalidRows.length > 0) {
@@ -707,7 +717,8 @@ const StudentsManagement = () => {
     } finally {
       setImportLoading(false);
       // Reset file input
-      if (fileInputRef.current) fileInputRef.current.value = null;
+      if (hsFileInputRef.current) hsFileInputRef.current.value = null;
+      if (colFileInputRef.current) colFileInputRef.current.value = null;
     }
   };
 
@@ -738,15 +749,15 @@ const StudentsManagement = () => {
 
   // CSV template removed - use the XLSX template (XLSX)
 
-  const downloadXlsxTemplate = async () => {
+  const downloadXlsxTemplate = async (type = "college") => {
     try {
       setLoading(true);
-      const resp = await studentsApi.downloadStudentsTemplate();
+      const resp = await studentsApi.downloadStudentsTemplate({ type });
       const blob = await resp.data;
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `students_template.xlsx`;
+      a.download = `students_template_${type}.xlsx`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -1152,42 +1163,106 @@ const StudentsManagement = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row items-stretch gap-2 mb-6">
-            <Button
-              onClick={() => setShowCreateModal(true)}
-              variant="primary"
-              className="w-full sm:w-auto whitespace-nowrap"
-            >
-              Add New Student
-            </Button>
-            <Button
-              onClick={handleExportXlsx}
-              variant="outline"
-              className="w-full sm:w-auto whitespace-nowrap"
-            >
-              Export XLSX
-            </Button>
-            <Button
-              onClick={downloadXlsxTemplate}
-              variant="outline"
-              className="w-full sm:w-auto whitespace-nowrap"
-            >
-              Download Template (XLSX)
-            </Button>
+          <div className="space-y-5 mb-8">
+            {/* Primary Actions */}
+            <div className="flex flex-col sm:flex-row justify-between gap-4">
+              <Button
+                onClick={() => setShowCreateModal(true)}
+                variant="primary"
+                className="w-full sm:w-auto shadow-sm"
+              >
+                <FaPlus className="mr-2" />
+                Add New Student
+              </Button>
+
+              <Button
+                onClick={handleExportXlsx}
+                variant="outline"
+                className="w-full sm:w-auto bg-white shadow-sm"
+              >
+                <FaFileExport className="mr-2" />
+                Export Student List
+              </Button>
+            </div>
+
+            {/* Bulk Data Management Section */}
+            <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 shadow-sm">
+              <h4 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <FaFileUpload className="text-gray-500" />
+                Bulk Import & Templates
+              </h4>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* High School Card */}
+                <div className="bg-white border border-gray-200 rounded-md p-3 flex flex-col sm:flex-row items-center gap-3 shadow-sm hover:border-blue-300 transition-colors">
+                  <div className="font-medium text-sm text-gray-700 min-w-[100px] text-center sm:text-left">
+                    High School
+                  </div>
+                  <div className="flex gap-2 w-full">
+                    <Button
+                      onClick={() => downloadXlsxTemplate("highschool")}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-xs"
+                      title="Download High School Template"
+                    >
+                      <FaFileDownload className="mr-1" /> Get Template
+                    </Button>
+                    <Button
+                      onClick={() => hsFileInputRef.current?.click()}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                      title="Import High School Data"
+                    >
+                      <FaFileUpload className="mr-1" /> Import Data
+                    </Button>
+                  </div>
+                </div>
+
+                {/* College Card */}
+                <div className="bg-white border border-gray-200 rounded-md p-3 flex flex-col sm:flex-row items-center gap-3 shadow-sm hover:border-blue-300 transition-colors">
+                  <div className="font-medium text-sm text-gray-700 min-w-[100px] text-center sm:text-left">
+                    College
+                  </div>
+                  <div className="flex gap-2 w-full">
+                    <Button
+                      onClick={() => downloadXlsxTemplate("college")}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-xs"
+                      title="Download College Template"
+                    >
+                      <FaFileDownload className="mr-1" /> Get Template
+                    </Button>
+                    <Button
+                      onClick={() => colFileInputRef.current?.click()}
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
+                      title="Import College Data"
+                    >
+                      <FaFileUpload className="mr-1" /> Import Data
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <input
-              ref={fileInputRef}
+              ref={hsFileInputRef}
               type="file"
               accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               className="hidden"
-              onChange={handleFileChange}
+              onChange={(e) => handleFileChange(e, "highschool")}
             />
-            <Button
-              onClick={() => fileInputRef.current?.click()}
-              variant="outline"
-              className="w-full sm:w-auto whitespace-nowrap"
-            >
-              Import XLSX
-            </Button>
+            <input
+              ref={colFileInputRef}
+              type="file"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+              className="hidden"
+              onChange={(e) => handleFileChange(e, "college")}
+            />
           </div>
 
           {/* Students Table */}

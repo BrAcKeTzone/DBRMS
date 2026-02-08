@@ -25,7 +25,7 @@ export const studentsApi = {
 
   searchStudents: async (searchTerm) => {
     return await fetchClient.get(
-      `/students/search?q=${encodeURIComponent(searchTerm)}`
+      `/students/search?q=${encodeURIComponent(searchTerm)}`,
     );
   },
 
@@ -39,14 +39,14 @@ export const studentsApi = {
 
   unlinkParentFromStudent: async (parentId, studentId) => {
     return await fetchClient.delete(
-      `/students/unlink-parent/${parentId}/${studentId}`
+      `/students/unlink-parent/${parentId}/${studentId}`,
     );
   },
 
   getPendingParentLinks: async (params = {}) => {
     const queryString = new URLSearchParams(params).toString();
     return await fetchClient.get(
-      `/students/pending-parent-links?${queryString}`
+      `/students/pending-parent-links?${queryString}`,
     );
   },
 
@@ -86,7 +86,7 @@ export const studentsApi = {
 
   getStudentsBySection: async (section) => {
     return await fetchClient.get(
-      `/students/by-section/${encodeURIComponent(section)}`
+      `/students/by-section/${encodeURIComponent(section)}`,
     );
   },
 
@@ -105,11 +105,15 @@ export const studentsApi = {
   },
 
   // Bulk operations (Admin only)
-  bulkImportStudents: async (file) => {
+  bulkImportStudents: async (file, type) => {
     const formData = new FormData();
     formData.append("file", file);
 
-    return await fetchClient.post("/students/bulk-import", formData, {
+    const url = type
+      ? `/students/bulk-import?type=${type}`
+      : "/students/bulk-import";
+
+    return await fetchClient.post(url, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
@@ -123,8 +127,9 @@ export const studentsApi = {
     });
   },
 
-  downloadStudentsTemplate: async () => {
-    return await fetchClient.get(`/students/template`, {
+  downloadStudentsTemplate: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    return await fetchClient.get(`/students/template?${queryString}`, {
       responseType: "blob",
     });
   },

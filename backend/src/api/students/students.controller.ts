@@ -524,9 +524,13 @@ export const exportStudentsXlsx = asyncHandler(
       "lastName",
       "sex",
       "birthDate",
-      "yearEnrolled",
+      "yearLevel",
       "courseCode",
       "status",
+      "bloodType",
+      "allergies",
+      "height",
+      "weight",
     ];
 
     // (CSV export removed - XLSX export used exclusively)
@@ -544,6 +548,10 @@ export const exportStudentsXlsx = asyncHandler(
         s.yearLevel || "",
         s.course?.code || "",
         s.status || "",
+        s.bloodType || "",
+        s.allergies || "",
+        s.height || "",
+        s.weight || "",
       ]);
     });
     const wb = XLSX.utils.book_new();
@@ -580,7 +588,9 @@ export const exportStudentsXlsx = asyncHandler(
 // Download a template XLSX for student imports
 export const downloadStudentsTemplateXlsx = asyncHandler(
   async (req: Request, res: Response) => {
-    const headers = [
+    const { type } = req.query;
+
+    let headers = [
       "studentId",
       "firstName",
       "middleName",
@@ -590,8 +600,13 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
       "yearLevel",
       "courseCode",
       "status",
+      "bloodType",
+      "allergies",
+      "height",
+      "weight",
     ];
-    const sample = [
+
+    let sample = [
       "2024-12345",
       "Juan",
       "Santos",
@@ -601,7 +616,31 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
       "1st Year College",
       "BSIT",
       "ACTIVE",
+      "O+",
+      "Peanuts",
+      "175",
+      "70",
     ];
+
+    if (type === "highschool") {
+      // Remove courseCode for High School
+      headers = headers.filter((h) => h !== "courseCode");
+      sample = [
+        "2024-12345",
+        "Juan",
+        "Santos",
+        "Dela Cruz",
+        "MALE",
+        "2008-06-08",
+        "Grade 7",
+        // courseCode removed
+        "ACTIVE",
+        "O+",
+        "Peanuts",
+        "150",
+        "45",
+      ];
+    }
 
     const wsData = [headers, sample];
     const wb = XLSX.utils.book_new();
@@ -611,8 +650,8 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
       if (!cellAddress.startsWith("!")) {
         const cell = (ws as any)[cellAddress];
         // mark birthDate sample as a date
-        if (cell && cell.v === "2002-06-08") {
-          cell.v = new Date("2002-06-08");
+        if (cell && (cell.v === "2002-06-08" || cell.v === "2008-06-08")) {
+          cell.v = new Date(cell.v);
           cell.t = "d";
           cell.z = "yyyy-mm-dd";
         }
@@ -630,7 +669,9 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
     );
     res.setHeader(
       "Content-Disposition",
-      `attachment; filename="students_template.xlsx"`,
+      `attachment; filename="students_template_${
+        type === "highschool" ? "hs" : "college"
+      }.xlsx"`,
     );
     res.status(200).send(buf);
   },
@@ -750,7 +791,6 @@ export const bulkImportStudents = asyncHandler(
         invalidRows.push({ row: rowNum, values: row, error: msg });
         continue;
       }
-      // ignore any enrollmentDate field in import file; not supported in import
 
       // Validate and normalize status value if provided
       let statusVal = undefined;
@@ -768,30 +808,94 @@ export const bulkImportStudents = asyncHandler(
         }
       }
 
-      // Validate courseCode if provided
-      let courseId = undefined;
-      if (row.courseCode) {
-        const course = await prisma.course.findUnique({
-          where: { code: String(row.courseCode).trim() },
-          select: { id: true },
-        });
-        if (!course) {
-          const msg = `Course not found with code: ${row.courseCode}`;
-          errors.push({ row: rowNum, error: msg });
-          invalidRows.push({ row: rowNum, values: row, error: msg });
-          continue;
-        }
-        courseId = course.id;
-      }
-
-      // Ignore parentId in import file; parents must be linked via other flows
-
-      // Validate yearLevel (simply check it exists as string for now)
-      if (!row.yearLevel || typeof row.yearLevel !== "string") {
+      // Validate yearLevel
+      const yearLevelStr = String(row.yearLevel);
+      if (!yearLevelStr) {
         const msg = `Invalid yearLevel value: ${row.yearLevel}`;
         errors.push({ row: rowNum, error: msg });
         invalidRows.push({ row: rowNum, values: row, error: msg });
         continue;
+      }
+
+      // Check yearLevel vs import type
+      const { type } = req.query;
+      if (type === "highschool") {
+        if (
+          yearLevelStr.toLowerCase().includes("college") ||
+          yearLevelStr.toLowerCase().includes("university")
+        ) {
+          const msg = `Invalid yearLevel for High School import: ${yearLevelStr}`;
+          errors.push({ row: rowNum, error: msg });
+          invalidRows.push({ row: rowNum, values: row, error: msg });
+          continue;
+        }
+      } else if (type === "college") {
+        if (
+          yearLevelStr.includes("Grade") ||
+          yearLevelStr.startsWith("HS") ||
+          yearLevelStr.startsWith("JHS") ||
+          yearLevelStr.startsWith("SHS")
+        ) {
+          const msg = `Invalid yearLevel for College import: ${yearLevelStr}`;
+          errors.push({ row: rowNum, error: msg });
+          invalidRows.push({ row: rowNum, values: row, error: msg });
+          continue;
+        }
+      }
+
+      // Validate courseCode if provided
+      let courseId = undefined;
+
+      // If High School, force no course (redundant safeguard if type is used, but good for data integrity)
+      if (
+        yearLevelStr.includes("Grade") ||
+        yearLevelStr.startsWith("HS") ||
+        type === "highschool"
+      ) {
+        courseId = undefined; // Force null/undefined
+      } else {
+        if (row.courseCode) {
+          const course = await prisma.course.findUnique({
+            where: { code: String(row.courseCode).trim() },
+            select: { id: true },
+          });
+          if (!course) {
+            const msg = `Course not found with code: ${row.courseCode}`;
+            errors.push({ row: rowNum, error: msg });
+            invalidRows.push({ row: rowNum, values: row, error: msg });
+            continue;
+          }
+          courseId = course.id;
+        } else if (type === "college") {
+          // Optional: Require course for college students?
+          // For now, allow it to be optional unless strictly required by business rules
+        }
+      }
+
+      // Handle height
+      let height = undefined;
+      if (row.height !== undefined && row.height !== "") {
+        const h = parseFloat(row.height);
+        if (isNaN(h)) {
+          const msg = `Invalid height value: ${row.height}`;
+          errors.push({ row: rowNum, error: msg });
+          invalidRows.push({ row: rowNum, values: row, error: msg });
+          continue;
+        }
+        height = h;
+      }
+
+      // Handle weight
+      let weight = undefined;
+      if (row.weight !== undefined && row.weight !== "") {
+        const w = parseFloat(row.weight);
+        if (isNaN(w)) {
+          const msg = `Invalid weight value: ${row.weight}`;
+          errors.push({ row: rowNum, error: msg });
+          invalidRows.push({ row: rowNum, values: row, error: msg });
+          continue;
+        }
+        weight = w;
       }
 
       toCreate.push({
@@ -801,12 +905,14 @@ export const bulkImportStudents = asyncHandler(
         lastName: row.lastName,
         sex: sexVal,
         birthDate,
-        yearLevel: String(row.yearLevel),
+        yearLevel: yearLevelStr,
         courseId: courseId || undefined,
         status: statusVal || undefined,
-        // ignore relationship and parentId from import file
+        bloodType: row.bloodType ? String(row.bloodType) : undefined,
+        allergies: row.allergies ? String(row.allergies) : undefined,
+        height,
+        weight,
         _line: rowNum,
-        // not including enrollmentDate in import
       });
     }
 
