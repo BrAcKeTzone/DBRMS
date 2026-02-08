@@ -4,32 +4,38 @@ DMRMS is a web-based application for Blancia College Foundation Inc. (BCFI) desi
 
 ## Key Users & Roles
 
-- **Clinic Admin** — Full access to system configuration, user management, and all clinic staff functionalities.
-- **Clinic Staff** — Manages student health records, logs clinic visits, and communicates with parents.
+- **Clinic Staff** — Full access to system configuration, student management, health records, clinic visit logging, and parent communications. (Combines administrative and operational capabilities).
 - **Parent / Guardian** — Can view their linked children's health records and receive SMS notifications.
 
 ## Core Features
 
-- **User Management**: Create and manage accounts for Clinic Staff and Parents. The first user to sign up becomes the default Clinic Admin.
-- **Student Health Records**: Manage student profiles, including personal details, course, allergies, blood type, and yearly health metrics (height, weight, BMI).
-- **Parent-Student Linking**: Parents can request to link to their child's profile, which Clinic Admins can approve or reject.
-- **Clinic Visit Logging**: Record detailed information for each clinic visit, including vitals, diagnosis, treatment, and emergency/referral status.
-- **Automated SMS Notifications**: Automatically send SMS alerts to parents after a clinic visit. Staff can preview, resend, or manually send messages.
-- **System Configuration**: Admins can manage SMS gateway settings and customize SMS message templates.
-- **Audit Logging**: The system tracks all major user activities for accountability and security.
+- **User Management**: Create and manage accounts for Clinic Staff and Parents. New registrations default to Clinic Staff unless configured otherwise.
+- **Student Management**:
+  - Comprehensive profile management including **Year Level** (High School vs College) support.
+  - Track **Blood Type**, **Allergies**, **Height**, and **Weight**.
+  - **Mass Import/Export**: Support for Excel (XLSX) bulk operations with dedicated templates for High School and College formats.
+- **Parent-Student Linking**: Parents can request to link to their child's profile, which Clinic Staff can approve or reject.
+- **Health Record & Visit Logging**:
+  - Record detailed clinic visits (vitals, diagnosis, treatment).
+  - Track student health history.
+- **Automated SMS Notifications**:
+  - Automatically send SMS alerts to parents after a clinic visit.
+  - **TextBee.dev Integration**: Uses TextBee gateway for Android-based SMS delivery.
+  - Configurable SMS templates.
+- **System Configuration**: Manage SMS gateway settings (API Key, Device ID) and message templates.
 
 ## Architecture & Tech Stack
 
 - **Frontend**: Vite + React + TailwindCSS
 - **Backend**: Express (Node.js)
 - **Database**: MySQL with Prisma ORM
-- **SMS Integration**: SMSMobileAPI (configurable in admin settings)
+- **SMS Integration**: TextBee.dev (Android Gateway)
 
 ## Project Structure (top-level)
 
 - `frontend/` — Contains the React application, including components, pages, routes, and state management.
 - `backend/` — Houses the Express server, Prisma schema, API services, and routes.
-- `docu/` — Includes project documentation, such as the initial proposal and feature descriptions.
+- `docu/` — Includes project documentation.
 
 ## Setup (development)
 
@@ -87,11 +93,7 @@ cd DMRMS_w_Automated_Sms_Notifcation/DBRMS
    # Server Configuration
    PORT=3000
 
-   # SMS API Configuration (for notifications)
-   SMS_API_KEY="your_sms_provider_api_key"
-   SMS_API_URL="your_sms_provider_api_url"
-
-   # Email Configuration (for notifications)
+   # Email Configuration (for OTPs/Notifications)
    EMAIL_HOST="smtp.gmail.com"
    EMAIL_PORT=587
    EMAIL_USER="your_email@gmail.com"
@@ -102,6 +104,8 @@ cd DMRMS_w_Automated_Sms_Notifcation/DBRMS
    CLOUDINARY_API_KEY="your_cloudinary_api_key"
    CLOUDINARY_API_SECRET="your_cloudinary_api_secret"
    ```
+
+   _(Note: SMS Configuration is now managed via the System Configuration UI, stored in the database)_
 
 4. **Generate Prisma client**:
 
@@ -140,9 +144,6 @@ cd DMRMS_w_Automated_Sms_Notifcation/DBRMS
    ```env
    # API Configuration
    VITE_API_BASE_URL=http://localhost:3000
-
-   # Optional: Enable development features
-   VITE_DEV_MODE=true
    ```
 
 ### 5. Start the Applications
@@ -169,17 +170,9 @@ cd DMRMS_w_Automated_Sms_Notifcation/DBRMS
 
 ### 7. Initial Setup
 
-1. **Create the first admin user** by signing up through the web interface
-2. The first user to register will automatically be assigned the `CLINIC_ADMIN` role
-3. Additional users can be created through the admin panel
-
-### Troubleshooting
-
-- **Port conflicts**: If ports 3000 or 5173 are in use, modify the PORT in backend `.env` or let Vite auto-assign a different port
-- **Database connection issues**: Verify MySQL is running and credentials are correct
-- **Missing dependencies**: Delete `node_modules` and `package-lock.json`, then run `npm install` again
-- **Prisma issues**: Run `npx prisma reset` to reset the database and migrations (⚠️ This will delete all data)
+1. **Create the first staff user** by signing up through the web interface.
+2. Navigate to **System Configuration** to set up the TextBee.dev API Key and Device ID for SMS notifications.
 
 ## Where to find more details
 
-- See `docu/initial_proposal.md` and `docu/expected_features.md` for full requirements and feature descriptions.
+- See `docu/` for additional documentation.
