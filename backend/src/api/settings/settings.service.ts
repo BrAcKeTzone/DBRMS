@@ -31,7 +31,9 @@ export const sendTestSMS = async (phoneNumber: string) => {
       recipientPhone: phoneNumber,
       recipientName: "Test SMS",
       sentAt: result.success ? new Date() : null,
-      failReason: result.success ? null : (result as any).error || (result as any).message,
+      failReason: result.success
+        ? null
+        : (result as any).error || (result as any).message,
     },
   });
 

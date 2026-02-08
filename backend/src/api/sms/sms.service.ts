@@ -33,7 +33,9 @@ export const sendManualSMS = async (data: {
       recipientPhone: recipients,
       recipientName,
       sentAt: result.success ? new Date() : null,
-      failReason: result.success ? null : (result as any).error || (result as any).message,
+      failReason: result.success
+        ? null
+        : (result as any).error || (result as any).message,
     },
   });
 
@@ -72,8 +74,12 @@ export const getSMSLogs = async (query: any) => {
 
   const total = await prisma.smsLog.count();
   const sentCount = await prisma.smsLog.count({ where: { status: "SENT" } });
-  const failedCount = await prisma.smsLog.count({ where: { status: "FAILED" } });
-  const queuedCount = await prisma.smsLog.count({ where: { status: "QUEUED" } });
+  const failedCount = await prisma.smsLog.count({
+    where: { status: "FAILED" },
+  });
+  const queuedCount = await prisma.smsLog.count({
+    where: { status: "QUEUED" },
+  });
 
   return {
     logs,
@@ -107,14 +113,16 @@ export const resendSMS = async (logId: number) => {
 
   const result = await triggerSMS(log.recipientPhone, log.message);
 
-  // Update the log or create a new one? Usually updating the status and sentAt is fine for a resend, 
+  // Update the log or create a new one? Usually updating the status and sentAt is fine for a resend,
   // or we could track attempts. Let's update the existing log to show most recent attempt.
   const updatedLog = await prisma.smsLog.update({
     where: { id: logId },
     data: {
       status: result.success ? "SENT" : "FAILED",
       sentAt: result.success ? new Date() : log.sentAt,
-      failReason: result.success ? null : (result as any).error || (result as any).message,
+      failReason: result.success
+        ? null
+        : (result as any).error || (result as any).message,
     },
   });
 

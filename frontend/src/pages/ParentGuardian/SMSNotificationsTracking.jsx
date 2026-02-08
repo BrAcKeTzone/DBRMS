@@ -56,10 +56,8 @@ const SMSNotificationsTracking = () => {
       const updatedLog = response.data?.data?.log;
 
       if (updatedLog) {
-        setMessages((prev) =>
-          prev.map((m) => (m.id === id ? updatedLog : m)),
-        );
-        
+        setMessages((prev) => prev.map((m) => (m.id === id ? updatedLog : m)));
+
         // Refresh stats after a resend
         const statsResp = await fetchClient.get("/sms/logs?limit=1");
         if (statsResp.data?.data?.stats) {
