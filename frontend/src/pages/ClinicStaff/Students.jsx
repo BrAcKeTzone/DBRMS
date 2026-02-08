@@ -20,6 +20,8 @@ const StudentsManagement = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [studentLevel, setStudentLevel] = useState("High School"); // "High School" or "College"
+  const [editStudentLevel, setEditStudentLevel] = useState("High School");
   const [newStudent, setNewStudent] = useState({
     firstName: "",
     lastName: "",
@@ -361,6 +363,11 @@ const StudentsManagement = () => {
       return;
     }
 
+    if (studentLevel === "College" && !newStudent.courseCode) {
+      alert("Please select a course for college students");
+      return;
+    }
+
     try {
       setLoading(true);
       const resp = await studentsApi.createStudent(newStudent);
@@ -396,8 +403,26 @@ const StudentsManagement = () => {
 
   const handleEditStudent = async (e) => {
     e.preventDefault();
+
+    if (editStudentLevel === "College" && !selectedStudent.courseCode) {
+      alert("Please select a course for college students");
+      return;
+    }
+
     try {
-      await studentsApi.updateStudent(selectedStudent.id, selectedStudent);
+      const updatePayload = {
+        ...selectedStudent,
+        // Ensure course is nullified if High School
+        courseCode:
+          editStudentLevel === "High School" ? "" : selectedStudent.courseCode,
+        courseId:
+          editStudentLevel === "High School" ? null : selectedStudent.courseId,
+        // Remove nested objects that might confuse the backend
+        course: undefined,
+        parent: undefined,
+      };
+
+      await studentsApi.updateStudent(selectedStudent.id, updatePayload);
       setShowEditModal(false);
       setSelectedStudent(null);
       fetchStudents();
@@ -558,6 +583,9 @@ const StudentsManagement = () => {
         <div className="flex space-x-2">
           <Button
             onClick={() => {
+              const level =
+                row.course || row.courseCode ? "College" : "High School";
+              setEditStudentLevel(level);
               setSelectedStudent({
                 ...row,
                 courseCode: row.course?.code || "",
@@ -1299,6 +1327,7 @@ const StudentsManagement = () => {
                 bloodType: "",
                 allergies: "",
               });
+              setStudentLevel("High School");
             }}
             title="Add New Student"
             size="full"
@@ -1376,6 +1405,46 @@ const StudentsManagement = () => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Student Level <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-4">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      className="mr-2"
+                      checked={studentLevel === "High School"}
+                      onChange={() => {
+                        setStudentLevel("High School");
+                        setNewStudent((prev) => ({
+                          ...prev,
+                          yearLevel: "",
+                          courseCode: "",
+                        }));
+                      }}
+                    />
+                    High School
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      className="mr-2"
+                      checked={studentLevel === "College"}
+                      onChange={() => {
+                        setStudentLevel("College");
+                        setNewStudent((prev) => ({
+                          ...prev,
+                          yearLevel: "",
+                          courseCode: "",
+                        }));
+                      }}
+                    />
+                    College
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Year Level <span className="text-red-500">*</span>
                 </label>
                 <select
@@ -1387,39 +1456,54 @@ const StudentsManagement = () => {
                   required
                 >
                   <option value="">Select Year Level</option>
-                  <option value="HS Grade 7">HS Grade 7</option>
-                  <option value="HS Grade 8">HS Grade 8</option>
-                  <option value="HS Grade 9">HS Grade 9</option>
-                  <option value="HS Grade 10">HS Grade 10</option>
-                  <option value="HS Grade 11">HS Grade 11</option>
-                  <option value="HS Grade 12">HS Grade 12</option>
-                  <option value="1st Year College">1st Year College</option>
-                  <option value="2nd Year College">2nd Year College</option>
-                  <option value="3rd Year College">3rd Year College</option>
-                  <option value="4th Year College">4th Year College</option>
-                  <option value="5th+ Year College">5th+ Year College</option>
+                  {studentLevel === "High School" ? (
+                    <>
+                      <option value="Grade 7">Grade 7</option>
+                      <option value="Grade 8">Grade 8</option>
+                      <option value="Grade 9">Grade 9</option>
+                      <option value="Grade 10">Grade 10</option>
+                      <option value="Grade 11">Grade 11</option>
+                      <option value="Grade 12">Grade 12</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="1st Year College">1st Year College</option>
+                      <option value="2nd Year College">2nd Year College</option>
+                      <option value="3rd Year College">3rd Year College</option>
+                      <option value="4th Year College">4th Year College</option>
+                      <option value="5th+ Year College">
+                        5th+ Year College
+                      </option>
+                    </>
+                  )}
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Course
-                </label>
-                <select
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-                  value={newStudent.courseCode}
-                  onChange={(e) =>
-                    setNewStudent({ ...newStudent, courseCode: e.target.value })
-                  }
-                >
-                  <option value="">None</option>
-                  {courses.map((c) => (
-                    <option key={c.id} value={c.code}>
-                      {c.code} - {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {studentLevel === "College" && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Course <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                    value={newStudent.courseCode}
+                    onChange={(e) =>
+                      setNewStudent({
+                        ...newStudent,
+                        courseCode: e.target.value,
+                      })
+                    }
+                    required={studentLevel === "College"}
+                  >
+                    <option value="">Select Course</option>
+                    {courses.map((c) => (
+                      <option key={c.id} value={c.code}>
+                        {c.code} - {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               <Input
                 label="Birth Date"
@@ -1514,6 +1598,7 @@ const StudentsManagement = () => {
                       height: "",
                       weight: "",
                     });
+                    setStudentLevel("High School");
                   }}
                   className="w-full sm:w-auto"
                 >
@@ -1622,60 +1707,130 @@ const StudentsManagement = () => {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Student Level <span className="text-red-500">*</span>
+                  </label>
+                  <div className="flex gap-4">
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        className="mr-2"
+                        checked={editStudentLevel === "High School"}
+                        onChange={() => {
+                          setEditStudentLevel("High School");
+                          setSelectedStudent((prev) => ({
+                            ...prev,
+                            yearLevel: "",
+                            courseCode: "",
+                            course: null,
+                            courseId: null,
+                          }));
+                        }}
+                      />
+                      High School
+                    </label>
+                    <label className="flex items-center">
+                      <input
+                        type="radio"
+                        className="mr-2"
+                        checked={editStudentLevel === "College"}
+                        onChange={() => {
+                          setEditStudentLevel("College");
+                          setSelectedStudent((prev) => ({
+                            ...prev,
+                            yearLevel: "",
+                            courseCode: "",
+                          }));
+                        }}
+                      />
+                      College
+                    </label>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
                     Year Level <span className="text-red-500">*</span>
                   </label>
                   <select
                     className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
                     value={selectedStudent.yearLevel || ""}
-                    onChange={(e) =>
-                      setSelectedStudent({
-                        ...selectedStudent,
-                        yearLevel: e.target.value,
-                      })
-                    }
+                    onChange={(e) => {
+                      const newYearLevel = e.target.value;
+                      const isHighSchool =
+                        newYearLevel.includes("Grade") ||
+                        newYearLevel.startsWith("HS");
+                      setSelectedStudent((prev) => ({
+                        ...prev,
+                        yearLevel: newYearLevel,
+                        // If switching to a HS grade, ensure course is cleared
+                        courseCode: isHighSchool ? "" : prev.courseCode,
+                        course: isHighSchool ? null : prev.course,
+                        courseId: isHighSchool ? null : prev.courseId,
+                      }));
+                    }}
                     required
                   >
                     <option value="">Select Year Level</option>
-                    <option value="HS Grade 7">HS Grade 7</option>
-                    <option value="HS Grade 8">HS Grade 8</option>
-                    <option value="HS Grade 9">HS Grade 9</option>
-                    <option value="HS Grade 10">HS Grade 10</option>
-                    <option value="HS Grade 11">HS Grade 11</option>
-                    <option value="HS Grade 12">HS Grade 12</option>
-                    <option value="1st Year College">1st Year College</option>
-                    <option value="2nd Year College">2nd Year College</option>
-                    <option value="3rd Year College">3rd Year College</option>
-                    <option value="4th Year College">4th Year College</option>
-                    <option value="5th+ Year College">5th+ Year College</option>
+                    {editStudentLevel === "High School" ? (
+                      <>
+                        <option value="Grade 7">Grade 7</option>
+                        <option value="Grade 8">Grade 8</option>
+                        <option value="Grade 9">Grade 9</option>
+                        <option value="Grade 10">Grade 10</option>
+                        <option value="Grade 11">Grade 11</option>
+                        <option value="Grade 12">Grade 12</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="1st Year College">
+                          1st Year College
+                        </option>
+                        <option value="2nd Year College">
+                          2nd Year College
+                        </option>
+                        <option value="3rd Year College">
+                          3rd Year College
+                        </option>
+                        <option value="4th Year College">
+                          4th Year College
+                        </option>
+                        <option value="5th+ Year College">
+                          5th+ Year College
+                        </option>
+                      </>
+                    )}
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Course
-                  </label>
-                  <select
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
-                    value={
-                      selectedStudent.courseCode ||
-                      selectedStudent.course?.code ||
-                      ""
-                    }
-                    onChange={(e) =>
-                      setSelectedStudent({
-                        ...selectedStudent,
-                        courseCode: e.target.value,
-                      })
-                    }
-                  >
-                    <option value="">None</option>
-                    {courses.map((c) => (
-                      <option key={c.id} value={c.code}>
-                        {c.code} - {c.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                {editStudentLevel === "College" && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Course <span className="text-red-500">*</span>
+                    </label>
+                    <select
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-gray-900"
+                      value={
+                        selectedStudent.courseCode ||
+                        selectedStudent.course?.code ||
+                        ""
+                      }
+                      onChange={(e) =>
+                        setSelectedStudent({
+                          ...selectedStudent,
+                          courseCode: e.target.value,
+                        })
+                      }
+                      required={editStudentLevel === "College"}
+                    >
+                      <option value="">Select Course</option>
+                      {courses.map((c) => (
+                        <option key={c.id} value={c.code}>
+                          {c.code} - {c.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <Input
                   label="Birth Date"

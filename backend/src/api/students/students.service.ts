@@ -15,8 +15,7 @@ export interface CreateStudentData {
   middleName?: string;
   sex: Sex;
   birthDate?: string | Date;
-  yearEnrolled: string;
-  yearLevel?: string;
+  yearLevel: string;
   courseId?: number;
   parentId?: number;
   bloodType?: string;
@@ -32,7 +31,6 @@ export interface UpdateStudentData {
   middleName?: string;
   sex?: Sex;
   birthDate?: string | Date;
-  yearEnrolled?: string;
   yearLevel?: string;
   courseId?: number | null;
   status?: StudentStatus;
@@ -45,7 +43,6 @@ export interface UpdateStudentData {
 
 export interface StudentSearchFilters {
   search?: string; // Search by name or student ID
-  yearEnrolled?: string;
   yearLevel?: string;
   status?: StudentStatus;
   linkStatus?: LinkStatus;
@@ -98,7 +95,6 @@ export const createStudent = async (
       middleName: studentData.middleName,
       sex: studentData.sex,
       birthDate: studentData.birthDate,
-      yearEnrolled: studentData.yearEnrolled,
       yearLevel: studentData.yearLevel,
       bloodType: studentData.bloodType,
       allergies: studentData.allergies,
@@ -192,9 +188,6 @@ export const getStudents = async (
   }
 
   // Other filters
-  if (filters.yearEnrolled) {
-    whereClause.yearEnrolled = filters.yearEnrolled;
-  }
   if (filters.yearLevel) {
     whereClause.yearLevel = filters.yearLevel;
   }
@@ -377,13 +370,9 @@ export const updateStudent = async (
   }
 
   try {
-    // Prisma update does not accept explicit `null` for numeric foreign keys; remove them if present
-    const dataToUpdate: any = { ...updateData };
-    if (dataToUpdate.courseId === null) delete dataToUpdate.courseId;
-
     const updatedStudent = await prisma.student.update({
       where: { id },
-      data: dataToUpdate,
+      data: updateData,
       include: {
         parent: {
           select: {
@@ -604,7 +593,7 @@ export const getEnrollmentStats = async (): Promise<{
   graduatedStudents: number;
   inactiveStudents: number;
   pendingLinks: number;
-  byYearEnrolled: { yearEnrolled: string; count: number }[];
+  byYearLevel: { yearLevel: string; count: number }[];
 }> => {
   const [
     totalStudents,
@@ -612,7 +601,7 @@ export const getEnrollmentStats = async (): Promise<{
     graduatedStudents,
     inactiveStudents,
     pendingLinks,
-    byYearEnrolled,
+    byYearLevel,
   ] = await Promise.all([
     prisma.student.count(),
     prisma.student.count({ where: { status: StudentStatus.ACTIVE } }),
@@ -620,8 +609,8 @@ export const getEnrollmentStats = async (): Promise<{
     prisma.student.count({ where: { status: StudentStatus.INACTIVE } }),
     prisma.student.count({ where: { linkStatus: LinkStatus.PENDING } }),
     prisma.student.groupBy({
-      by: ["yearEnrolled"],
-      _count: { yearEnrolled: true },
+      by: ["yearLevel"],
+      _count: { yearLevel: true },
     }),
   ]);
 
@@ -631,9 +620,9 @@ export const getEnrollmentStats = async (): Promise<{
     graduatedStudents,
     inactiveStudents,
     pendingLinks,
-    byYearEnrolled: byYearEnrolled.map((item) => ({
-      yearEnrolled: item.yearEnrolled,
-      count: item._count.yearEnrolled,
+    byYearLevel: byYearLevel.map((item) => ({
+      yearLevel: item.yearLevel || "Unknown",
+      count: item._count.yearLevel,
     })),
   };
 };

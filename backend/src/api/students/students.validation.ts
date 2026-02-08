@@ -3,7 +3,6 @@ import { StudentStatus, LinkStatus } from "@prisma/client";
 
 // Common patterns for college
 const studentIdPattern = /^[0-9]{4}-[0-9]{5}$/; // Format: 2024-12345
-const yearEnrolledPattern = /^[0-9]{4}$/; // Format: 2024 (just the year)
 
 export const createStudent = Joi.object().keys({
   studentId: Joi.string().pattern(studentIdPattern).required().messages({
@@ -14,14 +13,6 @@ export const createStudent = Joi.object().keys({
   lastName: Joi.string().min(2).max(50).required(),
   middleName: Joi.string().min(2).max(50).optional().allow("", null),
   birthDate: Joi.date().optional().allow("", null),
-  yearEnrolled: Joi.string()
-    .pattern(yearEnrolledPattern)
-    .optional()
-    .allow("", null)
-    .messages({
-      "string.pattern.base":
-        "Year enrolled must follow format: YYYY (e.g., 2024)",
-    }),
   yearLevel: Joi.string().required().messages({
     "any.required": "Year level is required",
   }),
@@ -45,13 +36,6 @@ export const updateStudent = Joi.object()
     lastName: Joi.string().min(2).max(50).optional(),
     middleName: Joi.string().min(2).max(50).optional().allow("", null),
     birthDate: Joi.date().optional().allow("", null),
-    yearEnrolled: Joi.string()
-      .pattern(yearEnrolledPattern)
-      .optional()
-      .messages({
-        "string.pattern.base":
-          "Year enrolled must follow format: YYYY (e.g., 2024)",
-      }),
     yearLevel: Joi.string().optional().allow("", null),
     status: Joi.string()
       .valid(...Object.values(StudentStatus))
@@ -74,7 +58,7 @@ export const updateStudent = Joi.object()
 
 export const getStudents = Joi.object().keys({
   search: Joi.string().max(100).optional(),
-  yearEnrolled: Joi.string().pattern(yearEnrolledPattern).optional(),
+  yearLevel: Joi.string().optional(),
   status: Joi.string()
     .valid(...Object.values(StudentStatus))
     .optional(),

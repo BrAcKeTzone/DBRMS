@@ -56,7 +56,6 @@ model Student {
   middleName String?
   sex        Sex           @default(MALE)
   birthDate  DateTime
-  yearEnrolled String?
   yearLevel  String?       @db.VarChar(50)
   status     StudentStatus @default(ACTIVE)
   bloodType  String?       @db.VarChar(5)
@@ -64,8 +63,8 @@ model Student {
   height     Float?
   weight     Float?
 
-  courseId Int
-  course   Course @relation(fields: [courseId], references: [id])
+  courseId Int?
+  course   Course? @relation(fields: [courseId], references: [id])
 
   parentId Int?
   parent   User? @relation(fields: [parentId], references: [id], onDelete: SetNull)

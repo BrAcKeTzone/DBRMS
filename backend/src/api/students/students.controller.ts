@@ -44,7 +44,6 @@ export const createStudent = asyncHandler(
 export const getStudents = asyncHandler(async (req: Request, res: Response) => {
   const {
     search,
-    yearEnrolled,
     yearLevel,
     status,
     linkStatus,
@@ -64,7 +63,6 @@ export const getStudents = asyncHandler(async (req: Request, res: Response) => {
   const filters: studentService.StudentSearchFilters = {};
 
   if (search) filters.search = search as string;
-  if (yearEnrolled) filters.yearEnrolled = yearEnrolled as string;
   if (yearLevel) filters.yearLevel = yearLevel as string;
   if (status) filters.status = status as StudentStatus;
   if (linkStatus) filters.linkStatus = linkStatus as LinkStatus;
@@ -131,7 +129,6 @@ export const updateStudent = asyncHandler(
       middleName,
       sex,
       birthDate,
-      yearEnrolled,
       yearLevel,
       status,
       linkStatus,
@@ -151,7 +148,6 @@ export const updateStudent = asyncHandler(
     if (middleName !== undefined) data.middleName = middleName;
     if (sex !== undefined) data.sex = sex;
     if (birthDate !== undefined && birthDate !== "") data.birthDate = birthDate;
-    if (yearEnrolled !== undefined) data.yearEnrolled = yearEnrolled;
     if (yearLevel !== undefined) data.yearLevel = yearLevel;
     if (status !== undefined) data.status = status;
     if (linkStatus !== undefined) data.linkStatus = linkStatus;
@@ -176,18 +172,26 @@ export const updateStudent = asyncHandler(
       }
     }
 
-    // If courseCode is provided, resolve it to courseId
-    if (courseCode) {
-      const course = await prisma.course.findUnique({
-        where: { code: courseCode },
-        select: { id: true },
-      });
-      if (!course) {
-        throw new ApiError(400, `Course not found with code: ${courseCode}`);
+    // If yearLevel indicates High School (Grade 7-12), ensure course is cleared
+    if (
+      yearLevel &&
+      (yearLevel.includes("Grade") || yearLevel.startsWith("HS"))
+    ) {
+      data.courseId = null;
+    } else {
+      // If courseCode is provided, resolve it to courseId
+      if (courseCode) {
+        const course = await prisma.course.findUnique({
+          where: { code: courseCode },
+          select: { id: true },
+        });
+        if (!course) {
+          throw new ApiError(400, `Course not found with code: ${courseCode}`);
+        }
+        data.courseId = course.id;
+      } else if (courseId !== undefined) {
+        data.courseId = courseId;
       }
-      data.courseId = course.id;
-    } else if (courseId !== undefined) {
-      data.courseId = courseId;
     }
 
     const updatedStudent = await studentService.updateStudent(studentId, data);
@@ -483,15 +487,15 @@ export const getMyLinkRequests = asyncHandler(
 export const exportStudentsXlsx = asyncHandler(
   async (req: Request, res: Response) => {
     // Optionally filter by year or status via query params
-    const { yearEnrolled, status } = req.query;
+    const { yearLevel, status } = req.query;
 
     const where: any = {};
-    if (yearEnrolled) where.yearEnrolled = yearEnrolled as string;
+    if (yearLevel) where.yearLevel = yearLevel as string;
     if (status) where.status = status as any;
 
     const students = await prisma.student.findMany({
       where,
-      orderBy: [{ yearEnrolled: "asc" }, { lastName: "asc" }],
+      orderBy: [{ yearLevel: "asc" }, { lastName: "asc" }],
       include: {
         course: {
           select: {
@@ -537,7 +541,7 @@ export const exportStudentsXlsx = asyncHandler(
         s.lastName,
         s.sex || "",
         s.birthDate ? new Date(s.birthDate) : "",
-        s.yearEnrolled || "",
+        s.yearLevel || "",
         s.course?.code || "",
         s.status || "",
       ]);
@@ -583,7 +587,7 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
       "lastName",
       "sex",
       "birthDate",
-      "yearEnrolled",
+      "yearLevel",
       "courseCode",
       "status",
     ];
@@ -594,7 +598,7 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
       "Dela Cruz",
       "MALE",
       "2002-06-08",
-      "2024",
+      "1st Year College",
       "BSIT",
       "ACTIVE",
     ];
@@ -685,7 +689,7 @@ export const bulkImportStudents = asyncHandler(
       "firstName",
       "lastName",
       "sex",
-      "yearEnrolled",
+      "yearLevel",
     ];
     for (const col of requiredColumns) {
       if (!header.includes(col)) {
@@ -708,7 +712,7 @@ export const bulkImportStudents = asyncHandler(
       if (!row.firstName) missingFields.push("firstName");
       if (!row.lastName) missingFields.push("lastName");
       if (!row.sex) missingFields.push("sex");
-      if (!row.yearEnrolled) missingFields.push("yearEnrolled");
+      if (!row.yearLevel) missingFields.push("yearLevel");
       if (missingFields.length > 0) {
         const msg = `Missing required fields: ${missingFields.join(", ")}`;
         errors.push({ row: rowNum, error: msg });
@@ -782,10 +786,9 @@ export const bulkImportStudents = asyncHandler(
 
       // Ignore parentId in import file; parents must be linked via other flows
 
-      // Validate yearEnrolled format (YYYY)
-      const yearPattern = /^[0-9]{4}$/;
-      if (!yearPattern.test(String(row.yearEnrolled))) {
-        const msg = `Invalid yearEnrolled value: ${row.yearEnrolled}`;
+      // Validate yearLevel (simply check it exists as string for now)
+      if (!row.yearLevel || typeof row.yearLevel !== "string") {
+        const msg = `Invalid yearLevel value: ${row.yearLevel}`;
         errors.push({ row: rowNum, error: msg });
         invalidRows.push({ row: rowNum, values: row, error: msg });
         continue;
@@ -798,7 +801,7 @@ export const bulkImportStudents = asyncHandler(
         lastName: row.lastName,
         sex: sexVal,
         birthDate,
-        yearEnrolled: String(row.yearEnrolled),
+        yearLevel: String(row.yearLevel),
         courseId: courseId || undefined,
         status: statusVal || undefined,
         // ignore relationship and parentId from import file
