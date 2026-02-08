@@ -113,7 +113,6 @@ const MyMessages = () => {
               <table className="min-w-full table-auto">
                 <thead>
                   <tr className="text-left text-xs text-gray-500 uppercase tracking-wider">
-                    <th className="px-3 py-2">To</th>
                     <th className="px-3 py-2">Message</th>
                     <th className="px-3 py-2">Date</th>
                     <th className="px-3 py-2">Status</th>
@@ -129,9 +128,6 @@ const MyMessages = () => {
                         setShowPreview(true);
                       }}
                     >
-                      <td className="px-3 py-3 text-sm text-gray-900">
-                        {m.recipientPhone}
-                      </td>
                       <td className="px-3 py-3 text-sm text-gray-600 truncate max-w-xs">
                         {m.body?.length > 100
                           ? m.body.substring(0, 100) + "..."
@@ -161,10 +157,7 @@ const MyMessages = () => {
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="font-medium text-gray-900">
-                        {m.recipientPhone}
-                      </div>
-                      <div className="text-sm text-gray-700 mt-1">
+                      <div className="text-sm text-gray-700">
                         {m.body?.length > 100
                           ? m.body.substring(0, 100) + "..."
                           : m.body}
