@@ -48,7 +48,7 @@ const Modal = ({
         className={`bg-white p-6 rounded shadow-lg w-full flex flex-col ${sizeClass}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-between items-start mb-4 flex-shrink-0">
+        <div className="flex justify-between items-start mb-4 shrink-0">
           <div className="flex items-center gap-2">
             {title && <h3 className="text-lg font-semibold">{title}</h3>}
             {headerAction && <div>{headerAction}</div>}
@@ -62,7 +62,7 @@ const Modal = ({
           </button>
         </div>
 
-        <div className="overflow-y-auto flex-grow">{children}</div>
+        <div className="overflow-y-auto grow">{children}</div>
       </div>
     </div>
   );

@@ -1195,7 +1195,7 @@ const StudentsManagement = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* High School Card */}
                 <div className="bg-white border border-gray-200 rounded-md p-3 flex flex-col sm:flex-row items-center gap-3 shadow-sm hover:border-blue-300 transition-colors">
-                  <div className="font-medium text-sm text-gray-700 min-w-[100px] text-center sm:text-left">
+                  <div className="font-medium text-sm text-gray-700 min-w-25 text-center sm:text-left">
                     High School
                   </div>
                   <div className="flex gap-2 w-full">
@@ -1222,7 +1222,7 @@ const StudentsManagement = () => {
 
                 {/* College Card */}
                 <div className="bg-white border border-gray-200 rounded-md p-3 flex flex-col sm:flex-row items-center gap-3 shadow-sm hover:border-blue-300 transition-colors">
-                  <div className="font-medium text-sm text-gray-700 min-w-[100px] text-center sm:text-left">
+                  <div className="font-medium text-sm text-gray-700 min-w-25 text-center sm:text-left">
                     College
                   </div>
                   <div className="flex gap-2 w-full">
