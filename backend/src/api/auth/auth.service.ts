@@ -530,12 +530,11 @@ export const changePassword = async (
     throw new ApiError(401, "Incorrect email or old password");
   }
 
-  // Check if OTP has been verified
+  // Check if OTP exists and is valid (no need to be pre-verified)
   const otpRecord = await prisma.otp.findFirst({
     where: {
       email,
       otp,
-      verified: true,
       expiresAt: {
         gt: new Date(), // Not expired
       },
@@ -544,10 +543,7 @@ export const changePassword = async (
   });
 
   if (!otpRecord) {
-    throw new ApiError(
-      400,
-      "OTP not verified or expired. Please verify OTP first.",
-    );
+    throw new ApiError(400, "Invalid or expired OTP.");
   }
 
   // Delete the OTP after successful password change

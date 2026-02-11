@@ -673,7 +673,7 @@ export const useAuthStore = create(
         }
       },
 
-      // Send OTP for password change (demo)
+      // Send OTP for password change
       sendOtpForPasswordChange: async (currentPassword) => {
         try {
           set({ loading: true, error: null });
@@ -683,19 +683,45 @@ export const useAuthStore = create(
             throw new Error("No user logged in");
           }
 
-          // Verify current password against stored users
-          const users = get().users || usersData;
-          const account = users.find((u) => u.email === user.email);
-          if (!account || account.password !== currentPassword) {
-            const errMsg = "Current password is incorrect";
-            set({ loading: false, error: errMsg });
-            throw new Error(errMsg);
+          try {
+            // Try API first
+            const response = await authApi.sendOtpForChange(
+              user.email,
+              currentPassword,
+            );
+            const result = response.data?.data || response.data;
+            const apiOtp = result?.otp; // In prod this might be undefined, handled by email
+
+            // Store email for verification step to match backend expectations if needed
+            // But here we just return success
+            return { success: true, otp: apiOtp };
+          } catch (apiError) {
+            const msg =
+              apiError?.response?.data?.message ||
+              apiError?.message ||
+              "Failed to send OTP";
+
+            // If API not available (network error), try demo fallback
+            if (!apiError?.response) {
+              const users = get().users || usersData;
+              const account = users.find((u) => u.email === user.email);
+              if (!account || account.password !== currentPassword) {
+                const errMsg = "Current password is incorrect";
+                set({ loading: false, error: errMsg });
+                throw new Error(errMsg);
+              }
+
+              const otp = Math.floor(
+                100000 + Math.random() * 900000,
+              ).toString();
+              set({ loading: false, error: null, changePasswordOtp: otp });
+              return { otp };
+            }
+
+            // Real API error (e.g. wrong password)
+            set({ loading: false, error: msg });
+            throw new Error(msg);
           }
-
-          const otp = Math.floor(100000 + Math.random() * 900000).toString();
-          set({ loading: false, error: null, changePasswordOtp: otp });
-
-          return { otp };
         } catch (error) {
           set({
             loading: false,
@@ -705,54 +731,80 @@ export const useAuthStore = create(
         }
       },
 
-      // Password change with OTP verification (demo)
+      // Password change with OTP verification
       changePasswordWithOtp: async (currentPassword, newPassword, otp) => {
         try {
           set({ loading: true, error: null });
 
-          const { user, changePasswordOtp } = get();
+          const { user } = get();
           if (!user) {
             throw new Error("No user logged in");
           }
 
-          if (!changePasswordOtp || otp !== changePasswordOtp) {
-            const errMsg = "Invalid OTP";
-            set({ loading: false, error: errMsg });
-            throw new Error(errMsg);
-          }
-
-          const users = get().users ? [...get().users] : [...usersData];
-          const idx = users.findIndex((u) => u.email === user.email);
-          if (idx === -1) {
-            const errMsg = "User not found";
-            set({ loading: false, error: errMsg });
-            throw new Error(errMsg);
-          }
-
-          if (users[idx].password !== currentPassword) {
-            const errMsg = "Current password is incorrect";
-            set({ loading: false, error: errMsg });
-            throw new Error(errMsg);
-          }
-
-          users[idx] = { ...users[idx], password: newPassword };
-
-          set({
-            users,
-            changePasswordOtp: null,
-            user: { ...users[idx] },
-            loading: false,
-            error: null,
-          });
-
           try {
-            // Persist updated users list for demo mode
-            localStorage.setItem("users", JSON.stringify(users));
-          } catch (e) {
-            console.debug(e);
-          }
+            // Try API first
+            await authApi.changePassword(
+              user.email,
+              currentPassword,
+              otp,
+              newPassword,
+            );
 
-          return { success: true };
+            // Update local state if needed (user obj might not change unless password hash is stored locally which it shouldn't be)
+            set({ loading: false, error: null });
+
+            return { success: true };
+          } catch (apiError) {
+            const msg =
+              apiError?.response?.data?.message ||
+              apiError?.message ||
+              "Failed to change password";
+
+            // Fallback to demo mode if network error
+            if (!apiError?.response) {
+              const { changePasswordOtp } = get();
+              if (!changePasswordOtp || otp !== changePasswordOtp) {
+                const errMsg = "Invalid OTP";
+                set({ loading: false, error: errMsg });
+                throw new Error(errMsg);
+              }
+
+              const users = get().users ? [...get().users] : [...usersData];
+              const idx = users.findIndex((u) => u.email === user.email);
+              if (idx === -1) {
+                const errMsg = "User not found";
+                set({ loading: false, error: errMsg });
+                throw new Error(errMsg);
+              }
+
+              if (users[idx].password !== currentPassword) {
+                const errMsg = "Current password is incorrect";
+                set({ loading: false, error: errMsg });
+                throw new Error(errMsg);
+              }
+
+              users[idx] = { ...users[idx], password: newPassword };
+
+              set({
+                users,
+                changePasswordOtp: null,
+                user: { ...users[idx] },
+                loading: false,
+                error: null,
+              });
+
+              try {
+                localStorage.setItem("users", JSON.stringify(users));
+              } catch (e) {
+                console.debug(e);
+              }
+
+              return { success: true };
+            }
+
+            set({ loading: false, error: msg });
+            throw new Error(msg);
+          }
         } catch (error) {
           set({
             loading: false,
