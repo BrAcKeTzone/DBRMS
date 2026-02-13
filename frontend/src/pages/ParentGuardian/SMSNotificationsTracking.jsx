@@ -142,15 +142,6 @@ const SMSNotificationsTracking = () => {
             >
               Clear
             </Button>
-            <Button
-              onClick={() => {
-                /* placeholder for export */
-              }}
-              variant="primary"
-              className="w-full sm:w-auto"
-            >
-              Export
-            </Button>
           </div>
         </div>
       </div>
