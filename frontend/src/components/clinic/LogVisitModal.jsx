@@ -108,12 +108,19 @@ const LogVisitModal = ({
     setForm({ ...form, [fieldName]: sanitizedValue });
   };
 
-  const getLinkedParentPhone = (student) =>
-    student?.parent?.phone ||
-    student?.parentPhone ||
-    student?.parent?.phoneNumber ||
-    student?.parentContact?.phone ||
-    "";
+  const getLinkedParentPhone = (student) => {
+    // Only return parent phone if link status is APPROVED
+    if (student?.linkStatus !== "APPROVED") {
+      return "";
+    }
+    return (
+      student?.parent?.phone ||
+      student?.parentPhone ||
+      student?.parent?.phoneNumber ||
+      student?.parentContact?.phone ||
+      ""
+    );
+  };
 
   const handleLogVisit = (e) => {
     e && e.preventDefault();
