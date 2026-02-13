@@ -3,7 +3,7 @@ import { sendSMS } from "../../utils/smsService";
 
 const SYSTEM_CONFIG_KEY = "system_config";
 const FALLBACK_VISIT_TEMPLATE =
-  "BCFI Clinic Update\n" +
+  "BCFI Clinic Alert\n" +
   "Student: {student}\n" +
   "Date: {date}\n" +
   "Reason: {reason}\n" +
@@ -26,12 +26,8 @@ const formatVisitDate = (value: Date) =>
   });
 
 const buildVisitSmsMessage = async (visit: any) => {
-  const templateSetting = await prisma.systemSetting.findUnique({
-    where: { key: SYSTEM_CONFIG_KEY },
-    select: { defaultTemplate: true },
-  });
-
-  const template = templateSetting?.defaultTemplate || FALLBACK_VISIT_TEMPLATE;
+  // Always use the fallback template to ensure consistent formatting.
+  const template = FALLBACK_VISIT_TEMPLATE;
   const replacements: Record<string, string> = {
     student: `${visit.student.firstName} ${visit.student.lastName}`.trim(),
     date: formatVisitDate(visit.visitDateTime),

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Modal from "../ui/Modal";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
+import LoadingSpinner from "../ui/LoadingSpinner";
 
 // Reusable modal for sending an SMS using the current SMS configuration
 const SendTestSMSModal = ({
@@ -17,6 +18,7 @@ const SendTestSMSModal = ({
 }) => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [sending, setSending] = useState(false);
+  const isBusy = loading || sending;
 
   useEffect(() => {
     if (isOpen) {
@@ -59,7 +61,7 @@ const SendTestSMSModal = ({
             onChange={(e) => setPhoneNumber(e.target.value)}
             placeholder="e.g., 09123456789"
             required
-            disabled={loading || sending}
+            disabled={isBusy}
           />
         </div>
         <div className="flex justify-end gap-2 pt-2">
@@ -67,15 +69,23 @@ const SendTestSMSModal = ({
             variant="outline"
             type="button"
             onClick={onClose}
-            disabled={loading || sending}
+            disabled={isBusy}
           >
             Cancel
           </Button>
-          <Button type="submit" loading={loading || sending}>
+          <Button type="submit" loading={isBusy}>
             {submitLabel}
           </Button>
         </div>
       </form>
+      {isBusy && (
+        <div className="fixed inset-0 z-[1000] bg-black/30 backdrop-blur-[1px] flex items-center justify-center">
+          <div className="bg-white rounded-lg shadow-lg px-4 py-3 flex items-center gap-2 border border-gray-200">
+            <LoadingSpinner size="sm" />
+            <span className="text-sm text-gray-800">Sending SMS…</span>
+          </div>
+        </div>
+      )}
     </Modal>
   );
 };

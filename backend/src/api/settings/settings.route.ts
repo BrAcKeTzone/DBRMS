@@ -2,7 +2,6 @@ import { Router } from "express";
 import * as settingsController from "./settings.controller";
 import { authenticate, authorize } from "../../middlewares/auth.middleware";
 import validate from "../../middlewares/validate.middleware";
-import { uploadBackup } from "../../middlewares/upload.middleware";
 import {
   updateSettingsSchema,
   getSettingsByCategorySchema,
@@ -41,19 +40,6 @@ router.post(
   "/test-sms",
   authorize("CLINIC_STAFF"),
   settingsController.sendTestSMS,
-);
-
-// Backup and Restore
-router.post(
-  "/backup",
-  authorize("CLINIC_STAFF"),
-  settingsController.backupSettings,
-);
-router.post(
-  "/restore",
-  authorize("CLINIC_STAFF"),
-  uploadBackup.single("backup"),
-  settingsController.restoreSettings,
 );
 
 /**
