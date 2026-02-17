@@ -540,6 +540,9 @@ const StudentsManagement = () => {
             </p>
           </div>
           <p className="text-sm text-gray-500">ID: {row.studentId}</p>
+          <p className="text-xs text-blue-600 font-medium mt-0.5">
+            Emergency: {row.emergencyContactName || "N/A"}
+          </p>
         </div>
       ),
     },
@@ -728,14 +731,26 @@ const StudentsManagement = () => {
   const handleExportXlsx = async () => {
     try {
       setLoading(true);
-      const resp = await studentsApi.exportStudents({});
+
+      // Pass current filters to export
+      const exportParams = {};
+      if (filterYearLevel) exportParams.yearLevel = filterYearLevel;
+      if (filterStatus) exportParams.status = filterStatus;
+
+      const resp = await studentsApi.exportStudents(exportParams);
       const blob = await resp.data;
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `students_export_${new Date()
+
+      // Dynamic filename based on filters
+      const filterTag = filterYearLevel
+        ? `_${filterYearLevel.replace(/\s+/g, "_")}`
+        : "";
+      a.download = `students_export${filterTag}_${new Date()
         .toISOString()
         .slice(0, 10)}.xlsx`;
+
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -1312,6 +1327,9 @@ const StudentsManagement = () => {
                           </h3>
                           <p className="text-sm text-gray-500 break-all">
                             ID: {student.studentId}
+                          </p>
+                          <p className="text-sm text-blue-600 font-medium">
+                            Emergency: {student.emergencyContactName || "N/A"}
                           </p>
                           <p className="text-sm text-gray-500">
                             Course:{" "}
