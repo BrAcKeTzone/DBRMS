@@ -134,6 +134,7 @@ export const updateStudent = asyncHandler(
       linkStatus,
       bloodType,
       allergies,
+      emergencyContactName,
       height,
       weight,
       courseCode,
@@ -153,6 +154,8 @@ export const updateStudent = asyncHandler(
     if (linkStatus !== undefined) data.linkStatus = linkStatus;
     if (bloodType !== undefined) data.bloodType = bloodType;
     if (allergies !== undefined) data.allergies = allergies;
+    if (emergencyContactName !== undefined)
+      data.emergencyContactName = emergencyContactName;
 
     // Handle height
     if (height !== undefined) {
@@ -529,6 +532,7 @@ export const exportStudentsXlsx = asyncHandler(
       "status",
       "bloodType",
       "allergies",
+      "emergencyContactName",
       "height",
       "weight",
     ];
@@ -550,6 +554,7 @@ export const exportStudentsXlsx = asyncHandler(
         s.status || "",
         s.bloodType || "",
         s.allergies || "",
+        s.emergencyContactName || "",
         s.height || "",
         s.weight || "",
       ]);
@@ -602,6 +607,7 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
       "status",
       "bloodType",
       "allergies",
+      "emergencyContactName",
       "height",
       "weight",
     ];
@@ -618,6 +624,7 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
       "ACTIVE",
       "O+",
       "Peanuts",
+      "Jane Dela Cruz",
       "175",
       "70",
     ];
@@ -637,6 +644,7 @@ export const downloadStudentsTemplateXlsx = asyncHandler(
         "ACTIVE",
         "O+",
         "Peanuts",
+        "Jane Dela Cruz",
         "150",
         "45",
       ];
@@ -910,6 +918,9 @@ export const bulkImportStudents = asyncHandler(
         status: statusVal || undefined,
         bloodType: row.bloodType ? String(row.bloodType) : undefined,
         allergies: row.allergies ? String(row.allergies) : undefined,
+        emergencyContactName: row.emergencyContactName
+          ? String(row.emergencyContactName)
+          : undefined,
         height,
         weight,
         _line: rowNum,

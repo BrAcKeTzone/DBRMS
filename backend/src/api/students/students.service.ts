@@ -22,6 +22,7 @@ export interface CreateStudentData {
   allergies?: string;
   height?: number;
   weight?: number;
+  emergencyContactName?: string;
 }
 
 export interface UpdateStudentData {
@@ -37,6 +38,7 @@ export interface UpdateStudentData {
   linkStatus?: LinkStatus;
   bloodType?: string;
   allergies?: string;
+  emergencyContactName?: string;
   height?: number;
   weight?: number;
 }
@@ -100,6 +102,7 @@ export const createStudent = async (
       allergies: studentData.allergies,
       height: studentData.height,
       weight: studentData.weight,
+      emergencyContactName: studentData.emergencyContactName,
     };
 
     // Only include parentId if it's provided

@@ -80,7 +80,7 @@ const StudentLinksManagement = () => {
   const handleUnlink = async (studentId) => {
     if (
       !window.confirm(
-        "Are you sure you want to unlink this parent from the student? This will revert the link to pending."
+        "Are you sure you want to unlink this parent from the student? This will revert the link to pending.",
       )
     ) {
       return;
@@ -181,6 +181,9 @@ const StudentLinksManagement = () => {
           </div>
           <div className="text-sm text-gray-600">
             Student ID: {student.studentId}
+          </div>
+          <div className="text-xs text-blue-600 font-medium mt-0.5">
+            Emergency: {student.emergencyContactName || "N/A"}
           </div>
           <div className="text-xs text-gray-500">
             {student.yearEnrolled ? `Year: ${student.yearEnrolled}` : ""}
@@ -402,6 +405,12 @@ const StudentLinksManagement = () => {
                   <span className="text-gray-600">Student ID:</span>{" "}
                   <span className="font-medium">
                     {selectedRequest.studentId}
+                  </span>
+                </p>
+                <p>
+                  <span className="text-gray-600">Emergency Contact:</span>{" "}
+                  <span className="font-medium">
+                    {selectedRequest.emergencyContactName || "N/A"}
                   </span>
                 </p>
                 <p>

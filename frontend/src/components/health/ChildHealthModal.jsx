@@ -79,6 +79,10 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
                 <div class="info-label">Course</div>
                 <div class="info-value">${selectedChild.course?.name || selectedChild.course?.code || "N/A"}</div>
               </div>
+              <div class="info-box">
+                <div class="info-label">Emergency Contact</div>
+                <div class="info-value">${selectedChild.emergencyContactName || "N/A"}</div>
+              </div>
             </div>
           </div>
 
@@ -216,6 +220,14 @@ const ChildHealthModal = ({ isOpen, onClose, selectedChild }) => {
             </div>
             <div className="font-medium text-gray-900">
               {selectedChild.course?.code || "N/A"}
+            </div>
+          </div>
+          <div>
+            <div className="text-xs font-semibold text-gray-500 uppercase">
+              Emergency Contact
+            </div>
+            <div className="font-medium text-gray-900">
+              {selectedChild.emergencyContactName || "N/A"}
             </div>
           </div>
           <div>

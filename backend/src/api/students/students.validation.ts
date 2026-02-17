@@ -20,6 +20,7 @@ export const createStudent = Joi.object().keys({
   courseCode: Joi.string().optional().allow("", null),
   bloodType: Joi.string().optional().allow("", null),
   allergies: Joi.string().optional().allow("", null),
+  emergencyContactName: Joi.string().max(255).optional().allow("", null),
   height: Joi.alternatives()
     .try(Joi.number(), Joi.string().allow(""))
     .optional()
@@ -45,6 +46,7 @@ export const updateStudent = Joi.object()
       .optional(),
     bloodType: Joi.string().optional().allow("", null),
     allergies: Joi.string().optional().allow("", null),
+    emergencyContactName: Joi.string().max(255).optional().allow("", null),
     height: Joi.alternatives()
       .try(Joi.number(), Joi.string().allow(""))
       .optional()

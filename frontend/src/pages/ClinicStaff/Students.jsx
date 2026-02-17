@@ -40,6 +40,7 @@ const StudentsManagement = () => {
     courseCode: "",
     bloodType: "",
     allergies: "",
+    emergencyContactName: "",
     height: "",
     weight: "",
   });
@@ -1434,6 +1435,9 @@ const StudentsManagement = () => {
                 courseCode: "",
                 bloodType: "",
                 allergies: "",
+                emergencyContactName: "",
+                height: "",
+                weight: "",
               });
               setStudentLevel("High School");
             }}
@@ -1663,6 +1667,18 @@ const StudentsManagement = () => {
                   }
                 ></textarea>
               </div>
+
+              <Input
+                label="Emergency Contact Name"
+                placeholder="e.g., Jane Dela Cruz"
+                value={newStudent.emergencyContactName}
+                onChange={(e) =>
+                  setNewStudent({
+                    ...newStudent,
+                    emergencyContactName: capitalizeWords(e.target.value),
+                  })
+                }
+              />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
@@ -1999,6 +2015,18 @@ const StudentsManagement = () => {
                     }
                   ></textarea>
                 </div>
+
+                <Input
+                  label="Emergency Contact Name"
+                  placeholder="e.g., Jane Dela Cruz"
+                  value={selectedStudent.emergencyContactName || ""}
+                  onChange={(e) =>
+                    setSelectedStudent({
+                      ...selectedStudent,
+                      emergencyContactName: capitalizeWords(e.target.value),
+                    })
+                  }
+                />
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <Input

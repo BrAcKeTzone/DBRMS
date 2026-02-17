@@ -62,6 +62,7 @@ model Student {
   allergies  String?       @db.Text
   height     Float?
   weight     Float?
+  emergencyContactName String? @db.VarChar(255)
 
   courseId Int?
   course   Course? @relation(fields: [courseId], references: [id])
