@@ -1,6 +1,18 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import {
+  HiOutlineViewGrid,
+  HiOutlineClipboardList,
+  HiOutlineUsers,
+  HiOutlineLink,
+  HiOutlinePencilAlt,
+  HiOutlineChatAlt2,
+  HiOutlineUserGroup,
+  HiOutlineCog,
+  HiOutlineUserCircle,
+  HiOutlineClipboard,
+} from "react-icons/hi";
 
 const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
@@ -96,185 +108,47 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         {
           name: "Clinic Records",
           path: "/clinic/dashboard",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineViewGrid className="w-5 h-5" />,
         },
         {
           name: "Health Records",
           path: "/clinic/health-records",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineClipboardList className="w-5 h-5" />,
         },
         {
           name: "Students",
           path: "/clinic/students",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineUsers className="w-5 h-5" />,
         },
         {
           name: "Student Links",
           path: "/clinic/student-links",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M13 16h-1v-4h-1m4-4h.01M19 7v6a2 2 0 01-2 2h-1"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineLink className="w-5 h-5" />,
         },
         {
           name: "Visit Logging",
           path: "/clinic/visit-logging",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3"
-              />
-            </svg>
-          ),
+          icon: <HiOutlinePencilAlt className="w-5 h-5" />,
         },
         {
           name: "SMS Tracking",
           path: "/clinic/sms-tracking",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 8v4l3 3"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineChatAlt2 className="w-5 h-5" />,
         },
         {
           name: "Users",
           path: "/clinic/users",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 20v-2a4 4 0 00-4-4H9a4 4 0 00-4 4v2"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 12a4 4 0 100-8 4 4 0 000 8z"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineUserGroup className="w-5 h-5" />,
         },
         {
           name: "System Config",
           path: "/clinic/system-configuration",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 15.5A3.5 3.5 0 1112 8.5a3.5 3.5 0 010 7z"
-              />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82L4.21 6.21a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001.51-1V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51c.39.13.65.47.72.88l.15.98a1.65 1.65 0 001.51 1h.09a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1l-.15.98c-.07.41-.33.75-.72.88z"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineCog className="w-5 h-5" />,
         },
         {
           name: "Profile",
           path: "/clinic/profile",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM6 20v-1a6 6 0 0112 0v1"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineUserCircle className="w-5 h-5" />,
         },
       ];
     } else if (user?.role === "PARENT_GUARDIAN") {
@@ -282,78 +156,22 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         {
           name: "Student Records",
           path: "/parent/dashboard",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineClipboard className="w-5 h-5" />,
         },
         {
           name: "Linked Students",
           path: "/parent/linked-students",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1z"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineUsers className="w-5 h-5" />,
         },
         {
           name: "My Messages",
           path: "/parent/sms-tracking",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M3 8h18M3 12h12M3 16h12"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineChatAlt2 className="w-5 h-5" />,
         },
         {
           name: "Profile",
           path: "/parent/profile",
-          icon: (
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM6 20v-1a6 6 0 0112 0v1"
-              />
-            </svg>
-          ),
+          icon: <HiOutlineUserCircle className="w-5 h-5" />,
         },
       ];
     }
