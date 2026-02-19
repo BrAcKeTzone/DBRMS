@@ -157,6 +157,7 @@ export const getStudents = async (
 ): Promise<{
   students: Student[];
   totalCount: number;
+  noYearLevelCount: number;
   totalPages: number;
   currentPage: number;
 }> => {

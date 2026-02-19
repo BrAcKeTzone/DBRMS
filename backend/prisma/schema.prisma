@@ -35,6 +35,13 @@ enum Sex {
   FEMALE
 }
 
+enum AnnouncementPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 
 model Otp {
   id        Int      @id @default(autoincrement())
@@ -241,4 +248,20 @@ model ActivityLog {
 
   @@index([userId])
   @@index([action])
+}
+
+model Meeting {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String?  @db.Text
+  date        DateTime
+  startTime   String
+  endTime     String?
+  venue       String
+  meetingType String
+  isVirtual   Boolean  @default(false)
+  meetingLink String?
+  agenda      String?  @db.Text
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

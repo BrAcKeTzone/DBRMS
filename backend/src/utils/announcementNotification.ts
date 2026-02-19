@@ -17,7 +17,7 @@ interface AnnouncementNotificationOptions {
 }
 
 const getPriorityLabel = (priority: AnnouncementPriority): string => {
-  const labels = {
+  const labels: Record<AnnouncementPriority, string> = {
     LOW: "Low Priority",
     MEDIUM: "Medium Priority",
     HIGH: "High Priority",

@@ -4,7 +4,7 @@ import jwt, { SignOptions } from "jsonwebtoken";
 import otpGenerator from "otp-generator";
 import ApiError from "../../utils/ApiError";
 import sendEmail from "../../utils/email";
-import { Prisma, User } from "@prisma/client";
+import { Prisma, User, UserRole } from "@prisma/client";
 import { AuthenticationError } from "../../utils/errors";
 
 interface JwtPayload {

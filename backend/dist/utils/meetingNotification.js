@@ -1,26 +1,23 @@
-import { sendSMS } from "./smsService";
-import sendEmail from "./email";
-
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.sendMeetingReminder = exports.sendMeetingNotification = void 0;
+const smsService_1 = require("./smsService");
+const email_1 = __importDefault(require("./email"));
 /**
  * Send meeting notification email
  */
-export const sendMeetingNotification = async (
-  recipientEmail: string,
-  recipientName: string,
-  meeting: any,
-  customMessage?: string,
-  phone?: string | null,
-): Promise<void> => {
-  const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const subject = `Meeting Notification: ${meeting.title}`;
-
-  const htmlContent = `
+const sendMeetingNotification = async (recipientEmail, recipientName, meeting, customMessage, phone) => {
+    const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+    const subject = `Meeting Notification: ${meeting.title}`;
+    const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -44,11 +41,9 @@ export const sendMeetingNotification = async (
         <div class="content">
           <p>Dear ${recipientName},</p>
           
-          ${
-            customMessage
-              ? `<p><strong>${customMessage}</strong></p>`
-              : `<p>You are invited to attend the following meeting:</p>`
-          }
+          ${customMessage
+        ? `<p><strong>${customMessage}</strong></p>`
+        : `<p>You are invited to attend the following meeting:</p>`}
           
           <div class="meeting-details">
             <h2>${meeting.title}</h2>
@@ -62,47 +57,39 @@ export const sendMeetingNotification = async (
             </div>
             
             <div class="detail-row">
-              <span class="label">Time:</span> ${meeting.startTime}${
-                meeting.endTime ? ` - ${meeting.endTime}` : ""
-              }
+              <span class="label">Time:</span> ${meeting.startTime}${meeting.endTime ? ` - ${meeting.endTime}` : ""}
             </div>
             
             <div class="detail-row">
               <span class="label">Venue:</span> ${meeting.venue}
             </div>
             
-            ${
-              meeting.isVirtual && meeting.meetingLink
-                ? `
+            ${meeting.isVirtual && meeting.meetingLink
+        ? `
               <div class="detail-row">
                 <span class="label">Meeting Link:</span><br>
                 <a href="${meeting.meetingLink}" class="button" target="_blank">Join Virtual Meeting</a>
               </div>
             `
-                : ""
-            }
+        : ""}
             
-            ${
-              meeting.description
-                ? `
+            ${meeting.description
+        ? `
               <div class="detail-row">
                 <span class="label">Description:</span><br>
                 <p>${meeting.description}</p>
               </div>
             `
-                : ""
-            }
+        : ""}
             
-            ${
-              meeting.agenda
-                ? `
+            ${meeting.agenda
+        ? `
               <div class="detail-row">
                 <span class="label">Agenda:</span><br>
                 <p>${meeting.agenda}</p>
               </div>
             `
-                : ""
-            }
+        : ""}
           </div>
           
           <p>Please make sure to attend this meeting. Your participation is important.</p>
@@ -120,8 +107,7 @@ export const sendMeetingNotification = async (
     </body>
     </html>
   `;
-
-  const textContent = `
+    const textContent = `
 Meeting Notification: ${meeting.title}
 
 Dear ${recipientName},
@@ -135,11 +121,9 @@ Type: ${meeting.meetingType}
 Date: ${meetingDate}
 Time: ${meeting.startTime}${meeting.endTime ? ` - ${meeting.endTime}` : ""}
 Venue: ${meeting.venue}
-${
-  meeting.isVirtual && meeting.meetingLink
-    ? `\nMeeting Link: ${meeting.meetingLink}`
-    : ""
-}
+${meeting.isVirtual && meeting.meetingLink
+        ? `\nMeeting Link: ${meeting.meetingLink}`
+        : ""}
 ${meeting.description ? `\nDescription: ${meeting.description}` : ""}
 ${meeting.agenda ? `\nAgenda: ${meeting.agenda}` : ""}
 
@@ -148,44 +132,35 @@ Please make sure to attend this meeting. Your participation is important.
 Best regards,
 BCFI Clinic Portal
   `;
-
-  await sendEmail({
-    email: recipientEmail,
-    subject,
-    message: textContent,
-    html: htmlContent,
-  });
-
-  // Send SMS if phone is available
-  if (phone) {
-    const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
+    await (0, email_1.default)({
+        email: recipientEmail,
+        subject,
+        message: textContent,
+        html: htmlContent,
     });
-    const smsMessage = `Meeting Invite: ${meeting.title} on ${meetingDate} at ${meeting.startTime}. Venue: ${meeting.venue}. Please attend.`;
-    await sendSMS(phone, smsMessage);
-  }
+    // Send SMS if phone is available
+    if (phone) {
+        const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+        });
+        const smsMessage = `Meeting Invite: ${meeting.title} on ${meetingDate} at ${meeting.startTime}. Venue: ${meeting.venue}. Please attend.`;
+        await (0, smsService_1.sendSMS)(phone, smsMessage);
+    }
 };
-
+exports.sendMeetingNotification = sendMeetingNotification;
 /**
  * Send meeting reminder email
  */
-export const sendMeetingReminder = async (
-  recipientEmail: string,
-  recipientName: string,
-  meeting: any,
-  phone?: string | null,
-): Promise<void> => {
-  const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
-
-  const subject = `Reminder: ${meeting.title} - ${meetingDate}`;
-
-  const htmlContent = `
+const sendMeetingReminder = async (recipientEmail, recipientName, meeting, phone) => {
+    const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+    });
+    const subject = `Reminder: ${meeting.title} - ${meetingDate}`;
+    const htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -222,25 +197,21 @@ export const sendMeetingReminder = async (
             </div>
             
             <div class="detail-row">
-              <span class="label">Time:</span> ${meeting.startTime}${
-                meeting.endTime ? ` - ${meeting.endTime}` : ""
-              }
+              <span class="label">Time:</span> ${meeting.startTime}${meeting.endTime ? ` - ${meeting.endTime}` : ""}
             </div>
             
             <div class="detail-row">
               <span class="label">Venue:</span> ${meeting.venue}
             </div>
             
-            ${
-              meeting.isVirtual && meeting.meetingLink
-                ? `
+            ${meeting.isVirtual && meeting.meetingLink
+        ? `
               <div class="detail-row">
                 <span class="label">Meeting Link:</span><br>
                 <a href="${meeting.meetingLink}" class="button" target="_blank">Join Virtual Meeting</a>
               </div>
             `
-                : ""
-            }
+        : ""}
           </div>
           
           <p><strong>Please confirm your attendance and be on time.</strong></p>
@@ -255,21 +226,21 @@ export const sendMeetingReminder = async (
     </body>
     </html>
   `;
-
-  await sendEmail({
-    email: recipientEmail,
-    subject,
-    message: "Meeting Reminder", // text fallback
-    html: htmlContent,
-  });
-
-  // Send SMS if phone is available
-  if (phone) {
-    const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
+    await (0, email_1.default)({
+        email: recipientEmail,
+        subject,
+        message: "Meeting Reminder", // text fallback
+        html: htmlContent,
     });
-    const smsMessage = `Reminder: Meeting "${meeting.title}" is tomorrow, ${meetingDate} at ${meeting.startTime}. Venue: ${meeting.venue}. See you there!`;
-    await sendSMS(phone, smsMessage);
-  }
+    // Send SMS if phone is available
+    if (phone) {
+        const meetingDate = new Date(meeting.date).toLocaleDateString("en-US", {
+            month: "short",
+            day: "numeric",
+        });
+        const smsMessage = `Reminder: Meeting "${meeting.title}" is tomorrow, ${meetingDate} at ${meeting.startTime}. Venue: ${meeting.venue}. See you there!`;
+        await (0, smsService_1.sendSMS)(phone, smsMessage);
+    }
 };
+exports.sendMeetingReminder = sendMeetingReminder;
+//# sourceMappingURL=meetingNotification.js.map
