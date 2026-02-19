@@ -1,7 +1,14 @@
 import axios from "axios";
 
 // Create axios instance with default configuration
-const API_ROOT = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_ROOT = import.meta.env.VITE_API_URL;
+
+if (!API_ROOT) {
+  throw new Error(
+    "VITE_API_URL is not defined. Please set it in your frontend environment variables.",
+  );
+}
+
 const BASE_API_URL = API_ROOT.endsWith("/api")
   ? API_ROOT
   : `${API_ROOT.replace(/\/$/, "")}/api`;
@@ -47,7 +54,7 @@ fetchClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor to handle common responses
@@ -95,7 +102,7 @@ fetchClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 // Request interceptor for file upload client
@@ -113,7 +120,7 @@ fileUploadClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response interceptor for file upload client (same as main client)
@@ -155,7 +162,7 @@ fileUploadClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export { fetchClient, fileUploadClient };
