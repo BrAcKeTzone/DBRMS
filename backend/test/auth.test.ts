@@ -1,7 +1,7 @@
 import { describe, it, beforeEach, afterAll, expect, vi } from "vitest";
 import request from "supertest";
 
-// Mock email sender so tests don't attempt real SMTP
+// Mock email sender so tests don't attempt real Resend API calls
 vi.mock("../src/utils/email", () => ({
   default: vi.fn().mockResolvedValue(undefined),
 }));

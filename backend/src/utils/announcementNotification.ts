@@ -49,7 +49,7 @@ ${content}
 ${attachmentSection}
 
 ---
-This is an automated notification from the ePTA Management System.
+This is an automated notification from the BCFI Clinic Portal.
 John H. Catolico Sr. College - Dumingag Campus
 Parent and Teacher Association
 

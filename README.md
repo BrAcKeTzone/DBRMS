@@ -93,11 +93,9 @@ cd DMRMS_w_Automated_Sms_Notifcation/DBRMS
    # Server Configuration
    PORT=3000
 
-   # Email Configuration (for OTPs/Notifications)
-   EMAIL_HOST="smtp.gmail.com"
-   EMAIL_PORT=587
-   EMAIL_USER="your_email@gmail.com"
-   EMAIL_PASS="your_email_password_or_app_password"
+   # Resend Configuration (for OTPs/Notifications)
+   RESEND_API_KEY="your_resend_api_key"
+   FROM_EMAIL="your_verified_sending_email"
 
    # Cloudinary Configuration (for file uploads)
    CLOUDINARY_CLOUD_NAME="your_cloudinary_cloud_name"

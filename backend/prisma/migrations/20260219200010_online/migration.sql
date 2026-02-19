@@ -20,9 +20,14 @@ CREATE TABLE `Student` (
     `middleName` VARCHAR(191) NULL,
     `sex` ENUM('MALE', 'FEMALE') NOT NULL DEFAULT 'MALE',
     `birthDate` DATETIME(3) NOT NULL,
-    `yearEnrolled` VARCHAR(191) NOT NULL,
+    `yearLevel` VARCHAR(50) NULL,
     `status` ENUM('ACTIVE', 'INACTIVE', 'GRADUATED') NOT NULL DEFAULT 'ACTIVE',
-    `courseId` INTEGER NOT NULL,
+    `bloodType` VARCHAR(5) NULL,
+    `allergies` TEXT NULL,
+    `height` DOUBLE NULL,
+    `weight` DOUBLE NULL,
+    `emergencyContactName` VARCHAR(255) NULL,
+    `courseId` INTEGER NULL,
     `parentId` INTEGER NULL,
     `linkStatus` ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
     `relationship` VARCHAR(191) NULL,
@@ -62,7 +67,7 @@ CREATE TABLE `User` (
     `lastName` VARCHAR(191) NOT NULL,
     `phone` VARCHAR(191) NOT NULL,
     `profilePicture` VARCHAR(191) NULL,
-    `role` ENUM('CLINIC_ADMIN', 'CLINIC_STAFF', 'PARENT_GUARDIAN') NOT NULL DEFAULT 'PARENT_GUARDIAN',
+    `role` ENUM('CLINIC_STAFF', 'PARENT_GUARDIAN') NOT NULL DEFAULT 'PARENT_GUARDIAN',
     `isActive` BOOLEAN NOT NULL DEFAULT true,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
@@ -110,17 +115,17 @@ CREATE TABLE `HealthMetric` (
 -- CreateTable
 CREATE TABLE `ClinicVisit` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `studentId` INTEGER NOT NULL,
     `visitDateTime` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `symptoms` TEXT NOT NULL,
     `bloodPressure` VARCHAR(191) NULL,
-    `temperatureCelsius` DOUBLE NULL,
-    `pulseRate` INTEGER NULL,
+    `temperature` VARCHAR(191) NULL,
+    `pulseRate` VARCHAR(191) NULL,
     `diagnosis` TEXT NULL,
     `treatment` TEXT NULL,
     `isEmergency` BOOLEAN NOT NULL DEFAULT false,
     `isReferredToHospital` BOOLEAN NOT NULL DEFAULT false,
     `hospitalName` VARCHAR(191) NULL,
+    `studentId` INTEGER NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -132,9 +137,11 @@ CREATE TABLE `ClinicVisit` (
 -- CreateTable
 CREATE TABLE `SmsLog` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `clinicVisitId` INTEGER NOT NULL,
+    `clinicVisitId` INTEGER NULL,
     `message` TEXT NOT NULL,
     `status` VARCHAR(191) NOT NULL,
+    `recipientName` VARCHAR(191) NULL,
+    `recipientPhone` VARCHAR(191) NULL,
     `sentAt` DATETIME(3) NULL,
     `failReason` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -147,8 +154,12 @@ CREATE TABLE `SmsLog` (
 CREATE TABLE `SystemSetting` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `key` VARCHAR(191) NOT NULL,
-    `value` TEXT NOT NULL,
-    `description` VARCHAR(191) NULL,
+    `smsApiKey` VARCHAR(191) NULL,
+    `senderName` VARCHAR(191) NULL,
+    `defaultTemplate` TEXT NULL,
+    `enableSMSNotifications` BOOLEAN NOT NULL DEFAULT true,
+    `lastBackup` VARCHAR(191) NULL,
+    `updatedById` INTEGER NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
@@ -172,7 +183,7 @@ CREATE TABLE `ActivityLog` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Student` ADD CONSTRAINT `Student_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `Student` ADD CONSTRAINT `Student_courseId_fkey` FOREIGN KEY (`courseId`) REFERENCES `Course`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Student` ADD CONSTRAINT `Student_parentId_fkey` FOREIGN KEY (`parentId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
@@ -193,10 +204,13 @@ ALTER TABLE `StudentLinkRequest` ADD CONSTRAINT `StudentLinkRequest_approvedById
 ALTER TABLE `HealthMetric` ADD CONSTRAINT `HealthMetric_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `ClinicVisit` ADD CONSTRAINT `ClinicVisit_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE `ClinicVisit` ADD CONSTRAINT `ClinicVisit_studentId_fkey` FOREIGN KEY (`studentId`) REFERENCES `Student`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `SmsLog` ADD CONSTRAINT `SmsLog_clinicVisitId_fkey` FOREIGN KEY (`clinicVisitId`) REFERENCES `ClinicVisit`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `SystemSetting` ADD CONSTRAINT `SystemSetting_updatedById_fkey` FOREIGN KEY (`updatedById`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `ActivityLog` ADD CONSTRAINT `ActivityLog_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

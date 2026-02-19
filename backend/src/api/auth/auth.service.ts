@@ -84,7 +84,7 @@ export const sendOtp = async (
     console.log("📧 Attempting to send email...");
     await sendEmail({
       email,
-      subject: "Your OTP for ePTA Registration",
+      subject: "Your OTP for BCFI Clinic Portal Registration",
       message: `Your OTP is: ${otp}. It will expire in 10 minutes.`,
     });
     console.log("✅ Email sent successfully");
@@ -140,7 +140,7 @@ export const sendOtpForReset = async (
   try {
     await sendEmail({
       email,
-      subject: "Your OTP for ePTA Password Reset",
+      subject: "Your OTP for BCFI Clinic Portal Password Reset",
       message: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`,
     });
   } catch (error) {
@@ -203,7 +203,7 @@ export const sendOtpForChange = async (
   try {
     await sendEmail({
       email,
-      subject: "Your OTP for ePTA Password Change",
+      subject: "Your OTP for BCFI Clinic Portal Password Change",
       message: `Your OTP for password change is: ${otp}. It will expire in 10 minutes.`,
     });
   } catch (error) {

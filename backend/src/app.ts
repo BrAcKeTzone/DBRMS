@@ -15,6 +15,14 @@ app.use(bodyParser.urlencoded({ extended: true, limit: "100mb" }));
 // Routes
 app.use("/api", routes);
 
+app.get("/", (req: Request, res: Response) => {
+  res.status(200).json({
+    message: "Welcome to BCFI Clinic Portal API",
+    version: "1.0.0",
+    status: "active",
+  });
+});
+
 // Error handling middleware
 app.use(errorHandler);
 

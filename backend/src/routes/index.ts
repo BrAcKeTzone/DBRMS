@@ -18,4 +18,14 @@ router.use("/sms", smsRouter);
 
 router.use("/settings", settingsRouter);
 router.use("/courses", coursesRouter);
+
+router.get("/health", (req, res) => {
+  res.status(200).json({
+    status: "success",
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
 export default router;

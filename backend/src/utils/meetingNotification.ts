@@ -1,17 +1,6 @@
-import nodemailer from "nodemailer";
 import { Meeting } from "@prisma/client";
 import { sendSMS } from "./smsService";
-
-// Create transporter
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: parseInt(process.env.EMAIL_PORT || "587"),
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USERNAME,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+import sendEmail from "./email";
 
 /**
  * Send meeting notification email
@@ -119,13 +108,13 @@ export const sendMeetingNotification = async (
           
           <p>Please make sure to attend this meeting. Your participation is important.</p>
           
-          <p>If you have any questions or concerns, please contact the PTA office.</p>
+          <p>If you have any questions or concerns, please contact the BCFI Clinic office.</p>
           
           <p>Best regards,<br>
-          <strong>JHCSC Dumingag Campus PTA</strong></p>
+          <strong>BCFI Clinic Portal</strong></p>
         </div>
         <div class="footer">
-          <p>This is an automated message from the PTA Management System.</p>
+          <p>This is an automated message from the BCFI Clinic Portal.</p>
           <p>Please do not reply to this email.</p>
         </div>
       </div>
@@ -158,14 +147,13 @@ ${meeting.agenda ? `\nAgenda: ${meeting.agenda}` : ""}
 Please make sure to attend this meeting. Your participation is important.
 
 Best regards,
-JHCSC Dumingag Campus PTA
+BCFI Clinic Portal
   `;
 
-  await transporter.sendMail({
-    from: `"JHCSC PTA" <${process.env.EMAIL_USERNAME}>`,
-    to: recipientEmail,
+  await sendEmail({
+    email: recipientEmail,
     subject,
-    text: textContent,
+    message: textContent,
     html: htmlContent,
   });
 
@@ -259,20 +247,20 @@ export const sendMeetingReminder = async (
           <p><strong>Please confirm your attendance and be on time.</strong></p>
           
           <p>Best regards,<br>
-          <strong>JHCSC Dumingag Campus PTA</strong></p>
+          <strong>BCFI Clinic Portal</strong></p>
         </div>
         <div class="footer">
-          <p>This is an automated reminder from the PTA Management System.</p>
+          <p>This is an automated reminder from the BCFI Clinic Portal.</p>
         </div>
       </div>
     </body>
     </html>
   `;
 
-  await transporter.sendMail({
-    from: `"JHCSC PTA" <${process.env.EMAIL_USERNAME}>`,
-    to: recipientEmail,
+  await sendEmail({
+    email: recipientEmail,
     subject,
+    message: "Meeting Reminder", // text fallback
     html: htmlContent,
   });
 

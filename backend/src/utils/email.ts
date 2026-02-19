@@ -1,56 +1,41 @@
-import nodemailer, { TransportOptions, Transporter } from "nodemailer";
+import { Resend } from "resend";
 
 interface EmailOptions {
   email: string;
   subject: string;
   message: string;
+  html?: string;
 }
 
-interface EmailConfig {
-  host: string;
-  port: number;
-  auth: {
-    user: string;
-    pass: string;
-  };
-}
-
-const createTransporter = (): Transporter => {
-  const config: EmailConfig = {
-    host: process.env.EMAIL_HOST || "localhost",
-    port: parseInt(process.env.EMAIL_PORT || "587", 10),
-    auth: {
-      user: process.env.EMAIL_USERNAME || "",
-      pass: process.env.EMAIL_PASSWORD || "",
-    },
-  };
-
-  return nodemailer.createTransport(config as TransportOptions);
-};
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const sendEmail = async (options: EmailOptions): Promise<void> => {
-  // Log email configuration (without password)
+  // Log email configuration (without API key)
   console.log("Email Configuration:", {
-    host: process.env.EMAIL_HOST,
-    port: process.env.EMAIL_PORT,
-    user: process.env.EMAIL_USERNAME,
-    hasPassword: !!process.env.EMAIL_PASSWORD,
+    fromEmail: process.env.FROM_EMAIL,
+    hasApiKey: !!process.env.RESEND_API_KEY,
   });
 
-  const transporter = createTransporter();
-
   const mailOptions = {
-    from: "ePTA Management System <hello@epta.io>",
+    from:
+      process.env.FROM_EMAIL || "BCFI Clinic Portal <onboarding@resend.dev>",
     to: options.email,
     subject: options.subject,
     text: options.message,
+    html: options.html || `<p>${options.message}</p>`,
   };
 
-  console.log("Attempting to send email to:", options.email);
+  console.log("Attempting to send email via Resend to:", options.email);
 
   try {
-    const result = await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent successfully:", result.messageId);
+    const { data, error } = await resend.emails.send(mailOptions);
+
+    if (error) {
+      console.error("❌ Resend email sending failed:", error);
+      throw error;
+    }
+
+    console.log("✅ Email sent successfully via Resend:", data?.id);
   } catch (error) {
     console.error("❌ Email sending failed:", error);
     throw error;
