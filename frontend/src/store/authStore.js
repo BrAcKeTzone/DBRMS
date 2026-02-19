@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { authApi } from "../api/authAPI";
+import { authApi } from "../api/authApi";
 
 // Empty array to replace dummy data - forces reliance on real API
 const usersData = [];
