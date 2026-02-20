@@ -2,25 +2,22 @@ import prisma from "../../configs/prisma";
 import { sendSMS } from "../../utils/smsService";
 
 const SYSTEM_CONFIG_KEY = "system_config";
-// Split clinic visit template into 3 predefined parts
+// Split clinic visit template into 5 predefined parts
 const VISIT_TEMPLATE_PART_1 =
   "BCFI Clinic Alert\n" +
   "Student: {student}\n" +
   "Date: {date}\n" +
-  "Reason: {reason}\n" +
-  "Blood Pressure: {bp} mmHg\n" +
-  "Temperature: {temp} °C";
+  "Reason: {reason}";
 
 const VISIT_TEMPLATE_PART_2 =
-  "Pulse: {pulse} bpm\n" +
-  "Diagnosis: {diagnosis}\n" +
-  "Treatment: {treatment}";
+  "Diagnosis: {diagnosis}\n" + "Treatment: {treatment}";
 
 const VISIT_TEMPLATE_PART_3 =
-  "Emergency: {emergency}\n" +
-  "Hospital: {hospital}\n" +
-  "View your student health record in the portal: https://bcfi-clinic.up.railway.app\n\n" +
-  "Automated message. Please do not reply.";
+  "Emergency: {emergency}\n" + "Hospital: {hospital}";
+
+const VISIT_TEMPLATE_PART_4 = "https://bcfi-clinic.up.railway.app";
+
+const VISIT_TEMPLATE_PART_5 = "Automated message. Please do not reply.";
 
 const buildVisitSmsMessages = async (visit: any) => {
   const replacements: Record<string, string> = {
@@ -49,9 +46,11 @@ const buildVisitSmsMessages = async (visit: any) => {
   };
 
   const parts = [
-    `[1/3] ${fillTemplate(VISIT_TEMPLATE_PART_1)}`,
-    `[2/3] ${fillTemplate(VISIT_TEMPLATE_PART_2)}`,
-    `[3/3] ${fillTemplate(VISIT_TEMPLATE_PART_3)}`,
+    `[1/5] ${fillTemplate(VISIT_TEMPLATE_PART_1)}`,
+    `[2/5] ${fillTemplate(VISIT_TEMPLATE_PART_2)}`,
+    `[3/5] ${fillTemplate(VISIT_TEMPLATE_PART_3)}`,
+    `[4/5] ${VISIT_TEMPLATE_PART_4}`,
+    `[5/5] ${VISIT_TEMPLATE_PART_5}`,
   ];
 
   return parts;
@@ -122,7 +121,7 @@ export const createClinicVisit = async (data: any, _actorId?: number) => {
     for (let i = 0; i < smsMessages.length; i++) {
       const message = smsMessages[i];
       console.log(
-        `📤 Preparing to send part ${i + 1}/3:`,
+        `📤 Preparing to send part ${i + 1}/5:`,
         message.substring(0, 50) + "...",
       );
       console.log(`📏 Part ${i + 1} length:`, message.length);
@@ -137,7 +136,7 @@ export const createClinicVisit = async (data: any, _actorId?: number) => {
         );
         smsResult.success = false;
         smsResult.error = `Part ${i + 1} failed: ${partResult.error || partResult.message}`;
-        // Continue sending remaining parts even if one fails
+        break; // Stop sending if a part fails
       } else {
         console.log(`✅ Part ${i + 1} sent successfully`);
         if (i === smsMessages.length - 1) {
@@ -149,15 +148,9 @@ export const createClinicVisit = async (data: any, _actorId?: number) => {
 
       // Add delay between parts to help with ordering (except after the last message)
       if (i < smsMessages.length - 1) {
-        if (i === 1) {
-          // 5 second delay specifically after part 2 before sending part 3
-          console.log("⏰ Waiting 5 seconds before sending part 3...");
-          await new Promise((resolve) => setTimeout(resolve, 5000));
-        } else {
-          // 1 second delay for other parts
-          console.log("⏰ Waiting 1 second before next part...");
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-        }
+        // 2 second delay between all parts
+        console.log(`⏰ Waiting 2 seconds before sending part ${i + 2}...`);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
       }
     }
 

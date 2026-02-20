@@ -152,7 +152,7 @@ export const resendSMS = async (logId: number) => {
   let result;
 
   // Check if this is a multi-part clinic visit message
-  if (log.clinicVisit && log.message.includes("[1/3]")) {
+  if (log.clinicVisit && log.message.includes("[1/5]")) {
     // This is a multi-part message, split and send each part
     const parts = log.message.split("\n\n").filter((part) => part.trim());
     console.log(
@@ -186,11 +186,8 @@ export const resendSMS = async (logId: number) => {
 
       // Add delays between parts
       if (i < parts.length - 1) {
-        if (i === 1) {
-          await new Promise((resolve) => setTimeout(resolve, 5000)); // 5 seconds before part 3
-        } else {
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second for other parts
-        }
+        console.log(`⏰ Waiting 2 seconds before resending part ${i + 2}...`);
+        await new Promise((resolve) => setTimeout(resolve, 2000)); // 2 seconds between all parts
       }
     }
 
