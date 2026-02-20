@@ -13,7 +13,8 @@ const FALLBACK_VISIT_TEMPLATE =
   "Diagnosis: {diagnosis}\n" +
   "Treatment: {treatment}\n" +
   "Emergency: {emergency}\n" +
-  "Hospital: {hospital}";
+  "Hospital: {hospital}\n" +
+  "View your student health record in the portal: https://bcfi-clinic.up.railway.app";
 const SMS_FOOTER = "\n\nAutomated message. Please do not reply.";
 
 const formatVisitDate = (value: Date) =>
