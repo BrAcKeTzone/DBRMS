@@ -2,20 +2,28 @@ import prisma from "../../configs/prisma";
 import { sendSMS } from "../../utils/smsService";
 
 const SYSTEM_CONFIG_KEY = "system_config";
+// Keep the template as short as the working test SMS; plain ASCII and under ~140 chars.
 const FALLBACK_VISIT_TEMPLATE =
-  "BCFI Clinic Alert\n" +
-  "Student: {student}\n" +
-  "Date: {date}\n" +
-  "Reason: {reason}\n" +
-  "Blood Pressure: {bp} mmHg\n" +
-  "Temperature: {temp} °C\n" +
-  "Pulse: {pulse} bpm\n" +
-  "Diagnosis: {diagnosis}\n" +
-  "Treatment: {treatment}\n" +
-  "Emergency: {emergency}\n" +
-  "Hospital: {hospital}\n" +
-  "View your student health record in the portal: https://bcfi-clinic.up.railway.app";
-const SMS_FOOTER = "\n\nAutomated message. Please do not reply.";
+  "BCFI Clinic: {student} {date}. Reason: {reason}. BP {bp}. Temp {temp}C. Pulse {pulse}. Dx {diagnosis}. Tx {treatment}. Emerg {emergency}. Hospital {hospital}.";
+const SMS_FOOTER = "";
+const MAX_SMS_LENGTH = 140;
+
+const normalizeForSms = (value: string) =>
+  value
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, MAX_SMS_LENGTH - 3);
+
+const finalizeSmsMessage = (message: string) => {
+  const normalized = normalizeForSms(message);
+  const capped =
+    normalized.length >= MAX_SMS_LENGTH - 3
+      ? `${normalized.slice(0, MAX_SMS_LENGTH - 3)}...`
+      : normalized;
+
+  console.info("SMS length", capped.length, "content", capped);
+  return capped;
+};
 
 const formatVisitDate = (value: Date) =>
   new Date(value).toLocaleString("en-US", {
@@ -52,9 +60,11 @@ const buildVisitSmsMessage = async (visit: any) => {
     return msg.replace(matcher, value);
   }, template);
 
-  return filled.includes("Automated message")
+  const withFooter = filled.includes("Automated message")
     ? filled
     : `${filled}${SMS_FOOTER}`;
+
+  return finalizeSmsMessage(withFooter);
 };
 
 export const createClinicVisit = async (data: any, _actorId?: number) => {
