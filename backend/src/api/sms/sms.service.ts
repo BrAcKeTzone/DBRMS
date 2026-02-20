@@ -149,7 +149,62 @@ export const resendSMS = async (logId: number) => {
     throw new ApiError(400, "No recipient phone found in log");
   }
 
-  const result = await triggerSMS(log.recipientPhone, log.message);
+  let result;
+
+  // Check if this is a multi-part clinic visit message
+  if (log.clinicVisit && log.message.includes("[1/3]")) {
+    // This is a multi-part message, split and send each part
+    const parts = log.message.split("\n\n").filter((part) => part.trim());
+    console.log(
+      "🔄 Resending multi-part clinic visit message with",
+      parts.length,
+      "parts",
+    );
+
+    let allSuccess = true;
+    let lastError = "";
+
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i].startsWith("[")
+        ? parts[i]
+        : `[${i + 1}/${parts.length}] ${parts[i]}`;
+      console.log(
+        `🔄 Resending part ${i + 1}/${parts.length}:`,
+        part.substring(0, 50) + "...",
+      );
+
+      const partResult = await triggerSMS(log.recipientPhone, part);
+
+      if (!partResult.success) {
+        allSuccess = false;
+        lastError = partResult.error || partResult.message || "Unknown error";
+        console.error(`❌ Resend part ${i + 1} failed:`, lastError);
+        break; // Stop if a part fails
+      } else {
+        console.log(`✅ Resend part ${i + 1} successful`);
+      }
+
+      // Add delays between parts
+      if (i < parts.length - 1) {
+        if (i === 1) {
+          await new Promise((resolve) => setTimeout(resolve, 5000)); // 5 seconds before part 3
+        } else {
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // 1 second for other parts
+        }
+      }
+    }
+
+    result = {
+      success: allSuccess,
+      message: allSuccess
+        ? "All parts resent successfully"
+        : "One or more parts failed",
+      error: allSuccess ? null : lastError,
+    };
+  } else {
+    // Single message, send as-is
+    result = await triggerSMS(log.recipientPhone, log.message);
+  }
 
   // Update the log with the latest attempt status
   const updatedLog = await prisma.smsLog.update({
