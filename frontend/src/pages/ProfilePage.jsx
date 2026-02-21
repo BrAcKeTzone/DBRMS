@@ -313,10 +313,8 @@ const ProfilePage = () => {
       errors.phone = "Phone number is required";
     }
 
-    // Email validation
-    if (!values.email.trim()) {
-      errors.email = "Email address is required";
-    } else {
+    // Email validation (optional)
+    if (values.email.trim()) {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(values.email)) {
         errors.email = "Please enter a valid email address";
@@ -600,7 +598,7 @@ const ProfilePage = () => {
 
               <div>
                 <Input
-                  label="Email Address"
+                  label="Email Address (Optional)"
                   type="email"
                   value={profileData.email}
                   onChange={(e) => {
@@ -615,7 +613,6 @@ const ProfilePage = () => {
                     }
                   }}
                   disabled={true}
-                  required
                   className="input-field bg-gray-100"
                 />
                 {validationErrors.email && (
@@ -823,8 +820,8 @@ const ProfilePage = () => {
 
             <div className="bg-blue-50 border border-blue-200 text-blue-700 px-4 py-3 rounded-md">
               <p className="text-sm">
-                For security, we'll send an OTP to your email to verify the
-                password change.
+                For security, we'll send an OTP to your phone number to verify
+                the password change.
               </p>
             </div>
 
@@ -903,7 +900,7 @@ const ProfilePage = () => {
             {otpSent && (
               <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-md">
                 <p className="text-sm">
-                  OTP has been sent to your email ({user?.email}). Please check
+                  OTP has been sent to your phone ({user?.phone}). Please check
                   your inbox.
                 </p>
               </div>

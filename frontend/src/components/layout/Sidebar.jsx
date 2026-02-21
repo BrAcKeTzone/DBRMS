@@ -141,11 +141,6 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           icon: <HiOutlineUserGroup className="w-5 h-5" />,
         },
         {
-          name: "System Config",
-          path: "/clinic/system-configuration",
-          icon: <HiOutlineCog className="w-5 h-5" />,
-        },
-        {
           name: "Profile",
           path: "/clinic/profile",
           icon: <HiOutlineUserCircle className="w-5 h-5" />,

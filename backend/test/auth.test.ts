@@ -101,7 +101,7 @@ describe("Auth API (signup, login, otp flows)", () => {
     expect(parentReg.body.data.user.role).toBe("PARENT_GUARDIAN");
   });
 
-  it("handles forgot password (OTP reset) flow and allows login with new password", async () => {
+  it("handles forgot password (OTP reset) flow via phone and allows login with new password", async () => {
     const email = "forgot@test.local";
     const phone = "09170000003";
 
@@ -117,13 +117,13 @@ describe("Auth API (signup, login, otp flows)", () => {
       },
     });
 
-    // Send reset OTP
+    // Send reset OTP using phone
     await request(app)
       .post("/api/auth/send-otp-reset")
-      .send({ email })
+      .send({ phone })
       .expect(200);
     const otpRec = await prisma.otp.findFirst({
-      where: { email },
+      where: { phone },
       orderBy: { createdAt: "desc" },
     });
     expect(otpRec).toBeTruthy();
@@ -131,19 +131,70 @@ describe("Auth API (signup, login, otp flows)", () => {
     // Verify reset OTP
     await request(app)
       .post("/api/auth/verify-otp-reset")
-      .send({ email, otp: otpRec!.otp })
+      .send({ phone, otp: otpRec!.otp })
       .expect(200);
 
     // Reset password
     await request(app)
       .post("/api/auth/reset-password")
-      .send({ email, otp: otpRec!.otp, password: "newPass123" })
+      .send({ phone, otp: otpRec!.otp, password: "newPass123" })
       .expect(200);
 
-    // Login with new password
+    // Login with new password using phone-based login endpoint
     await request(app)
-      .post("/api/auth/login")
-      .send({ email, password: "newPass123" })
+      .post("/api/auth/login-phone")
+      .send({ phone, password: "newPass123" })
+      .expect(200);
+  });
+
+  it("handles password change with OTP sent to phone number", async () => {
+    const phone = "09170000999";
+    const email = "changepass@test.local";
+    const password = "origPass123";
+    const user = await prisma.user.create({
+      data: {
+        email,
+        phone,
+        password,
+        firstName: "Change",
+        lastName: "Pass",
+        role: "PARENT_GUARDIAN",
+      },
+    });
+
+    // send OTP for password change
+    await request(app)
+      .post("/api/auth/send-otp-change")
+      .send({ phone, password })
+      .expect(200);
+
+    const otpRec = await prisma.otp.findFirst({
+      where: { phone },
+      orderBy: { createdAt: "desc" },
+    });
+    expect(otpRec).toBeTruthy();
+
+    // verify OTP
+    await request(app)
+      .post("/api/auth/verify-otp-change")
+      .send({ phone, otp: otpRec!.otp })
+      .expect(200);
+
+    // perform change
+    await request(app)
+      .post("/api/auth/change-password")
+      .send({
+        phone,
+        oldPassword: password,
+        otp: otpRec!.otp,
+        newPassword: "newPass456",
+      })
+      .expect(200);
+
+    // login with new password (via phone)
+    await request(app)
+      .post("/api/auth/login-phone")
+      .send({ phone, password: "newPass456" })
       .expect(200);
   });
 

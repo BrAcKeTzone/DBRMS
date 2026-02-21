@@ -24,7 +24,7 @@ const ForgotPasswordForm = () => {
   const clearError = useAuthStore((s) => s.clearError);
 
   const [formData, setFormData] = useState({
-    email: "",
+    phone: "",
     otp: "",
     newPassword: "",
     confirmPassword: "",
@@ -54,12 +54,14 @@ const ForgotPasswordForm = () => {
     }
   };
 
-  const validateEmail = () => {
+  const validatePhone = () => {
     const errors = {};
-    if (!formData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      errors.email = "Please enter a valid email";
+    if (!formData.phone.trim()) {
+      errors.phone = "Phone number is required";
+    }
+    // basic digits check
+    if (formData.phone.trim() && !/^\+?[0-9]{7,15}$/.test(formData.phone)) {
+      errors.phone = "Please enter a valid phone number";
     }
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
@@ -97,11 +99,11 @@ const ForgotPasswordForm = () => {
 
   const handlePhase1Submit = async (e) => {
     e.preventDefault();
-    if (!validateEmail()) return;
+    if (!validatePhone()) return;
 
     try {
-      await sendPasswordResetOtp(formData.email);
-      // OTP will be sent to the user's email
+      await sendPasswordResetOtp(formData.phone);
+      // OTP will be sent to the user's phone
     } catch (err) {
       console.error("Failed to send password reset OTP:", err);
     }
@@ -135,7 +137,7 @@ const ForgotPasswordForm = () => {
   const handleStartOver = () => {
     resetForgotPassword();
     setFormData({
-      email: "",
+      phone: "",
       otp: "",
       newPassword: "",
       confirmPassword: "",
@@ -147,22 +149,22 @@ const ForgotPasswordForm = () => {
     <form onSubmit={handlePhase1Submit} className="mt-8 space-y-6">
       <div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Step 1 of 3: Enter your email address
+          Step 1 of 3: Enter your phone number
         </h3>
         <p className="text-sm text-gray-600 mb-4">
           We'll send you a verification code to reset your password.
         </p>
         <Input
-          label="Email address"
-          name="email"
-          type="email"
-          value={formData.email}
+          label="Phone number"
+          name="phone"
+          type="tel"
+          value={formData.phone}
           onChange={handleChange}
           required
-          placeholder="Enter your email address"
+          placeholder="e.g. +632912345678 or 09xxxxxxxxx"
         />
-        {validationErrors.email && (
-          <p className="mt-1 text-sm text-red-600">{validationErrors.email}</p>
+        {validationErrors.phone && (
+          <p className="mt-1 text-sm text-red-600">{validationErrors.phone}</p>
         )}
       </div>
 
@@ -181,11 +183,11 @@ const ForgotPasswordForm = () => {
     <form onSubmit={handlePhase2Submit} className="mt-8 space-y-6">
       <div>
         <h3 className="text-lg font-medium text-gray-900 mb-4">
-          Step 2 of 3: Verify your email
+          Step 2 of 3: Verify your phone number
         </h3>
         <p className="text-sm text-gray-600 mb-4">
           We've sent a 6-digit code to{" "}
-          <strong>{forgotPasswordData.email}</strong>
+          <strong>{forgotPasswordData.phone}</strong>
         </p>
         {forgotPasswordOtp && (
           <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded mb-4">

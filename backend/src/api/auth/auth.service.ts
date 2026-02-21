@@ -186,11 +186,11 @@ export const sendOtpByPhone = async (
 };
 
 export const sendOtpForReset = async (
-  email: string,
+  phone: string,
 ): Promise<{ message: string; otp?: string }> => {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { phone } });
   if (!user) {
-    throw new ApiError(404, "User with this email does not exist");
+    throw new ApiError(404, "User with this phone number does not exist");
   }
 
   const otpOptions = {
@@ -206,7 +206,7 @@ export const sendOtpForReset = async (
   try {
     await prisma.otp.create({
       data: {
-        email,
+        phone,
         otp,
         createdAt: new Date(),
         expiresAt: expires,
@@ -220,35 +220,35 @@ export const sendOtpForReset = async (
   }
 
   try {
-    await sendEmail({
-      email,
-      subject: "Your OTP for BCFI Clinic Portal Password Reset",
-      message: `Your OTP for password reset is: ${otp}. It will expire in 10 minutes.`,
-    });
+    // send via SMS instead of email
+    await sendSMS(
+      phone,
+      `Your OTP for BCFI Clinic Portal Password Reset is: ${otp}. It will expire in 10 minutes.`,
+    );
   } catch (error) {
-    console.error("Email send failed:", error);
+    console.error("SMS send failed:", error);
     // In development, return the OTP in the response to make testing easier
     if (process.env.NODE_ENV !== "production") {
       console.warn("Development mode: returning OTP in response for testing");
-      return { message: "OTP sent to your email for password reset.", otp };
+      return { message: "OTP sent to your phone for password reset.", otp };
     }
 
     throw new ApiError(
       500,
-      "There was an error sending the email. Please try again later.",
+      "There was an error sending the SMS. Please try again later.",
     );
   }
 
-  return { message: "OTP sent to your email for password reset." };
+  return { message: "OTP sent to your phone for password reset." };
 };
 
 export const sendOtpForChange = async (
-  email: string,
+  phone: string,
   password: string,
 ): Promise<{ message: string; otp?: string }> => {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { phone } });
   if (!user) {
-    throw new ApiError(404, "User with this email does not exist");
+    throw new ApiError(404, "User with this phone number does not exist");
   }
 
   const isValidPassword = await bcrypt.compare(password, user.password);
@@ -269,7 +269,7 @@ export const sendOtpForChange = async (
   try {
     await prisma.otp.create({
       data: {
-        email,
+        phone,
         otp,
         createdAt: new Date(),
         expiresAt: expires,
@@ -283,25 +283,24 @@ export const sendOtpForChange = async (
   }
 
   try {
-    await sendEmail({
-      email,
-      subject: "Your OTP for BCFI Clinic Portal Password Change",
-      message: `Your OTP for password change is: ${otp}. It will expire in 10 minutes.`,
-    });
+    await sendSMS(
+      phone,
+      `Your OTP for BCFI Clinic Portal Password Change is: ${otp}. It will expire in 10 minutes.`,
+    );
   } catch (error) {
-    console.error("Email send failed:", error);
+    console.error("SMS send failed:", error);
     if (process.env.NODE_ENV !== "production") {
       console.warn("Development mode: returning OTP in response for testing");
-      return { message: "OTP sent to your email for password change.", otp };
+      return { message: "OTP sent to your phone for password change.", otp };
     }
 
     throw new ApiError(
       500,
-      "There was an error sending the email. Please try again later.",
+      "There was an error sending the SMS. Please try again later.",
     );
   }
 
-  return { message: "OTP sent to your email for password change." };
+  return { message: "OTP sent to your phone for password change." };
 };
 
 export const verifyOtp = async (
@@ -576,17 +575,17 @@ export const login = async (
 
 // Function to verify OTP specifically for password reset
 export const verifyOtpForReset = async (
-  email: string,
+  phone: string,
   otp: string,
 ): Promise<{ message: string; verified: boolean }> => {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { phone } });
   if (!user) {
     throw new ApiError(404, "User not found");
   }
 
   const otpRecord = await prisma.otp.findFirst({
     where: {
-      email,
+      phone,
       otp,
       expiresAt: {
         gt: new Date(), // Not expired
@@ -613,17 +612,17 @@ export const verifyOtpForReset = async (
 
 // Function to verify OTP specifically for password change
 export const verifyOtpForChange = async (
-  email: string,
+  phone: string,
   otp: string,
 ): Promise<{ message: string; verified: boolean }> => {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { phone } });
   if (!user) {
     throw new ApiError(404, "User not found");
   }
 
   const otpRecord = await prisma.otp.findFirst({
     where: {
-      email,
+      phone,
       otp,
       expiresAt: {
         gt: new Date(), // Not expired
@@ -649,11 +648,11 @@ export const verifyOtpForChange = async (
 };
 
 export const resetPassword = async (
-  email: string,
+  phone: string,
   otp: string,
   newPassword: string,
 ): Promise<{ message: string }> => {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { phone } });
   if (!user) {
     throw new ApiError(404, "User not found");
   }
@@ -661,7 +660,7 @@ export const resetPassword = async (
   // Check if OTP exists and has been verified
   const otpRecord = await prisma.otp.findFirst({
     where: {
-      email,
+      phone,
       otp,
       verified: true,
       expiresAt: {
@@ -683,7 +682,7 @@ export const resetPassword = async (
 
   const hashedPassword = await bcrypt.hash(newPassword, 12);
   await prisma.user.update({
-    where: { email },
+    where: { phone },
     data: { password: hashedPassword },
   });
 
@@ -699,21 +698,21 @@ export const resetPassword = async (
 };
 
 export const changePassword = async (
-  email: string,
+  phone: string,
   oldPassword: string,
   otp: string,
   newPassword: string,
 ): Promise<{ message: string }> => {
-  const user = await prisma.user.findUnique({ where: { email } });
+  const user = await prisma.user.findUnique({ where: { phone } });
 
   if (!user || !(await bcrypt.compare(oldPassword, user.password))) {
-    throw new ApiError(401, "Incorrect email or old password");
+    throw new ApiError(401, "Incorrect phone number or old password");
   }
 
   // Check if OTP exists and is valid (no need to be pre-verified)
   const otpRecord = await prisma.otp.findFirst({
     where: {
-      email,
+      phone,
       otp,
       expiresAt: {
         gt: new Date(), // Not expired
@@ -731,7 +730,7 @@ export const changePassword = async (
 
   const hashedPassword = await bcrypt.hash(newPassword, 12);
   await prisma.user.update({
-    where: { email },
+    where: { phone },
     data: { password: hashedPassword },
   });
 

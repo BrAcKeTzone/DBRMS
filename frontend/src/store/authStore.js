@@ -31,9 +31,9 @@ export const useAuthStore = create(
       generatedOtp: null,
 
       // Forgot password phase state
-      forgotPasswordPhase: 1, // 1: Email, 2: OTP, 3: New Password, 4: Success
+      forgotPasswordPhase: 1, // 1: Phone, 2: OTP, 3: New Password, 4: Success
       forgotPasswordData: {
-        email: "",
+        phone: "",
         otp: "",
         newPassword: "",
         confirmPassword: "",
@@ -426,12 +426,12 @@ export const useAuthStore = create(
 
       // Forgot Password Functions
       // Phase 1: Send OTP for password reset (server-backed, with fallback)
-      sendPasswordResetOtp: async (email) => {
+      sendPasswordResetOtp: async (phone) => {
         try {
           set({ loading: true, error: null });
 
           try {
-            const response = await authApi.sendOtpForReset(email);
+            const response = await authApi.sendOtpForReset(phone);
             const result = response.data?.data || response.data;
             const otp = result?.otp || null;
 
@@ -439,7 +439,7 @@ export const useAuthStore = create(
               loading: false,
               error: null,
               forgotPasswordPhase: 2,
-              forgotPasswordData: { ...get().forgotPasswordData, email },
+              forgotPasswordData: { ...get().forgotPasswordData, phone },
               forgotPasswordOtp: otp,
             });
 
@@ -451,9 +451,9 @@ export const useAuthStore = create(
               "Failed to send password reset OTP";
             if (!apiError?.response) {
               const users = get().users || usersData;
-              const user = users.find((u) => u.email === email);
+              const user = users.find((u) => u.phone === phone);
               if (!user) {
-                const errMsg = "No account found for this email";
+                const errMsg = "No account found for this phone number";
                 set({ loading: false, error: errMsg });
                 throw new Error(errMsg);
               }
@@ -464,7 +464,7 @@ export const useAuthStore = create(
                 loading: false,
                 error: null,
                 forgotPasswordPhase: 2,
-                forgotPasswordData: { ...get().forgotPasswordData, email },
+                forgotPasswordData: { ...get().forgotPasswordData, phone },
                 forgotPasswordOtp: otp,
               });
               return { otp };
@@ -489,7 +489,7 @@ export const useAuthStore = create(
           const { forgotPasswordData } = get();
 
           try {
-            await authApi.verifyOtpForReset(forgotPasswordData.email, otp);
+            await authApi.verifyOtpForReset(forgotPasswordData.phone, otp);
             set({
               loading: false,
               error: null,
@@ -537,7 +537,7 @@ export const useAuthStore = create(
 
           try {
             await authApi.resetPassword(
-              forgotPasswordData.email,
+              forgotPasswordData.phone,
               forgotPasswordData.otp,
               passwordData.newPassword,
             );
@@ -556,7 +556,7 @@ export const useAuthStore = create(
             if (!apiError?.response) {
               const users = get().users ? [...get().users] : [...usersData];
               const idx = users.findIndex(
-                (u) => u.email === forgotPasswordData.email,
+                (u) => u.phone === forgotPasswordData.phone,
               );
               if (idx === -1) {
                 const errMsg = "No account found";
@@ -599,7 +599,7 @@ export const useAuthStore = create(
         set({
           forgotPasswordPhase: 1,
           forgotPasswordData: {
-            email: "",
+            phone: "",
             otp: "",
             newPassword: "",
             confirmPassword: "",
@@ -744,13 +744,13 @@ export const useAuthStore = create(
           try {
             // Try API first
             const response = await authApi.sendOtpForChange(
-              user.email,
+              user.phone,
               currentPassword,
             );
             const result = response.data?.data || response.data;
             const apiOtp = result?.otp; // In prod this might be undefined, handled by email
 
-            // Store email for verification step to match backend expectations if needed
+            // Store phone for verification step to match backend expectations if needed
             // But here we just return success
             return { success: true, otp: apiOtp };
           } catch (apiError) {
@@ -762,7 +762,7 @@ export const useAuthStore = create(
             // If API not available (network error), try demo fallback
             if (!apiError?.response) {
               const users = get().users || usersData;
-              const account = users.find((u) => u.email === user.email);
+              const account = users.find((u) => u.phone === user.phone);
               if (!account || account.password !== currentPassword) {
                 const errMsg = "Current password is incorrect";
                 set({ loading: false, error: errMsg });
@@ -789,7 +789,7 @@ export const useAuthStore = create(
         }
       },
 
-      // Password change with OTP verification
+      // Password change with OTP verification (phone-based)
       changePasswordWithOtp: async (currentPassword, newPassword, otp) => {
         try {
           set({ loading: true, error: null });
@@ -802,7 +802,7 @@ export const useAuthStore = create(
           try {
             // Try API first
             await authApi.changePassword(
-              user.email,
+              user.phone,
               currentPassword,
               otp,
               newPassword,
@@ -828,7 +828,7 @@ export const useAuthStore = create(
               }
 
               const users = get().users ? [...get().users] : [...usersData];
-              const idx = users.findIndex((u) => u.email === user.email);
+              const idx = users.findIndex((u) => u.phone === user.phone);
               if (idx === -1) {
                 const errMsg = "User not found";
                 set({ loading: false, error: errMsg });

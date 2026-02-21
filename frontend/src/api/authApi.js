@@ -22,28 +22,28 @@ export const authApi = {
   verifyOtpByPhone: async (phone, otp) => {
     return fetchClient.post("/auth/verify-otp-phone", { phone, otp });
   },
-  sendOtpForReset: async (email) => {
-    return fetchClient.post("/auth/send-otp-reset", { email });
+  sendOtpForReset: async (phone) => {
+    return fetchClient.post("/auth/send-otp-reset", { phone });
   },
-  verifyOtpForReset: async (email, otp) => {
-    return fetchClient.post("/auth/verify-otp-reset", { email, otp });
+  verifyOtpForReset: async (phone, otp) => {
+    return fetchClient.post("/auth/verify-otp-reset", { phone, otp });
   },
-  sendOtpForChange: async (email, password) => {
-    return fetchClient.post("/auth/send-otp-change", { email, password });
+  sendOtpForChange: async (phone, password) => {
+    return fetchClient.post("/auth/send-otp-change", { phone, password });
   },
-  verifyOtpForChange: async (email, otp) => {
-    return fetchClient.post("/auth/verify-otp-change", { email, otp });
+  verifyOtpForChange: async (phone, otp) => {
+    return fetchClient.post("/auth/verify-otp-change", { phone, otp });
   },
-  resetPassword: async (email, otp, newPassword) => {
+  resetPassword: async (phone, otp, newPassword) => {
     return fetchClient.post("/auth/reset-password", {
-      email,
+      phone,
       otp,
       password: newPassword,
     });
   },
-  changePassword: async (email, oldPassword, otp, newPassword) => {
+  changePassword: async (phone, oldPassword, otp, newPassword) => {
     return fetchClient.post("/auth/change-password", {
-      email,
+      phone,
       oldPassword,
       otp,
       newPassword,
