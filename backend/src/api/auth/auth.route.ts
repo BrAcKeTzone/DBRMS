@@ -7,48 +7,63 @@ import * as authValidation from "./auth.validation";
 router.post(
   "/send-otp",
   validate(authValidation.sendOtp),
-  authController.sendOtp
+  authController.sendOtp,
+);
+router.post(
+  "/send-otp-phone",
+  validate(authValidation.sendOtpByPhone),
+  authController.sendOtpByPhone,
 );
 router.post(
   "/verify-otp",
   validate(authValidation.verifyOtp),
-  authController.verifyOtp
+  authController.verifyOtp,
+);
+router.post(
+  "/verify-otp-phone",
+  validate(authValidation.verifyOtpByPhone),
+  authController.verifyOtpByPhone,
 );
 router.post(
   "/send-otp-reset",
   validate(authValidation.sendOtpReset),
-  authController.sendOtpForReset
+  authController.sendOtpForReset,
 );
 router.post(
   "/verify-otp-reset",
   validate(authValidation.verifyOtpForReset),
-  authController.verifyOtpForReset
+  authController.verifyOtpForReset,
 );
 router.post(
   "/send-otp-change",
   validate(authValidation.sendOtpChange),
-  authController.sendOtpForChange
+  authController.sendOtpForChange,
 );
 router.post(
   "/verify-otp-change",
   validate(authValidation.verifyOtpForChange),
-  authController.verifyOtpForChange
+  authController.verifyOtpForChange,
 );
 router.post(
   "/register",
   validate(authValidation.register),
-  authController.register
+  authController.register,
+);
+router.post(
+  "/login-phone",
+  validate(authValidation.loginByPhone),
+  authController.loginByPhone,
 );
 router.post("/login", validate(authValidation.login), authController.login);
 router.post(
   "/reset-password",
   validate(authValidation.resetPassword),
-  authController.resetPassword
+  authController.resetPassword,
 );
 router.post(
   "/change-password",
   validate(authValidation.changePassword),
-  authController.changePassword
+  authController.changePassword,
 );
 
 export default router;

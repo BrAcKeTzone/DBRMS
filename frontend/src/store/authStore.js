@@ -17,13 +17,14 @@ export const useAuthStore = create(
       error: null,
 
       // Signup phase state
-      signupPhase: 1, // 1: Email, 2: OTP, 3: Personal Details, 4: Success
+      signupPhase: 1, // 1: Phone, 2: OTP, 3: Personal Details, 4: Success
       signupData: {
-        email: "",
+        phone: "",
         otp: "",
         firstName: "",
         middleName: "",
         lastName: "",
+        email: "",
         password: "",
         confirmPassword: "",
       },
@@ -95,6 +96,60 @@ export const useAuthStore = create(
         }
       },
 
+      loginByPhone: async (credentials) => {
+        try {
+          set({ loading: true, error: null });
+
+          const { phone, password } = credentials;
+
+          try {
+            const response = await authApi.loginByPhone({ phone, password });
+            const payload = response.data?.data || response.data;
+            const { user, token } = payload;
+
+            set({
+              user,
+              token,
+              isAuthenticated: true,
+              loading: false,
+              error: null,
+            });
+
+            // Persisted by zustand persist middleware
+
+            return { user, token };
+          } catch (apiError) {
+            // If backend returned error, try demo fallback
+            const apiMessage =
+              apiError?.response?.data?.message || apiError?.message;
+            const users = get().users || usersData;
+            const user = users.find((u) => u.phone === phone);
+
+            if (user && user.password === password) {
+              const token = `demo-token-${user.id}`;
+              set({
+                user,
+                token,
+                isAuthenticated: true,
+                loading: false,
+                error: null,
+              });
+              // Persisted by zustand persist middleware
+              return { user, token };
+            }
+
+            const errMsg = apiMessage || "Invalid phone number or password";
+            set({ loading: false, error: errMsg });
+            throw new Error(errMsg);
+          }
+        } catch (error) {
+          if (!error.message) {
+            set({ loading: false, error: "Login failed" });
+          }
+          throw error;
+        }
+      },
+
       register: async (userData) => {
         try {
           set({ loading: true, error: null });
@@ -138,13 +193,13 @@ export const useAuthStore = create(
         }
       },
 
-      // Phase 1: Send OTP to email (server-backed, with fallback)
-      sendOtp: async (email) => {
+      // Phase 1: Send OTP to phone (server-backed, with fallback)
+      sendOtp: async (phone) => {
         try {
           set({ loading: true, error: null });
 
           try {
-            const response = await authApi.sendOtp(email);
+            const response = await authApi.sendOtpByPhone(phone);
             const result = response.data?.data || response.data;
             const otp = result?.otp || null;
 
@@ -152,7 +207,7 @@ export const useAuthStore = create(
               loading: false,
               error: null,
               signupPhase: 2,
-              signupData: { ...get().signupData, email },
+              signupData: { ...get().signupData, phone },
               generatedOtp: otp,
             });
 
@@ -171,7 +226,7 @@ export const useAuthStore = create(
                 loading: false,
                 error: null,
                 signupPhase: 2,
-                signupData: { ...get().signupData, email },
+                signupData: { ...get().signupData, phone },
                 generatedOtp: otp,
               });
               return { otp };
@@ -194,7 +249,7 @@ export const useAuthStore = create(
           const { signupData } = get();
 
           try {
-            await authApi.verifyOtp(signupData.email, otp);
+            await authApi.verifyOtpByPhone(signupData.phone, otp);
 
             set({
               loading: false,
@@ -253,13 +308,14 @@ export const useAuthStore = create(
 
           try {
             const payload = {
-              email: signupData.email,
+              phone: signupData.phone,
+              email: personalData.email,
               otp: signupData.otp,
               firstName: personalData.firstName,
               middleName: personalData.middleName,
               lastName: personalData.lastName,
-              phone: personalData.phone || "",
               password: personalData.password,
+              useSmsOtp: true,
             };
 
             const response = await authApi.register(payload);
@@ -292,7 +348,7 @@ export const useAuthStore = create(
             // Fallback: create demo user locally if network error
             if (!apiError?.response) {
               const users = get().users ? [...get().users] : [...usersData];
-              const exists = users.find((u) => u.email === signupData.email);
+              const exists = users.find((u) => u.email === personalData.email);
               if (exists) {
                 const errMsg = "Email already registered";
                 set({ loading: false, error: errMsg });
@@ -303,11 +359,12 @@ export const useAuthStore = create(
                 users.reduce((maxId, u) => Math.max(maxId, u.id), 0) + 1;
               const newUser = {
                 id,
-                email: signupData.email,
+                email: personalData.email,
                 password: personalData.password,
                 firstName: personalData.firstName || "",
                 middleName: personalData.middleName || "",
                 lastName: personalData.lastName || "",
+                phone: signupData.phone || "",
                 role: personalData.role || "PARENT_GUARDIAN",
                 isActive: true,
               };
@@ -353,11 +410,12 @@ export const useAuthStore = create(
         set({
           signupPhase: 1,
           signupData: {
-            email: "",
+            phone: "",
             otp: "",
             firstName: "",
             middleName: "",
             lastName: "",
+            email: "",
             password: "",
             confirmPassword: "",
           },

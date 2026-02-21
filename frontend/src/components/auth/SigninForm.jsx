@@ -8,13 +8,13 @@ import LoadingSpinner from "../ui/LoadingSpinner";
 
 const SigninForm = () => {
   const navigate = useNavigate();
-  const login = useAuthStore((s) => s.login);
+  const login = useAuthStore((s) => s.loginByPhone);
   const loading = useAuthStore((s) => s.loading);
   const error = useAuthStore((s) => s.error);
   const clearError = useAuthStore((s) => s.clearError);
 
   const [formData, setFormData] = useState({
-    email: "",
+    phone: "",
     password: "",
   });
 
@@ -30,7 +30,7 @@ const SigninForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.email || !formData.password) {
+    if (!formData.phone || !formData.password) {
       return;
     }
 
@@ -71,13 +71,13 @@ const SigninForm = () => {
 
           <div className="space-y-4">
             <Input
-              label="Email address"
-              name="email"
-              type="email"
-              value={formData.email}
+              label="Phone number"
+              name="phone"
+              type="tel"
+              value={formData.phone}
               onChange={handleChange}
               required
-              placeholder="Enter your email"
+              placeholder="e.g. +632912345678 or 09xxxxxxxxx"
             />
 
             <PasswordInput
@@ -94,7 +94,7 @@ const SigninForm = () => {
             type="submit"
             variant="primary"
             className="w-full"
-            disabled={loading || !formData.email || !formData.password}
+            disabled={loading || !formData.phone || !formData.password}
           >
             {loading ? <LoadingSpinner size="sm" /> : "Login"}
           </Button>

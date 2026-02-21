@@ -45,13 +45,15 @@ enum AnnouncementPriority {
 
 model Otp {
   id        Int      @id @default(autoincrement())
-  email     String
+  email     String?
+  phone     String?
   otp       String
   verified  Boolean  @default(false)
   createdAt DateTime @default(now())
   expiresAt DateTime
 
   @@index([email])
+  @@index([phone])
 }
 
 // STUDENT & HEALTH RECORDS

@@ -4,8 +4,17 @@ export const sendOtp = Joi.object().keys({
   email: Joi.string().email().required(),
 });
 
+export const sendOtpByPhone = Joi.object().keys({
+  phone: Joi.string().required(),
+});
+
 export const verifyOtp = Joi.object().keys({
   email: Joi.string().email().required(),
+  otp: Joi.string().required(),
+});
+
+export const verifyOtpByPhone = Joi.object().keys({
+  phone: Joi.string().required(),
   otp: Joi.string().required(),
 });
 
@@ -29,12 +38,18 @@ export const sendOtpChange = Joi.object().keys({
 });
 
 export const register = Joi.object().keys({
-  email: Joi.string().email().required(),
+  email: Joi.string().email().optional().allow("", null),
   password: Joi.string().required().min(8),
   firstName: Joi.string().required(),
   middleName: Joi.string().allow("", null).optional(),
   lastName: Joi.string().required(),
   phone: Joi.string().required(),
+  useSmsOtp: Joi.boolean().optional(),
+});
+
+export const loginByPhone = Joi.object().keys({
+  phone: Joi.string().required(),
+  password: Joi.string().required(),
 });
 
 export const login = Joi.object().keys({

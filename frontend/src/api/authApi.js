@@ -4,14 +4,23 @@ export const authApi = {
   login: async ({ email, password }) => {
     return fetchClient.post("/auth/login", { email, password });
   },
+  loginByPhone: async ({ phone, password }) => {
+    return fetchClient.post("/auth/login-phone", { phone, password });
+  },
   register: async (userData) => {
     return fetchClient.post("/auth/register", userData);
   },
   sendOtp: async (email) => {
     return fetchClient.post("/auth/send-otp", { email });
   },
+  sendOtpByPhone: async (phone) => {
+    return fetchClient.post("/auth/send-otp-phone", { phone });
+  },
   verifyOtp: async (email, otp) => {
     return fetchClient.post("/auth/verify-otp", { email, otp });
+  },
+  verifyOtpByPhone: async (phone, otp) => {
+    return fetchClient.post("/auth/verify-otp-phone", { phone, otp });
   },
   sendOtpForReset: async (email) => {
     return fetchClient.post("/auth/send-otp-reset", { email });

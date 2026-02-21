@@ -4,6 +4,7 @@ import jwt, { SignOptions } from "jsonwebtoken";
 import otpGenerator from "otp-generator";
 import ApiError from "../../utils/ApiError";
 import sendEmail from "../../utils/email";
+import { sendSMS } from "../../utils/smsService";
 import { Prisma, User, UserRole } from "@prisma/client";
 import { AuthenticationError } from "../../utils/errors";
 
@@ -101,6 +102,87 @@ export const sendOtp = async (
   }
 
   return { message: "OTP sent to your email." };
+};
+
+export const sendOtpByPhone = async (
+  phone: string,
+): Promise<{ message: string; otp?: string }> => {
+  console.log("🔐 Starting OTP process for phone:", phone);
+
+  const user = await prisma.user.findUnique({ where: { phone } });
+  if (user) {
+    console.log("❌ User already exists with phone:", phone);
+    throw new ApiError(400, "User with this phone number already exists");
+  }
+
+  console.log("✅ Phone is available, generating OTP...");
+
+  const otpOptions = {
+    upperCase: false,
+    specialChars: false,
+    digits: true,
+    lowerCaseAlphabets: false,
+    upperCaseAlphabets: false,
+  };
+  const otp = otpGenerator.generate(6, otpOptions);
+  console.log("📱 Generated OTP:", otp); // Remove this in production
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+  try {
+    await prisma.otp.create({
+      data: {
+        phone,
+        otp,
+        createdAt: new Date(),
+        expiresAt,
+      },
+    });
+    console.log("💾 OTP saved to database");
+
+    // Log OTP sent (no userId since user may not exist yet)
+    await prisma.activityLog.create({
+      data: { action: "OTP_SENT", details: `phone:${phone}` },
+    });
+  } catch (error) {
+    console.error("❌ Failed to save OTP to database:", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      throw new ApiError(400, "Failed to create OTP record");
+    }
+    throw error;
+  }
+
+  try {
+    console.log("📤 Attempting to send SMS...");
+    const smsResult = await sendSMS(
+      phone,
+      `Your OTP for BCFI Clinic Portal Registration is: ${otp}. It will expire in 10 minutes.`,
+    );
+
+    if (!smsResult.success) {
+      console.error("❌ SMS sending failed:", smsResult.error);
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("Development mode: returning OTP in response for testing");
+        return { message: "OTP sent to your phone.", otp };
+      }
+      throw new ApiError(
+        500,
+        "There was an error sending the SMS. Please try again later.",
+      );
+    }
+    console.log("✅ SMS sent successfully");
+  } catch (error) {
+    console.error("❌ SMS sending failed:", error);
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("Development mode: returning OTP in response for testing");
+      return { message: "OTP sent to your phone.", otp };
+    }
+    throw new ApiError(
+      500,
+      "There was an error sending the SMS. Please try again later.",
+    );
+  }
+
+  return { message: "OTP sent to your phone." };
 };
 
 export const sendOtpForReset = async (
@@ -260,25 +342,14 @@ export const verifyOtp = async (
   return { message: "Email verified successfully.", verified: true };
 };
 
-interface RegisterData {
-  email: string;
-  password: string;
-  firstName: string;
-  middleName?: string;
-  lastName: string;
-  phone: string;
-}
-
-export const register = async (
-  userData: RegisterData,
-): Promise<{ user: User; token: string }> => {
-  const { email, password, firstName, middleName, lastName, phone } = userData;
-
-  // Check if OTP has been verified for this email
+export const verifyOtpByPhone = async (
+  phone: string,
+  otp: string,
+): Promise<{ message: string; verified: boolean }> => {
   const otpRecord = await prisma.otp.findFirst({
     where: {
-      email,
-      verified: true,
+      phone,
+      otp,
       expiresAt: {
         gt: new Date(), // Not expired
       },
@@ -287,9 +358,75 @@ export const register = async (
   });
 
   if (!otpRecord) {
+    throw new ApiError(400, "Invalid or expired OTP.");
+  }
+
+  // Mark this OTP as verified
+  await prisma.otp.update({
+    where: { id: otpRecord.id },
+    data: { verified: true },
+  });
+
+  // Log verification (attach userId if user exists)
+  const user = await prisma.user.findUnique({ where: { phone } });
+  await prisma.activityLog.create({
+    data: {
+      userId: user ? user.id : null,
+      action: "OTP_VERIFIED",
+      details: `phone:${phone}`,
+    },
+  });
+
+  return { message: "Phone verified successfully.", verified: true };
+};
+
+interface RegisterData {
+  email: string;
+  password: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+  phone: string;
+  useSmsOtp?: boolean; // Indicates if OTP was verified via SMS
+}
+
+export const register = async (
+  userData: RegisterData,
+): Promise<{ user: User; token: string }> => {
+  const { email, password, firstName, middleName, lastName, phone, useSmsOtp } =
+    userData;
+
+  // Check if OTP has been verified (either via email or phone based on useSmsOtp flag)
+  let otpRecord;
+  if (useSmsOtp) {
+    otpRecord = await prisma.otp.findFirst({
+      where: {
+        phone,
+        verified: true,
+        expiresAt: {
+          gt: new Date(), // Not expired
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  } else {
+    otpRecord = await prisma.otp.findFirst({
+      where: {
+        email,
+        verified: true,
+        expiresAt: {
+          gt: new Date(), // Not expired
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  if (!otpRecord) {
+    const verifyMethod = useSmsOtp ? "phone" : "email";
     throw new ApiError(
       400,
-      "Email not verified. Please verify your email with OTP first.",
+      `${verifyMethod.charAt(0).toUpperCase() + verifyMethod.slice(1)} not verified. Please verify your ${verifyMethod} with OTP first.`,
     );
   }
 
@@ -345,6 +482,49 @@ export const register = async (
     }
     throw error;
   }
+
+  const token = generateToken(user.id);
+
+  return { user, token };
+};
+
+export const loginByPhone = async (
+  phone: string,
+  password: string,
+): Promise<{ user: User; token: string }> => {
+  const user = await prisma.user.findUnique({ where: { phone } });
+
+  if (!user) {
+    // Log failed login attempt with phone (no userId)
+    await prisma.activityLog.create({
+      data: {
+        action: "USER_LOGIN_FAILED",
+        details: `phone:${phone}`,
+      },
+    });
+    throw new AuthenticationError("Incorrect phone number or password");
+  }
+
+  const isValidPassword = await bcrypt.compare(password, user.password);
+  if (!isValidPassword) {
+    // Log failed login attempt for existing user
+    await prisma.activityLog.create({
+      data: {
+        userId: user.id,
+        action: "USER_LOGIN_FAILED",
+        details: `Incorrect password`,
+      },
+    });
+    throw new AuthenticationError("Incorrect phone number or password");
+  }
+
+  // Log successful login
+  await prisma.activityLog.create({
+    data: {
+      userId: user.id,
+      action: "USER_LOGIN_SUCCESS",
+    },
+  });
 
   const token = generateToken(user.id);
 
