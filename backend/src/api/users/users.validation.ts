@@ -58,8 +58,8 @@ export const createUser = Joi.object().keys({
   firstName: Joi.string().min(2).max(100).required(),
   middleName: Joi.string().min(1).max(100).optional().allow(null, ""),
   lastName: Joi.string().min(2).max(100).required(),
-  email: Joi.string().email().required(),
-  phone: Joi.string().optional().allow(null, ""),
+  email: Joi.string().email().optional().allow(null, ""),
+  phone: Joi.string().min(10).max(15).required(),
   password: Joi.string().min(6).required(),
   role: Joi.string()
     .valid(...Object.values(UserRole))
@@ -70,8 +70,8 @@ export const updateUserByAdmin = Joi.object().keys({
   firstName: Joi.string().min(2).max(100).optional(),
   middleName: Joi.string().min(1).max(100).optional().allow(null, ""),
   lastName: Joi.string().min(2).max(100).optional(),
-  email: Joi.string().email().optional(),
-  phone: Joi.string().optional().allow(null, ""),
+  email: Joi.string().email().optional().allow(null, ""),
+  phone: Joi.string().min(10).max(15).required(),
   role: Joi.string()
     .valid(...Object.values(UserRole))
     .optional(),

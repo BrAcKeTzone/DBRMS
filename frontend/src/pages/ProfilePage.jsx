@@ -455,6 +455,7 @@ const ProfilePage = () => {
         middleName: user.middleName || "",
         lastName: user.lastName || "",
         email: user.email || "",
+        phone: user.phone || "",
       });
     }
   };
@@ -582,12 +583,10 @@ const ProfilePage = () => {
                   label="Phone Number"
                   value={profileData.phone}
                   onChange={handlePhoneChange}
-                  disabled={!isEditing}
+                  disabled={true}
                   required
                   placeholder="Enter your phone number"
-                  className={`input-field ${
-                    !isEditing ? "bg-gray-100" : "bg-white"
-                  }`}
+                  className="input-field bg-gray-100"
                 />
                 {validationErrors.phone && (
                   <p className="mt-1 text-sm text-red-600">
@@ -612,8 +611,10 @@ const ProfilePage = () => {
                       setValidationErrors(rest);
                     }
                   }}
-                  disabled={true}
-                  className="input-field bg-gray-100"
+                  disabled={!isEditing}
+                  className={`input-field ${
+                    !isEditing ? "bg-gray-100" : "bg-white"
+                  }`}
                 />
                 {validationErrors.email && (
                   <p className="mt-1 text-sm text-red-600">

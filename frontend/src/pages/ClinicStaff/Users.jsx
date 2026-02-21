@@ -107,6 +107,11 @@ const UsersManagement = () => {
       return;
     }
 
+    // ensure phone provided
+    if (!newUser.phone || !newUser.phone.trim()) {
+      setCreateError("Phone number is required");
+      return;
+    }
     setCreateError(null);
 
     try {
@@ -141,6 +146,13 @@ const UsersManagement = () => {
 
   const handleEditUser = async (e) => {
     e.preventDefault();
+
+    // require phone before submitting
+    if (!selectedUser.phone || !selectedUser.phone.trim()) {
+      alert("Phone number is required");
+      return;
+    }
+
     try {
       await updateUser(selectedUser.id, selectedUser);
       setShowEditModal(false);
@@ -816,15 +828,15 @@ const UsersManagement = () => {
                 setNewUser({ ...newUser, phone: e.target.value })
               }
               placeholder="+63-XXX-XXX-XXXX"
+              required
             />
           </div>
 
           <Input
-            label="Email"
+            label="Email (Optional)"
             type="email"
             value={newUser.email}
             onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-            required
           />
 
           <PasswordInput
@@ -925,13 +937,12 @@ const UsersManagement = () => {
             </div>
 
             <Input
-              label="Email"
+              label="Email (Optional)"
               type="email"
               value={selectedUser.email}
               onChange={(e) =>
                 setSelectedUser({ ...selectedUser, email: e.target.value })
               }
-              required
             />
 
             <Input
@@ -940,6 +951,7 @@ const UsersManagement = () => {
               onChange={(e) =>
                 setSelectedUser({ ...selectedUser, phone: e.target.value })
               }
+              required
             />
 
             <div>
