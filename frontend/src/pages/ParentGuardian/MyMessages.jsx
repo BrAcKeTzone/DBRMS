@@ -14,6 +14,8 @@ const MyMessages = () => {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all"); // all | read | unread
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const [showPreview, setShowPreview] = useState(false);
   const [selectedMsg, setSelectedMsg] = useState(null);
@@ -38,13 +40,24 @@ const MyMessages = () => {
           body: m.message,
           date: m.sentAt || m.createdAt || m.clinicVisit?.visitDateTime,
           status: m.status,
+          readAt: m.readAt,
           raw: m,
         }));
+
+        const unread = respData?.stats?.unread ?? 0;
+        setUnreadCount(unread);
+        window.dispatchEvent(
+          new CustomEvent("smsUnreadUpdated", { detail: unread }),
+        );
 
         setMessages(mapped);
       } catch (err) {
         console.error("Failed to fetch messages:", err);
         setMessages([]);
+        setUnreadCount(0);
+        window.dispatchEvent(
+          new CustomEvent("smsUnreadUpdated", { detail: 0 }),
+        );
       }
 
       setLoading(false);
@@ -53,16 +66,59 @@ const MyMessages = () => {
     load();
   }, [user]);
 
+  const markAsRead = async (messageId) => {
+    try {
+      await fetchClient.post(`/sms/logs/${messageId}/read`);
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === messageId
+            ? { ...msg, readAt: new Date().toISOString() }
+            : msg,
+        ),
+      );
+
+      setUnreadCount((prev) => {
+        const next = Math.max(0, prev - 1);
+        window.dispatchEvent(
+          new CustomEvent("smsUnreadUpdated", { detail: next }),
+        );
+        return next;
+      });
+    } catch (err) {
+      console.error("Failed to mark message as read:", err);
+    }
+  };
+
+  const handleOpenMessage = async (message) => {
+    setSelectedMsg(message);
+    setShowPreview(true);
+
+    if (!message.readAt) {
+      await markAsRead(message.id);
+    }
+  };
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return messages;
-    return messages.filter(
-      (m) =>
-        (m.body || "").toLowerCase().includes(q) ||
-        (m.recipientPhone || "").toLowerCase().includes(q) ||
-        (m.recipientName || "").toLowerCase().includes(q),
-    );
-  }, [messages, search]);
+    let result = messages;
+
+    if (q) {
+      result = result.filter(
+        (m) =>
+          (m.body || "").toLowerCase().includes(q) ||
+          (m.recipientPhone || "").toLowerCase().includes(q) ||
+          (m.recipientName || "").toLowerCase().includes(q),
+      );
+    }
+
+    if (filterStatus === "unread") {
+      result = result.filter((m) => !m.readAt);
+    } else if (filterStatus === "read") {
+      result = result.filter((m) => m.readAt);
+    }
+
+    return result;
+  }, [messages, search, filterStatus]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
@@ -76,7 +132,7 @@ const MyMessages = () => {
       </div>
 
       <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Search
@@ -88,9 +144,27 @@ const MyMessages = () => {
             />
           </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Filter
+            </label>
+            <select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            >
+              <option value="all">All</option>
+              <option value="unread">Unread</option>
+              <option value="read">Read</option>
+            </select>
+          </div>
+
           <div className="flex items-center gap-2">
             <Button
-              onClick={() => setSearch("")}
+              onClick={() => {
+                setSearch("");
+                setFilterStatus("all");
+              }}
               variant="outline"
               className="w-full sm:w-auto"
             >
@@ -122,11 +196,8 @@ const MyMessages = () => {
                   {filtered.map((m) => (
                     <tr
                       key={m.id}
-                      className="border-t hover:bg-gray-50 cursor-pointer"
-                      onClick={() => {
-                        setSelectedMsg(m);
-                        setShowPreview(true);
-                      }}
+                      className={`border-t hover:bg-gray-50 cursor-pointer ${!m.readAt ? "bg-gray-100" : ""}`}
+                      onClick={() => handleOpenMessage(m)}
                     >
                       <td className="px-3 py-3 text-sm text-gray-600 truncate max-w-xs">
                         {m.body?.length > 100
@@ -149,11 +220,8 @@ const MyMessages = () => {
               {filtered.map((m) => (
                 <div
                   key={m.id}
-                  className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm cursor-pointer hover:border-blue-300"
-                  onClick={() => {
-                    setSelectedMsg(m);
-                    setShowPreview(true);
-                  }}
+                  className={`border border-gray-200 rounded-lg p-4 shadow-sm cursor-pointer hover:border-blue-300 ${!m.readAt ? "bg-gray-100" : "bg-white"}`}
+                  onClick={() => handleOpenMessage(m)}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">

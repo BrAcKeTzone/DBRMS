@@ -9,3 +9,7 @@ export const sendSMS = Joi.object().keys({
     .max(160)
     .description("Message content (max 160 chars for 1 credit)"),
 });
+
+export const smsIdParam = Joi.object().keys({
+  id: Joi.number().required(),
+});

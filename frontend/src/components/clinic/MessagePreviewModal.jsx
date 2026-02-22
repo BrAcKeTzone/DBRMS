@@ -26,7 +26,11 @@ const MessagePreviewModal = ({ isOpen, onClose, message }) => {
             Message Content
           </div>
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200 text-gray-800 whitespace-pre-wrap">
-            {message.body || message.message || "No content"}
+            {(() => {
+              const raw = message.body || message.message || "No content";
+              // remove multipart prefixes like [1/5] at start of lines
+              return raw.replace(/\[\d+\/\d+\]\s*/g, "");
+            })()}
           </div>
         </div>
 

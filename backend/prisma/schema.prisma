@@ -207,6 +207,7 @@ model SmsLog {
   recipientName String?
   recipientPhone String?
   sentAt        DateTime?
+  readAt        DateTime?
   failReason    String?
 
   clinicVisit ClinicVisit? @relation(fields: [clinicVisitId], references: [id], onDelete: Cascade)

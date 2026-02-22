@@ -107,6 +107,9 @@ export const getSMSLogs = async (query: any, user: any) => {
   const queuedCount = await prisma.smsLog.count({
     where: { ...where, status: "QUEUED" },
   });
+  const unreadCount = await prisma.smsLog.count({
+    where: { ...where, readAt: null },
+  });
 
   return {
     logs,
@@ -115,6 +118,7 @@ export const getSMSLogs = async (query: any, user: any) => {
       sent: sentCount,
       failed: failedCount,
       queued: queuedCount,
+      unread: unreadCount,
     },
     pagination: {
       total,
@@ -231,4 +235,81 @@ export const resendSMS = async (logId: number) => {
   });
 
   return { success: result.success, log: updatedLog };
+};
+
+export const markSMSAsRead = async (logId: number, user: any) => {
+  const log = await prisma.smsLog.findUnique({
+    where: { id: logId },
+    include: {
+      clinicVisit: {
+        include: {
+          student: {
+            include: {
+              parent: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!log) {
+    throw new ApiError(404, "SMS log not found");
+  }
+
+  const canAccess =
+    user?.role === "CLINIC_STAFF" ||
+    log.recipientPhone === user?.phone ||
+    log.clinicVisit?.student?.parentId === user?.id;
+
+  if (!canAccess) {
+    throw new ApiError(403, "You do not have access to this SMS log");
+  }
+
+  if (log.readAt) {
+    return { log };
+  }
+
+  const updatedLog = await prisma.smsLog.update({
+    where: { id: logId },
+    data: {
+      readAt: new Date(),
+    },
+    include: {
+      clinicVisit: {
+        include: {
+          student: {
+            include: {
+              parent: true,
+            },
+          },
+        },
+      },
+    },
+  });
+
+  return { log: updatedLog };
+};
+
+export const getUnreadSMSCount = async (user: any) => {
+  const where: any = {};
+
+  if (user.role === "PARENT_GUARDIAN") {
+    where.OR = [
+      { recipientPhone: user.phone },
+      {
+        clinicVisit: {
+          student: {
+            parentId: user.id,
+          },
+        },
+      },
+    ];
+  }
+
+  const unread = await prisma.smsLog.count({
+    where: { ...where, readAt: null },
+  });
+
+  return { unread };
 };

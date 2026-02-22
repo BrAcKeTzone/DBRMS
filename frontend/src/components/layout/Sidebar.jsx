@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { fetchClient } from "../../utils/fetchClient";
 import {
   HiOutlineViewGrid,
   HiOutlineClipboardList,
@@ -18,6 +19,45 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
   const isStaff = useAuthStore((s) => s.user?.role === "CLINIC_STAFF");
+  const [unreadMessages, setUnreadMessages] = useState(0);
+
+  useEffect(() => {
+    if (user?.role !== "PARENT_GUARDIAN") {
+      setUnreadMessages(0);
+      return undefined;
+    }
+
+    let active = true;
+
+    const loadUnread = async () => {
+      try {
+        const resp = await fetchClient.get("/sms/logs/unread-count");
+        const data = resp?.data?.data ?? resp?.data ?? resp;
+        const count = data?.unread ?? 0;
+        if (active) {
+          setUnreadMessages(count);
+        }
+      } catch (err) {
+        if (active) {
+          setUnreadMessages(0);
+        }
+      }
+    };
+
+    const handleUnreadUpdate = (event) => {
+      if (typeof event.detail === "number") {
+        setUnreadMessages(event.detail);
+      }
+    };
+
+    loadUnread();
+    window.addEventListener("smsUnreadUpdated", handleUnreadUpdate);
+
+    return () => {
+      active = false;
+      window.removeEventListener("smsUnreadUpdated", handleUnreadUpdate);
+    };
+  }, [user]);
 
   // Consider the route active if pathname equals the path or starts with it
   const isActive = (path) => {
@@ -162,6 +202,7 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
           name: "My Messages",
           path: "/parent/sms-tracking",
           icon: <HiOutlineChatAlt2 className="w-5 h-5" />,
+          badge: unreadMessages,
         },
         {
           name: "Profile",
@@ -258,7 +299,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
                   >
                     {item.icon}
                   </span>
-                  <span className="font-semibold">{item.name}</span>
+                  <span className="font-semibold flex items-center gap-2">
+                    <span>{item.name}</span>
+                    {item.badge > 0 && (
+                      <span className="inline-flex h-5 min-w-[20px] px-2 items-center justify-center rounded-full bg-red-600 text-white text-xs font-bold">
+                        {item.badge}
+                      </span>
+                    )}
+                  </span>
                   {active && (
                     <span className="ml-auto">
                       <svg

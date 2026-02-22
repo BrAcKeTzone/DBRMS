@@ -32,3 +32,18 @@ export const resendSMS = asyncHandler(async (req: Request, res: Response) => {
     .status(200)
     .json(new ApiResponse(200, result, "SMS resend attempt completed"));
 });
+
+export const markAsRead = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await smsService.markSMSAsRead(Number(id), (req as any).user);
+  res.status(200).json(new ApiResponse(200, result, "SMS marked as read"));
+});
+
+export const getUnreadCount = asyncHandler(
+  async (req: Request, res: Response) => {
+    const result = await smsService.getUnreadSMSCount((req as any).user);
+    res
+      .status(200)
+      .json(new ApiResponse(200, result, "Unread SMS count fetched"));
+  },
+);

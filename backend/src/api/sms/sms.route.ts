@@ -15,7 +15,13 @@ router.post(
   validate(smsValidation.sendSMS),
   smsController.sendSMS,
 );
+router.get("/logs/unread-count", smsController.getUnreadCount);
 router.get("/logs", smsController.getLogs);
+router.post(
+  "/logs/:id/read",
+  validate(smsValidation.smsIdParam, "params"),
+  smsController.markAsRead,
+);
 router.post("/resend/:id", authorize("CLINIC_STAFF"), smsController.resendSMS);
 
 export default router;
