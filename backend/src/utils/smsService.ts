@@ -24,8 +24,8 @@ const formatToE164 = (raw: string) => {
 export const sendSMS = async (recipients: string, message: string) => {
   try {
     // Try to get credentials from environment variables first
-    let smsApiKey = process.env.SMS_API_KEY;
-    let smsDeviceId = process.env.SMS_DEVICE_ID;
+    let smsApiKey: string | null | undefined = process.env.SMS_API_KEY;
+    let smsDeviceId: string | null | undefined = process.env.SMS_DEVICE_ID;
 
     // Fall back to database settings if env vars are not set
     if (!smsApiKey || !smsDeviceId) {
@@ -43,8 +43,8 @@ export const sendSMS = async (recipients: string, message: string) => {
         return { success: false, message: "SMS notifications disabled" };
       }
 
-      smsApiKey = smsApiKey || settings?.smsApiKey;
-      smsDeviceId = smsDeviceId || settings?.senderName;
+      smsApiKey = smsApiKey || settings?.smsApiKey || undefined;
+      smsDeviceId = smsDeviceId || settings?.senderName || undefined;
     }
 
     if (!smsApiKey || !smsDeviceId) {

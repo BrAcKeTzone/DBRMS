@@ -22,27 +22,34 @@ const formatToE164 = (raw) => {
 };
 /**
  * Service to handle sending SMS notifications via TextBee.dev
- * Repurposes:
- * - smsApiKey as TextBee API Key
- * - senderName as TextBee Device ID
+ * Uses environment variables for credentials with optional database fallback
+ * - SMS_API_KEY for TextBee API Key
+ * - SMS_DEVICE_ID for TextBee Device ID
  */
 const sendSMS = async (recipients, message) => {
     try {
-        // Fetch SMS settings from database
-        const settings = await prisma_1.default.systemSetting.findUnique({
-            where: { key: SYSTEM_CONFIG_KEY },
-            select: {
-                smsApiKey: true,
-                senderName: true,
-                enableSMSNotifications: true,
-            },
-        });
-        if (!settings?.enableSMSNotifications) {
-            console.warn("SMS notifications are disabled in settings.");
-            return { success: false, message: "SMS notifications disabled" };
+        // Try to get credentials from environment variables first
+        let smsApiKey = process.env.SMS_API_KEY;
+        let smsDeviceId = process.env.SMS_DEVICE_ID;
+        // Fall back to database settings if env vars are not set
+        if (!smsApiKey || !smsDeviceId) {
+            const settings = await prisma_1.default.systemSetting.findUnique({
+                where: { key: SYSTEM_CONFIG_KEY },
+                select: {
+                    smsApiKey: true,
+                    senderName: true,
+                    enableSMSNotifications: true,
+                },
+            });
+            if (!settings?.enableSMSNotifications) {
+                console.warn("SMS notifications are disabled in settings.");
+                return { success: false, message: "SMS notifications disabled" };
+            }
+            smsApiKey = smsApiKey || settings?.smsApiKey || undefined;
+            smsDeviceId = smsDeviceId || settings?.senderName || undefined;
         }
-        if (!settings?.smsApiKey || !settings?.senderName) {
-            console.warn("SMS API Key or Device ID (Sender Name) is missing. Skipping SMS delivery.");
+        if (!smsApiKey || !smsDeviceId) {
+            console.warn("SMS API Key or Device ID is missing from environment or database.");
             return { success: false, message: "API credentials missing" };
         }
         // Normalize to digits with country code (E.164-like without +)
@@ -51,13 +58,13 @@ const sendSMS = async (recipients, message) => {
             console.warn("SMS skipped: recipient phone is empty after normalization.");
             return { success: false, message: "Invalid recipient phone" };
         }
-        console.log(`📤 Sending TextBee SMS to ${cleanRecipient} via device ${settings.senderName}...`);
-        const response = await axios_1.default.post(`${TEXTBEE_BASE_URL}/${settings.senderName}/send-sms`, {
+        console.log(`📤 Sending TextBee SMS to ${cleanRecipient} via device ${smsDeviceId}...`);
+        const response = await axios_1.default.post(`${TEXTBEE_BASE_URL}/${smsDeviceId}/send-sms`, {
             recipients: [cleanRecipient],
             message: message,
         }, {
             headers: {
-                "x-api-key": settings.smsApiKey,
+                "x-api-key": smsApiKey,
             },
             validateStatus: (status) => status >= 200 && status < 500,
         });

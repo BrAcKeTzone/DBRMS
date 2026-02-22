@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.resendSMS = exports.getLogs = exports.sendSMS = void 0;
+exports.getUnreadCount = exports.markAsRead = exports.resendSMS = exports.getLogs = exports.sendSMS = void 0;
 const smsService = __importStar(require("./sms.service"));
 const asyncHandler_1 = __importDefault(require("../../utils/asyncHandler"));
 const ApiResponse_1 = __importDefault(require("../../utils/ApiResponse"));
@@ -64,5 +64,16 @@ exports.resendSMS = (0, asyncHandler_1.default)(async (req, res) => {
     res
         .status(200)
         .json(new ApiResponse_1.default(200, result, "SMS resend attempt completed"));
+});
+exports.markAsRead = (0, asyncHandler_1.default)(async (req, res) => {
+    const { id } = req.params;
+    const result = await smsService.markSMSAsRead(Number(id), req.user);
+    res.status(200).json(new ApiResponse_1.default(200, result, "SMS marked as read"));
+});
+exports.getUnreadCount = (0, asyncHandler_1.default)(async (req, res) => {
+    const result = await smsService.getUnreadSMSCount(req.user);
+    res
+        .status(200)
+        .json(new ApiResponse_1.default(200, result, "Unread SMS count fetched"));
 });
 //# sourceMappingURL=sms.controller.js.map

@@ -50,8 +50,8 @@ exports.createUser = joi_1.default.object().keys({
     firstName: joi_1.default.string().min(2).max(100).required(),
     middleName: joi_1.default.string().min(1).max(100).optional().allow(null, ""),
     lastName: joi_1.default.string().min(2).max(100).required(),
-    email: joi_1.default.string().email().required(),
-    phone: joi_1.default.string().optional().allow(null, ""),
+    email: joi_1.default.string().email().optional().allow(null, ""),
+    phone: joi_1.default.string().min(10).max(15).required(),
     password: joi_1.default.string().min(6).required(),
     role: joi_1.default.string()
         .valid(...Object.values(client_1.UserRole))
@@ -61,8 +61,8 @@ exports.updateUserByAdmin = joi_1.default.object().keys({
     firstName: joi_1.default.string().min(2).max(100).optional(),
     middleName: joi_1.default.string().min(1).max(100).optional().allow(null, ""),
     lastName: joi_1.default.string().min(2).max(100).optional(),
-    email: joi_1.default.string().email().optional(),
-    phone: joi_1.default.string().optional().allow(null, ""),
+    email: joi_1.default.string().email().optional().allow(null, ""),
+    phone: joi_1.default.string().min(10).max(15).required(),
     role: joi_1.default.string()
         .valid(...Object.values(client_1.UserRole))
         .optional(),

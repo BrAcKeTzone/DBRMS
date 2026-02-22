@@ -45,7 +45,9 @@ const router = (0, express_1.Router)();
 // Only staff can send or view all SMS logs, parents can view their own
 router.use(auth_middleware_1.authenticate);
 router.post("/send", (0, auth_middleware_1.authorize)("CLINIC_STAFF"), (0, validate_middleware_1.default)(smsValidation.sendSMS), smsController.sendSMS);
+router.get("/logs/unread-count", smsController.getUnreadCount);
 router.get("/logs", smsController.getLogs);
+router.post("/logs/:id/read", (0, validate_middleware_1.default)(smsValidation.smsIdParam, "params"), smsController.markAsRead);
 router.post("/resend/:id", (0, auth_middleware_1.authorize)("CLINIC_STAFF"), smsController.resendSMS);
 exports.default = router;
 //# sourceMappingURL=sms.route.js.map

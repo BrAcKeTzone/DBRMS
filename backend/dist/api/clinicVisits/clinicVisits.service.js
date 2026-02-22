@@ -7,28 +7,16 @@ exports.getClinicVisitStats = exports.getAllClinicVisits = exports.createClinicV
 const prisma_1 = __importDefault(require("../../configs/prisma"));
 const smsService_1 = require("../../utils/smsService");
 const SYSTEM_CONFIG_KEY = "system_config";
-const FALLBACK_VISIT_TEMPLATE = "BCFI Clinic Alert\n" +
+// Split clinic visit template into 5 predefined parts
+const VISIT_TEMPLATE_PART_1 = "BCFI Clinic Alert\n" +
     "Student: {student}\n" +
     "Date: {date}\n" +
-    "Reason: {reason}\n" +
-    "Blood Pressure: {bp} mmHg\n" +
-    "Temperature: {temp} °C\n" +
-    "Pulse: {pulse} bpm\n" +
-    "Diagnosis: {diagnosis}\n" +
-    "Treatment: {treatment}\n" +
-    "Emergency: {emergency}\n" +
-    "Hospital: {hospital}";
-const SMS_FOOTER = "\n\nAutomated message. Please do not reply.";
-const formatVisitDate = (value) => new Date(value).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-});
-const buildVisitSmsMessage = async (visit) => {
-    // Always use the fallback template to ensure consistent formatting.
-    const template = FALLBACK_VISIT_TEMPLATE;
+    "Reason: {reason}";
+const VISIT_TEMPLATE_PART_2 = "Diagnosis: {diagnosis}\n" + "Treatment: {treatment}";
+const VISIT_TEMPLATE_PART_3 = "Emergency: {emergency}\n" + "Hospital: {hospital}";
+const VISIT_TEMPLATE_PART_4 = "https://bcfi-clinic.up.railway.app";
+const VISIT_TEMPLATE_PART_5 = "Automated message. Please do not reply.";
+const buildVisitSmsMessages = async (visit) => {
     const replacements = {
         student: `${visit.student.firstName} ${visit.student.lastName}`.trim(),
         date: formatVisitDate(visit.visitDateTime),
@@ -45,14 +33,28 @@ const buildVisitSmsMessage = async (visit) => {
                 ? "Referred"
                 : "N/A",
     };
-    const filled = Object.entries(replacements).reduce((msg, [key, value]) => {
-        const matcher = new RegExp(`\\{${key}\\}`, "g");
-        return msg.replace(matcher, value);
-    }, template);
-    return filled.includes("Automated message")
-        ? filled
-        : `${filled}${SMS_FOOTER}`;
+    const fillTemplate = (template) => {
+        return Object.entries(replacements).reduce((msg, [key, value]) => {
+            const matcher = new RegExp(`\\{${key}\\}`, "g");
+            return msg.replace(matcher, value);
+        }, template);
+    };
+    const parts = [
+        `[1/5] ${fillTemplate(VISIT_TEMPLATE_PART_1)}`,
+        `[2/5] ${fillTemplate(VISIT_TEMPLATE_PART_2)}`,
+        `[3/5] ${fillTemplate(VISIT_TEMPLATE_PART_3)}`,
+        `[4/5] ${VISIT_TEMPLATE_PART_4}`,
+        `[5/5] ${VISIT_TEMPLATE_PART_5}`,
+    ];
+    return parts;
 };
+const formatVisitDate = (value) => new Date(value).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+});
 const createClinicVisit = async (data, _actorId) => {
     const { recipientPhone, ...visitData } = data;
     const visit = await prisma_1.default.clinicVisit.create({
@@ -90,13 +92,42 @@ const createClinicVisit = async (data, _actorId) => {
     let smsLog = visit.smsLog;
     let smsStatus = null;
     if (smsRecipient) {
-        const smsMessage = await buildVisitSmsMessage(visit);
-        const smsResult = await (0, smsService_1.sendSMS)(smsRecipient, smsMessage);
+        const smsMessages = await buildVisitSmsMessages(visit);
+        const fullMessage = smsMessages.join("\n\n"); // Join all parts for logging
+        let smsResult = { success: false, message: "", error: "" };
+        // Send each part individually with delays and detailed logging
+        for (let i = 0; i < smsMessages.length; i++) {
+            const message = smsMessages[i];
+            console.log(`📤 Preparing to send part ${i + 1}/5:`, message.substring(0, 50) + "...");
+            console.log(`📏 Part ${i + 1} length:`, message.length);
+            const partResult = await (0, smsService_1.sendSMS)(smsRecipient, message);
+            console.log(`📋 Part ${i + 1} result:`, partResult);
+            if (!partResult.success) {
+                console.error(`❌ Part ${i + 1} failed:`, partResult.error || partResult.message);
+                smsResult.success = false;
+                smsResult.error = `Part ${i + 1} failed: ${partResult.error || partResult.message}`;
+                break; // Stop sending if a part fails
+            }
+            else {
+                console.log(`✅ Part ${i + 1} sent successfully`);
+                if (i === smsMessages.length - 1) {
+                    // Only mark as success if all parts were processed
+                    smsResult.success = true;
+                    smsResult.message = "All SMS parts sent successfully";
+                }
+            }
+            // Add delay between parts to help with ordering (except after the last message)
+            if (i < smsMessages.length - 1) {
+                // 2 second delay between all parts
+                console.log(`⏰ Waiting 2 seconds before sending part ${i + 2}...`);
+                await new Promise((resolve) => setTimeout(resolve, 2000));
+            }
+        }
         const sent = smsResult.success !== false;
         smsLog = await prisma_1.default.smsLog.create({
             data: {
                 clinicVisitId: visit.id,
-                message: smsMessage,
+                message: fullMessage,
                 status: sent ? "SENT" : "FAILED",
                 recipientName,
                 recipientPhone: smsRecipient,

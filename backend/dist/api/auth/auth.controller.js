@@ -36,13 +36,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePassword = exports.resetPassword = exports.login = exports.register = exports.sendOtpForChange = exports.sendOtpForReset = exports.verifyOtpForChange = exports.verifyOtpForReset = exports.verifyOtp = exports.sendOtp = void 0;
+exports.changePassword = exports.resetPassword = exports.login = exports.loginByPhone = exports.register = exports.sendOtpForChange = exports.sendOtpForReset = exports.verifyOtpForChange = exports.verifyOtpForReset = exports.verifyOtpByPhone = exports.verifyOtp = exports.sendOtpByPhone = exports.sendOtp = void 0;
 const authService = __importStar(require("./auth.service"));
 const asyncHandler_1 = __importDefault(require("../../utils/asyncHandler"));
 const ApiResponse_1 = __importDefault(require("../../utils/ApiResponse"));
 exports.sendOtp = (0, asyncHandler_1.default)(async (req, res) => {
     const { email } = req.body;
     const result = await authService.sendOtp(email);
+    res.status(200).json(new ApiResponse_1.default(200, result));
+});
+exports.sendOtpByPhone = (0, asyncHandler_1.default)(async (req, res) => {
+    const { phone } = req.body;
+    const result = await authService.sendOtpByPhone(phone);
     res.status(200).json(new ApiResponse_1.default(200, result));
 });
 exports.verifyOtp = (0, asyncHandler_1.default)(async (req, res) => {
@@ -52,24 +57,31 @@ exports.verifyOtp = (0, asyncHandler_1.default)(async (req, res) => {
         .status(200)
         .json(new ApiResponse_1.default(200, result, "Email verified successfully"));
 });
+exports.verifyOtpByPhone = (0, asyncHandler_1.default)(async (req, res) => {
+    const { phone, otp } = req.body;
+    const result = await authService.verifyOtpByPhone(phone, otp);
+    res
+        .status(200)
+        .json(new ApiResponse_1.default(200, result, "Phone verified successfully"));
+});
 exports.verifyOtpForReset = (0, asyncHandler_1.default)(async (req, res) => {
-    const { email, otp } = req.body;
-    const result = await authService.verifyOtpForReset(email, otp);
+    const { phone, otp } = req.body;
+    const result = await authService.verifyOtpForReset(phone, otp);
     res.status(200).json(new ApiResponse_1.default(200, result));
 });
 exports.verifyOtpForChange = (0, asyncHandler_1.default)(async (req, res) => {
-    const { email, otp } = req.body;
-    const result = await authService.verifyOtpForChange(email, otp);
+    const { phone, otp } = req.body;
+    const result = await authService.verifyOtpForChange(phone, otp);
     res.status(200).json(new ApiResponse_1.default(200, result));
 });
 exports.sendOtpForReset = (0, asyncHandler_1.default)(async (req, res) => {
-    const { email } = req.body;
-    const result = await authService.sendOtpForReset(email);
+    const { phone } = req.body;
+    const result = await authService.sendOtpForReset(phone);
     res.status(200).json(new ApiResponse_1.default(200, result));
 });
 exports.sendOtpForChange = (0, asyncHandler_1.default)(async (req, res) => {
-    const { email, password } = req.body;
-    const result = await authService.sendOtpForChange(email, password);
+    const { phone, password } = req.body;
+    const result = await authService.sendOtpForChange(phone, password);
     res.status(200).json(new ApiResponse_1.default(200, result));
 });
 exports.register = (0, asyncHandler_1.default)(async (req, res) => {
@@ -78,19 +90,24 @@ exports.register = (0, asyncHandler_1.default)(async (req, res) => {
         .status(201)
         .json(new ApiResponse_1.default(201, result, "User registered successfully"));
 });
+exports.loginByPhone = (0, asyncHandler_1.default)(async (req, res) => {
+    const { phone, password } = req.body;
+    const result = await authService.loginByPhone(phone, password);
+    res.status(200).json(new ApiResponse_1.default(200, result, "Login successful"));
+});
 exports.login = (0, asyncHandler_1.default)(async (req, res) => {
     const { email, password } = req.body;
     const result = await authService.login(email, password);
     res.status(200).json(new ApiResponse_1.default(200, result, "Login successful"));
 });
 exports.resetPassword = (0, asyncHandler_1.default)(async (req, res) => {
-    const { email, otp, password } = req.body;
-    const result = await authService.resetPassword(email, otp, password);
+    const { phone, otp, password } = req.body;
+    const result = await authService.resetPassword(phone, otp, password);
     res.status(200).json(new ApiResponse_1.default(200, result));
 });
 exports.changePassword = (0, asyncHandler_1.default)(async (req, res) => {
-    const { email, oldPassword, otp, newPassword } = req.body;
-    const result = await authService.changePassword(email, oldPassword, otp, newPassword);
+    const { phone, oldPassword, otp, newPassword } = req.body;
+    const result = await authService.changePassword(phone, oldPassword, otp, newPassword);
     res.status(200).json(new ApiResponse_1.default(200, result));
 });
 //# sourceMappingURL=auth.controller.js.map
