@@ -1,12 +1,52 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
+import { fetchClient } from "../../utils/fetchClient";
 
 const Navbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const logout = useAuthStore((s) => s.logout);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user?.role !== "PARENT_GUARDIAN") {
+      setUnreadCount(0);
+      return undefined;
+    }
+
+    let active = true;
+
+    const loadUnread = async () => {
+      try {
+        const resp = await fetchClient.get("/sms/logs/unread-count");
+        const data = resp?.data?.data ?? resp?.data ?? resp;
+        const count = data?.unread ?? 0;
+        if (active) {
+          setUnreadCount(count);
+        }
+      } catch (err) {
+        if (active) {
+          setUnreadCount(0);
+        }
+      }
+    };
+
+    const handleUnreadUpdate = (event) => {
+      if (typeof event.detail === "number") {
+        setUnreadCount(event.detail);
+      }
+    };
+
+    loadUnread();
+    window.addEventListener("smsUnreadUpdated", handleUnreadUpdate);
+
+    return () => {
+      active = false;
+      window.removeEventListener("smsUnreadUpdated", handleUnreadUpdate);
+    };
+  }, [user]);
 
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
@@ -64,6 +104,33 @@ const Navbar = ({ onMenuClick }) => {
                     {user.role?.replace("_", " ").toLowerCase()}
                   </span>
                 </div>
+                {user?.role === "PARENT_GUARDIAN" && (
+                  <button
+                    type="button"
+                    onClick={() => navigate("/parent/sms-tracking")}
+                    className="relative text-gray-600 hover:text-gray-900 hover:bg-gray-100 p-2 rounded-md transition-colors"
+                    aria-label="View messages"
+                  >
+                    <svg
+                      className="h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0a3 3 0 11-6 0h6z"
+                      />
+                    </svg>
+                    {unreadCount > 0 && (
+                      <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold leading-none text-white bg-red-600 rounded-full">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+                )}
                 <Link
                   to={
                     user.role === "PARENT_GUARDIAN"
