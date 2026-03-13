@@ -327,7 +327,7 @@ const UsersManagement = () => {
         <div className="flex space-x-2">
           {user.id !== currentUser?.id && (
             <>
-              <Button
+              {/* <Button
                 variant="outline"
                 size="sm"
                 onClick={() => {
@@ -338,7 +338,7 @@ const UsersManagement = () => {
               >
                 <FaEdit className="hidden md:block" />
                 <span className="md:hidden">Edit</span>
-              </Button>
+              </Button> */}
               <Button
                 variant="outline"
                 size="sm"
@@ -694,7 +694,7 @@ const UsersManagement = () => {
 
                       {/* Action Buttons */}
                       <div className="flex gap-2 pt-3 border-t border-gray-100">
-                        <Button
+                        {/* <Button
                           onClick={() => {
                             setSelectedUser(user);
                             setShowEditModal(true);
@@ -705,7 +705,7 @@ const UsersManagement = () => {
                         >
                           <FaEdit className="hidden md:block" />
                           <span className="md:hidden">Edit</span>
-                        </Button>
+                        </Button> */}
                         <Button
                           onClick={() => {
                             setSelectedUser(user);
